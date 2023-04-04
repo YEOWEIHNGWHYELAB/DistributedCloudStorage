@@ -36,3 +36,13 @@ This is mainly a testing project for fun. Use it at your own risk!
 
 - Google Drive
 - GitHub
+
+## Documents Storage
+
+If we use Google Drive, we could store any form of documents, but only word, excel and power point will have version history. Moreover we have a limited amount of storage of only 15 GB.
+
+If we use GitHub, we have version control history for any documents, however you will have to make snapshots of version by developing the auto commiting and and automating the version control unlike application like Google Docs. But the upside is that you do not have a limit on the number of repositories you can have on GitHub, but there is a max file size limit you can have.
+
+## Photos
+
+Using social media platforms like facebook can allow you to save photos. However you have to be mindful on the quality of your photos as those media files will be compressed when you upload to these social media platform. There shouldn't be any phot upload limit other than the fact that you can only have 1000 photos per album. But also do keep in mind that you will have to set photo privacy to avoid these sensitive photo of yours from being viewed by the public.
