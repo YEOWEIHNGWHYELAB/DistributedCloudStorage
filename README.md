@@ -45,4 +45,4 @@ If we use GitHub, we have version control history for any documents, however you
 
 ## Photos
 
-Using social media platforms like facebook can allow you to save photos. However you have to be mindful on the quality of your photos as those media files will be compressed when you upload to these social media platform. There shouldn't be any phot upload limit other than the fact that you can only have 1000 photos per album. But also do keep in mind that you will have to set photo privacy to avoid these sensitive photo of yours from being viewed by the public.
+Using social media platforms like facebook can allow you to save photos. However you have to be mindful on the quality of your photos as those media files will be compressed when you upload to these social media platform. There shouldn't be any photo upload limit other than the fact that you can only have 1000 photos per album. But also do keep in mind that you will have to set photo privacy to avoid these sensitive photo of yours from being viewed by the public.
