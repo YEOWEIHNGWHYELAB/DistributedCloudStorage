@@ -21,7 +21,7 @@ async function handleUploadFormSubmit(event) {
 
     try {
         // Upload the video to the backend
-        const response = await fetch('/youtube/videos', {
+        const response = await fetch('/videos', {
             method: 'POST',
             body: formData,
         });

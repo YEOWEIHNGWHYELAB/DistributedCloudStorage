@@ -37,7 +37,7 @@ const youtube = google.youtube({
 const oAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
-  REDIRECT_URI
+  `${REDIRECT_URI}/auth/google/callback`
 );
 
 // Get authorization URL
@@ -52,20 +52,52 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+/*
 // Endpoint to handle video uploads
-app.post('/videos', async (req, res) => {
-  try {
-    const { videoUrl } = req.body;
+app.post('/videos', upload.single('video'), (req, res) => { 
+  oauth2Client.setCredentials(req.user.tokens);
 
-    // Insert the video URL into the "videos" table
-    await pool.query('INSERT INTO videos (url) VALUES ($1)', [videoUrl]);
+  const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
 
-    res.status(201).send();
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
-  }
+  const video = {
+    media: {
+      body: fs.createReadStream(req.file.path),
+    },
+    part: 'snippet,status',
+    notifySubscribers: false,
+  };
+
+  youtube.videos.insert(
+    {
+      auth: oauth2Client,
+      resource: video,
+      media: video.media,
+      part: video.part,
+    },
+    (err, data) => {
+      if (err) {
+        console.error('Error uploading video:', err);
+        res.status(500).json({ message: 'Error uploading video' });
+        return;
+      }
+
+      console.log('Video upload successful:', data);
+
+      // Save the video ID to the database
+      const videoId = data.data.id;
+      db.query('INSERT INTO videos (user_id, video_id) VALUES ($1, $2)', [req.user.id, videoId])
+        .then(() => {
+          res.status(200).json({ message: 'Video upload successful' });
+        })
+        .catch((error) => {
+          console.error('Error saving video ID to database:', error);
+          res.status(500).json({ message: 'Error saving video ID to database' });
+        });
+    }
+  );
 });
+*/
+
 
 // Endpoint to retrieve a list of videos for a user from the database
 app.get('/videos/:userId', async (req, res) => {
@@ -90,6 +122,7 @@ app.get('/youtube/videos', async (req, res) => {
   try {
     // Check if the request includes an "Authorization" header
     const authHeader = req.header('Authorization');
+
     if (!authHeader) {
       return res.status(401).send('Unauthorized');
     }
