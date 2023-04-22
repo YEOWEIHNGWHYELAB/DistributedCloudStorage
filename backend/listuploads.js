@@ -37,7 +37,7 @@ fs.readFile('./client_secret.json', function processClientSecrets(err, content) 
       version: 'v3',
       auth: oauth2Client
     });
-
+    
     // Retrieve the channel's uploads playlist ID
     youtube.channels.list({
       part: 'contentDetails',
@@ -50,25 +50,37 @@ fs.readFile('./client_secret.json', function processClientSecrets(err, content) 
 
       const playlistId = response.data.items[0].contentDetails.relatedPlaylists.uploads;
 
-      // Retrieve the videos in the uploads playlist
-      youtube.playlistItems.list({
-        part: 'snippet',
-        maxResults: 50,
-        playlistId: playlistId
-      }, (err, response) => {
-        if (err) {
-          console.error('Error retrieving playlist items:', err);
-          return;
-        }
+      // Retrieve all the videos in the uploads playlist
+      const videos = [];
 
-        const videos = response.data.items.map(item => ({
-          title: item.snippet.title,
-          videoId: item.snippet.resourceId.videoId,
-          thumbnailUrl: item.snippet.thumbnails.default.url
-        }));
+      function getPlaylistItems(nextPageToken) {
+        youtube.playlistItems.list({
+          part: 'snippet',
+          maxResults: 50,
+          playlistId: playlistId,
+          pageToken: nextPageToken
+        }, (err, response) => {
+          if (err) {
+            console.error('Error retrieving playlist items:', err);
+            return;
+          }
 
-        console.log(videos);
-      });
+          videos.push(...response.data.items.map(item => ({
+            title: item.snippet.title,
+            videoId: item.snippet.resourceId.videoId,
+            thumbnailUrl: item.snippet.thumbnails.default.url
+          })));
+
+          // If there are more pages, continue iterating through them
+          if (response.data.nextPageToken) {
+            getPlaylistItems(response.data.nextPageToken);
+          } else {
+            console.log(videos);
+          }
+        });
+      }
+
+      getPlaylistItems();
     });
   });
 });
