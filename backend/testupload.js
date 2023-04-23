@@ -12,7 +12,7 @@ const categoryIds = {
 }
 
 // If modifying these scopes, delete your previously saved credentials in client_oauth_token.json
-const SCOPES = ['https://www.googleapis.com/auth/youtube.upload'];
+const SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl'];
 const TOKEN_DIR = 'C:\\Users\\WHYELAB\\.credentials\\';
 const TOKEN_PATH = TOKEN_DIR + 'youtube-nodejs-quickstart.json';
 
