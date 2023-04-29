@@ -190,6 +190,40 @@ app.post('/videos', async (req, res, next) => {
     }
 });
 
+// DELETE route for deleting list of videos
+app.delete('/videos', async (req, res, next) => {
+    try {
+        // Set up OAuth2 client
+        const oauth2Client = new OAuth2(
+            process.env.GOOGLE_OA2_CLIENT_SECRET,
+            process.env.GOOGLE_OA2_CLIENT_ID,
+            process.env.GOOGLE_OA2_REDIRECT_URI
+        );
+
+        oauth2Client.setCredentials({
+            access_token: process.env.GOOGLE_OA2_ACCESS_TOKEN
+        });
+
+        // Set up YouTube API client
+        const youtube = google.youtube({
+            version: 'v3',
+            auth: oauth2Client
+        });
+
+        youtube.videos.delete({
+            id: req.body.delete_id
+          }, function(err, data) {
+            if (err) {
+                res.json('Error deleting video: ' + err);
+            } else {
+                res.json('Video deleted: ' + data);
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // Start the server
 const PORT = process.env.WEBPORT || 3000;
 

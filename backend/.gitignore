@@ -1,3 +1,10 @@
+# NodeJS
 node_modules
+
+# ENV Files
 .env
 client_secret.json
+
+# YouTube Test Data
+test.mp4
+test.png
