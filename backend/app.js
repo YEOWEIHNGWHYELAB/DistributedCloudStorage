@@ -109,6 +109,48 @@ app.get('/videos', async (req, res, next) => {
     }
 });
 
+// Update video title, description...
+app.patch('/videos', async (req, res, next) => {
+    try {
+        // Set up OAuth2 client
+        const oauth2Client = new OAuth2(
+            process.env.GOOGLE_OA2_CLIENT_SECRET,
+            process.env.GOOGLE_OA2_CLIENT_ID,
+            process.env.GOOGLE_OA2_REDIRECT_URI
+        );
+
+        oauth2Client.setCredentials({
+            access_token: process.env.GOOGLE_OA2_ACCESS_TOKEN
+        });
+
+        // Set up YouTube API client
+        const youtube = google.youtube({
+            version: 'v3',
+            auth: oauth2Client
+        });
+        
+        youtube.videos.update({
+            part: 'snippet,status',
+            resource: {
+              id: req.body.video_id,
+              snippet: {
+                title: req.body.title,
+                description: req.body.description,
+                categoryId: 28
+              }
+            }
+          }, function(err, data) {
+            if (err) {
+                res.json('Error updating video metadata: ' + err);
+            } else {
+                res.json('Video metadata updated: ' + data);
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // POST route for uploading a video to the user's YouTube channel
 app.post('/videos', async (req, res, next) => {
     try {
