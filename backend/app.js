@@ -28,6 +28,10 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+// Temporary storage
+const multer = require('multer');
+const tempstorage = multer({ dest: 'tempstorage/' });
+
 /*
 const sqlScriptPath = path.join(__dirname, "initpgdb.sql");
 const sqlScript = fs.readFileSync(sqlScriptPath);
@@ -152,45 +156,93 @@ app.patch('/videos', async (req, res, next) => {
 });
 
 // POST route for uploading a video to the user's YouTube channel
-app.post('/videos', async (req, res, next) => {
+app.post('/videos', tempstorage.fields([
+    { name: 'video', maxCount: 1 },
+    { name: 'thumbnail', maxCount: 1 }
+]), async (req, res, next) => {
     try {
-        const { title, description, videoUrl } = req.body;
-        const resource = {
-            snippet: {
-                title: title,
-                description: description
-            },
-            status: {
-                privacyStatus: 'private' // Change as needed
-            }
-        };
-        const response = await youtube.videos.insert({
-            auth: 'YOUR_YOUTUBE_API_KEY',
-            part: 'snippet,status',
-            resource: resource,
-            media: {
-                body: videoUrl
-            }
+        // Set up OAuth2 client
+        const oauth2Client = new OAuth2(
+            process.env.GOOGLE_OA2_CLIENT_SECRET,
+            process.env.GOOGLE_OA2_CLIENT_ID,
+            process.env.GOOGLE_OA2_REDIRECT_URI
+        );
+
+        oauth2Client.setCredentials({
+            access_token: process.env.GOOGLE_OA2_ACCESS_TOKEN
         });
-        const video = response.data;
-        const queryText = 'INSERT INTO youtube_videos (video_link) VALUES ($1) RETURNING *';
-        const values = [video.id];
-        const result = await pool.query(queryText, values);
-        const dbVideo = result.rows[0];
-        res.json({
-            id: dbVideo.id,
-            videoUrl: `https://www.youtube.com/watch?v=${dbVideo.video_link}`,
-            title: video.snippet.title,
-            description: video.snippet.description,
-            thumbnail: video.snippet.thumbnails.default.url,
-            publishedAt: video.snippet.publishedAt
+
+        // Set up YouTube API client
+        const youtube = google.youtube({
+            version: 'v3',
+            auth: oauth2Client
+        });
+
+        const { path: videoPath, originalname: videoName } = req.files['video'][0];
+        const { path: thumbnailPath, originalname: thumbnailName } = req.files['thumbnail'][0];
+
+        const videoStream = fs.createReadStream(videoPath);
+        const thumbnailStream = fs.createReadStream(thumbnailPath);
+
+        const response = await youtube.videos.insert({
+            part: 'snippet,status',
+            requestBody: {
+              snippet: {
+                title: req.headers.title,
+                description: req.headers.description
+              },
+              status: {
+                privacyStatus: req.headers.privacy_status
+              }
+            },
+            media: {
+              body: videoStream
+            }
+        }, async function(err, data) {
+            console.log(data);
+
+            if (err) {
+                res.json('Error uploading video: ' + err);
+            } else {
+                // Clean up the uploaded file
+                fs.unlinkSync(videoPath);
+
+                // Upload thumbnails
+                const video = response.data;
+                const videoID = video.id;
+
+                const thumbnailResponse = await youtube.thumbnails.set({
+                    videoID,
+                    media: {
+                    mimeType: 'image/png',
+                    body: thumbnailStream
+                    }
+                }, async function() {
+                    fs.unlinkSync(thumbnailPath);
+
+                    const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1) RETURNING *';
+                    const values = ["WHYELAB", video.id, video.snippet.title];
+                    const result = await pool.query(queryText, values);
+                    console.log(result);
+
+                    res.json({
+                        videoUrl: `https://www.youtube.com/watch?v=${video.id}`,
+                        title: video.snippet.title,
+                        description: video.snippet.description,
+                        thumbnail: video.snippet.thumbnails.default.url,
+                        publishedAt: video.snippet.publishedAt,
+                        thumbnail_name: thumbnailName,
+                        thumbnail_name: thumbnailResponse.data.items[0].id
+                    });
+                });
+            }
         });
     } catch (err) {
         next(err);
     }
 });
 
-// DELETE route for deleting list of videos
+// DELETE route for deleting a single video
 app.delete('/videos', async (req, res, next) => {
     try {
         // Set up OAuth2 client
