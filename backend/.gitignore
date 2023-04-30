@@ -9,4 +9,4 @@ client_secret.json
 tempstorage/*
 
 # Test Data Files
-test.*
+testfiles/*

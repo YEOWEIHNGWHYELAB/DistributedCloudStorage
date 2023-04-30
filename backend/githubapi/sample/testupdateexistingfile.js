@@ -16,6 +16,8 @@ const branch = "main"; // replace with the name of the branch you want to write 
 
 async function updateFile() {
     try {
+        // You will need to retrieve the latest commit sha digest so that you ensure 
+        // you are updating on the right commit
         const { data } = await octokit.repos.getContent({
             owner: owner,
             repo: repo,
