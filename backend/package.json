@@ -1,0 +1,29 @@
+{
+  "name": "distributedcloudstorage",
+  "version": "1.0.0",
+  "description": "Using services in the way that they they are not intended for. Platforms like Google and Meta provided social media broadcasting can be useful for us to make a distributed file system for us to use it as a general purpose storage device. Google Drive does provide storage for all file types but only provides 15 GB of free storage.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YEOWEIHNGWHYELAB/DistributedCloudStorage.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YEOWEIHNGWHYELAB/DistributedCloudStorage/issues"
+  },
+  "homepage": "https://github.com/YEOWEIHNGWHYELAB/DistributedCloudStorage#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "google-auth-library": "^8.7.0",
+    "googleapis": "^118.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.10.0"
+  }
+}

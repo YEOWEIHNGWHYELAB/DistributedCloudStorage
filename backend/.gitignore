@@ -1,0 +1,13 @@
+# NodeJS
+node_modules
+
+# ENV Files
+.env
+client_secret.json
+
+# Temporary Storage
+tempstorage/*
+
+# YouTube Test Data
+test.mp4
+test.png
