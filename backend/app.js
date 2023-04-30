@@ -199,8 +199,6 @@ app.post('/videos', tempstorage.fields([
               body: videoStream
             }
         }, async function(err, data) {
-            console.log(data);
-
             if (err) {
                 res.json('Error uploading video: ' + err);
             } else {
@@ -208,8 +206,8 @@ app.post('/videos', tempstorage.fields([
                 fs.unlinkSync(videoPath);
 
                 // Upload thumbnails
-                const video = response.data;
-                const videoID = video.id;
+                const video = data.data;
+                const videoID = data.data.id;
 
                 const thumbnailResponse = await youtube.thumbnails.set({
                     videoID,
@@ -220,19 +218,17 @@ app.post('/videos', tempstorage.fields([
                 }, async function() {
                     fs.unlinkSync(thumbnailPath);
 
-                    const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1) RETURNING *';
-                    const values = ["WHYELAB", video.id, video.snippet.title];
+                    const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1, $2, $3) RETURNING *';
+                    const values = ["whyelab", video.id, video.snippet.title];
                     const result = await pool.query(queryText, values);
-                    console.log(result);
 
                     res.json({
-                        videoUrl: `https://www.youtube.com/watch?v=${video.id}`,
+                        videoUrl: `https://www.youtube.com/watch?v=${videoID}`,
                         title: video.snippet.title,
                         description: video.snippet.description,
                         thumbnail: video.snippet.thumbnails.default.url,
                         publishedAt: video.snippet.publishedAt,
-                        thumbnail_name: thumbnailName,
-                        thumbnail_name: thumbnailResponse.data.items[0].id
+                        database_status: result
                     });
                 });
             }

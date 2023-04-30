@@ -27,6 +27,7 @@ const thumbFilePath = './test.png';
 function uploadVideo(auth, title, description, tags) {
   const service = google.youtube('v3')
 
+  /*
   service.videos.insert({
     auth: auth,
     part: 'snippet,status',
@@ -67,7 +68,7 @@ function uploadVideo(auth, title, description, tags) {
       }
       console.log(response.data)
     })
-  });
+  });*/
 }
 
 /**
