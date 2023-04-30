@@ -8,6 +8,7 @@ client_secret.json
 # Temporary Storage
 tempstorage/*
 
-# YouTube Test Data
+# Test Data Files
 test.mp4
 test.png
+test.txt
