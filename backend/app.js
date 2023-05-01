@@ -15,12 +15,6 @@ const { getChannelVideos } = require('./youtubeapi/apicaller/crudops');
 const dotenv = require("dotenv");
 dotenv.config();
 
-// Configure the YouTube API client
-const youtube = google.youtube({
-    version: 'v3',
-    auth: 'YOUR_YOUTUBE_API_KEY' // Replace with your YouTube API key
-});
-
 // Initialize the Express app
 const app = express();
 
@@ -46,24 +40,6 @@ const pool = new Pool({
     port: process.env.DBPORT,
 });
 
-/*
-pool.connect()
-  .then(() => {
-    // Execute the SQL script
-    pool.query(sqlScript)
-      .then(() => {
-        console.log('SQL initializer script executed successfully');
-      })
-      .catch((err) => {
-        console.error('Error executing SQL script', err);
-      })
-
-    console.log(`Connected to database: ${process.env.DBNAME}`);
-  })
-  .catch((err) => {
-    console.error('Error connecting to PostgreSQL database', err);
-  });
-*/
 
 // Test the database connection
 pool.query('SELECT NOW()', (err, res) => {
