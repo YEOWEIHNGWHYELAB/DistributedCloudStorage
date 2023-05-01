@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS Users (
     username VARCHAR(255) PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 /* YouTube Tables */
