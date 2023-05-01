@@ -74,18 +74,11 @@ pool.query('SELECT NOW()', (err, res) => {
     }
 });
 
-
-// Middleware function to attach pool to req object
-//app.use((req, res, next) => {
-//   req.pool = pool;
-//    next();
-//});
-
 const authRouter = require('./auth/routes')(pool);
 app.use('/auth', authRouter);
 
 // GET route for listing all videos in the user's YouTube channel
-app.get('/videos', auth.isAuthenticated, async (req, res, next) => {
+app.get('/youtube', auth.isAuthenticated, async (req, res, next) => {
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
@@ -124,7 +117,7 @@ app.get('/videos', auth.isAuthenticated, async (req, res, next) => {
 });
 
 // Update video title, description...
-app.patch('/videos', async (req, res, next) => {
+app.patch('/youtube', async (req, res, next) => {
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
@@ -166,7 +159,7 @@ app.patch('/videos', async (req, res, next) => {
 });
 
 // POST route for uploading a video to the user's YouTube channel
-app.post('/videos', tempstorage.fields([
+app.post('/youtube', tempstorage.fields([
     { name: 'video', maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 }
 ]), async (req, res, next) => {
@@ -249,7 +242,7 @@ app.post('/videos', tempstorage.fields([
 });
 
 // DELETE route for deleting a single video
-app.delete('/videos', async (req, res, next) => {
+app.delete('/youtube', async (req, res, next) => {
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
