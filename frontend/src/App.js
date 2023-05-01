@@ -1,56 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import ReactDOM from "react-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import CssBaseline from "@mui/material/CssBaseline";
+import { Box } from "@mui/material";
+import { SnackbarProvider } from "notistack";
 
-function App() {
-  const [videos, setVideos] = useState([]);
-  const [file, setFile] = useState(null);
+import Login from "./Pages/Auth/Login"
+import ThemeModeProvider from "./Contexts/ThemeModeProvider"
+import AuthContextProvider from './Contexts/AuthContextProvider';
+import RequireAuth from './Contexts/RequireAuth';
+import RequireNotAuth from './Contexts/RequireNotAuth';
+import BaseLayout from './BaseLayout';
 
-  useEffect(() => {
-    // Fetch the list of user's videos from the backend
-    async function fetchVideos() {
-      const response = await axios.get('/youtube/videos');
-      setVideos(response.data);
-    }
-    fetchVideos();
-  }, []);
 
-  // Handler for file input change
-  function handleFileChange(event) {
-    setFile(event.target.files[0]);
-  }
-
-  // Handler for upload button click
-  async function handleUploadClick() {
-    if (!file) {
-      alert('Please choose a file to upload');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('video', file);
-
-    try {
-      // Upload the video to the backend
-      await axios.post('/youtube/videos', formData);
-      alert('Video uploaded successfully');
-    } catch (error) {
-      console.error(error);
-      alert('Failed to upload video');
-    }
-  }
-
+export default function App() {
   return (
-    <div>
-      <h1>My YouTube Videos</h1>
-      <ul>
-        {videos.map((video) => (
-          <li key={video}>{video}</li>
-        ))}
-      </ul>
-      <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUploadClick}>Upload</button>
-    </div>
+    <ThemeModeProvider>
+      <CssBaseline />
+      <AuthContextProvider>
+        <SnackbarProvider>
+          <Router>
+            <Box sx={{
+              bgcolor: (theme) => theme.palette.background.default, minHeight: "100vh", width: "100%"
+            }}>
+              <Routes>
+                <Route element={<RequireAuth />}>
+                  <Route element={<BaseLayout />}>
+                  </Route>
+                </Route>
+                <Route element={<RequireNotAuth />} >
+                  <Route path="/login" element={<Login />} />
+                </Route>
+              </Routes>
+            </Box>
+          </Router>
+        </SnackbarProvider>
+      </AuthContextProvider>
+    </ThemeModeProvider>
   );
 }
 
-export default App;
+ReactDOM.render(<App />, document.getElementById("root"));
