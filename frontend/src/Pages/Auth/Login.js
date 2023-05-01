@@ -43,7 +43,10 @@ export default function Login() {
           Login
         </Typography>
 
-        <Formik validationSchema={validationSchema} validateOnBlur={false} onSubmit={handleSubmit}
+        <Formik 
+          validationSchema={validationSchema} 
+          validateOnBlur={false} 
+          onSubmit={handleSubmit}
           initialValues={{
             username: "",
             password: ""
@@ -101,7 +104,6 @@ export default function Login() {
             )
           }}
         </Formik>
-
       </Box>
     </Container>
   );

@@ -8,10 +8,13 @@ module.exports = (pool) => {
         authController.register(req, res, pool);
     });
 
-
     // Login user
     router.post('/login', (req, res) => {
         authController.login(req, res, pool);
+    });
+
+    router.get('/whoami', (req, res) => {
+        authController.getUsername(req, res);
     });
 
     return router;

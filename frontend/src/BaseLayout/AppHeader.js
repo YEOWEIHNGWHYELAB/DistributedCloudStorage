@@ -18,8 +18,8 @@ import React from "react";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 
-import AuthContext from "../Contexts/AuthContextProvider"
-import ThemeModeContext from "../Contexts/ThemeModeProvider";
+import { AuthContext } from "../Contexts/AuthContextProvider"
+import { ThemeModeContext } from "../Contexts/ThemeModeProvider";
 import RequestAuth from "../Hooks/RequestAuth";
 
 const drawerWidth = 240;
@@ -142,12 +142,12 @@ export function AppHeader({ mobileOpen, setMobileOpen }) {
 
                 <MenuItem disabled={logoutPending} onClick={handleLogout}>
                     <Box sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center"
-                        }}>
-                            
-                        {logoutPending === true ? <CircularProgress size={20} sx = {{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+
+                        {logoutPending === true ? <CircularProgress size={20} sx={{
                             mr: 2
                         }} /> : null}
                     </Box>
@@ -179,7 +179,7 @@ export function AppHeader({ mobileOpen, setMobileOpen }) {
                     <MenuIcon />
                 </IconButton>
                 <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
-                    GAME STATISTICS TRACKER
+                    DISTRIBUTED CLOUD STORAGE SYSTEM
                 </Typography>
                 {authLinks}
             </Toolbar>

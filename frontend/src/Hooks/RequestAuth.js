@@ -4,7 +4,7 @@ import { useSnackbar } from "notistack";
 
 import formatHttpApiError from "../Errors/HTTPAPIError";
 import { AuthContext } from "../Contexts/AuthContextProvider"; 
-import getToken from "../Contexts/GetToken";
+import setHeaderToken from "../Contexts/SetHeaderToken";
 
 export default function useRequestAuth() {
     const [loading, setLoading] = useState(false);
@@ -64,7 +64,7 @@ export default function useRequestAuth() {
         axios.post("/auth/login", { username, password })
             .then((res) => {
                 const token = res.data.token
-                localStorage.setItem("AuthToken", token);
+                localStorage.setItem("JWTToken", token);
                 setLoading(false);
                 setIsAuthenticated(true);
             })
@@ -73,9 +73,9 @@ export default function useRequestAuth() {
 
     const logout = useCallback(() => {
         setLogoutPending(true);
-        axios.post("/auth/token/logout/", null, getToken())
+        axios.post("/auth/token/logout/", null, setHeaderToken())
             .then(() => {
-                localStorage.removeItem("authToken");
+                localStorage.removeItem("JWTToken");
                 setLogoutPending(false);
                 setUser(null);
                 setIsAuthenticated(false);

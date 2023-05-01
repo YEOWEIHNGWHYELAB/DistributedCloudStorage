@@ -1,4 +1,4 @@
-function getToken() {
+function setHeaderToken() {
     const JWTToken = localStorage.getItem("JWTToken");
 
     // If no token return empty object
@@ -8,9 +8,9 @@ function getToken() {
 
     return {
         headers: {
-            authorization: `${JWTToken}`
+            authorization: `Bearer ${JWTToken}`
         }
     }
 }
 
-export default getToken;
+export default setHeaderToken;

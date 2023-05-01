@@ -11,6 +11,7 @@ import AuthContextProvider from './Contexts/AuthContextProvider';
 import RequireAuth from './Contexts/RequireAuth';
 import RequireNotAuth from './Contexts/RequireNotAuth';
 import BaseLayout from './BaseLayout';
+import PingStats from "./Pages/Dashboard/PingStats";
 
 
 export default function App() {
@@ -26,10 +27,11 @@ export default function App() {
               <Routes>
                 <Route element={<RequireAuth />}>
                   <Route element={<BaseLayout />}>
+                    <Route path="/dashboard/pingstats" element={<PingStats />}/>
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >
-                  <Route path="/login" element={<Login />} />
+                  <Route path="/auth/login" element={<Login />} />
                 </Route>
               </Routes>
             </Box>

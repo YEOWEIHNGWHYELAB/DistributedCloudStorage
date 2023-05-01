@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, createContext } from 'react';
 import PropTypes from "prop-types";
 import axios from "axios";
 
-import getToken from "./GetToken";
+import setHeaderToken from "./SetHeaderToken";
 
 export const AuthContext = createContext({
     isAuthenticated: null,
@@ -16,14 +16,14 @@ export default function AuthContextProvider({ children }) {
     const [user, setUser] = useState(null);
 
     const loadAuthUser = () => {
-        const authToken = localStorage.getItem("AuthToken");
+        const JWTToken = localStorage.getItem("JWTToken");
 
-        if (!authToken) {
+        if (!JWTToken) {
             setIsAuthenticated(false);
             return;
         }
 
-        axios.get("/auth/users/me/", getToken())
+        axios.get("/auth/whoami", setHeaderToken())
             .then((res) => {
                 setUser(res.data);
                 setIsAuthenticated(true);

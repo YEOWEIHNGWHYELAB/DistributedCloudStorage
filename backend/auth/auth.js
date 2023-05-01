@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { auth } = require('google-auth-library');
 
 // Register user
 exports.register = async (req, res, pool) => {
@@ -49,8 +50,6 @@ exports.login = async (req, res, pool) => {
         const queryResult = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
         const user = queryResult.rows[0];
 
-        console.log(user)
-
         if (!user) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
@@ -71,8 +70,25 @@ exports.login = async (req, res, pool) => {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
-
 };
+
+exports.getUsername = (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Authorization header missing' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+        res.json({ username: decoded.username });
+    } catch (err) {
+        console.error(err);
+        res.status(401).json({ message: 'Invalid token' });
+    }
+}
 
 // Verify JWT token
 exports.isAuthenticated = (req, res, next) => {
@@ -84,12 +100,10 @@ exports.isAuthenticated = (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-    console.log(token);
-
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
         req.username = decoded.username;
-        console.log(decoded.username + " have successfully requested for...")
+        // console.log(decoded.username + " have successfully requested for...")
         next();
     } catch (err) {
         console.error(err);
