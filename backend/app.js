@@ -76,10 +76,10 @@ pool.query('SELECT NOW()', (err, res) => {
 
 
 // Middleware function to attach pool to req object
-app.use((req, res, next) => {
-    req.pool = pool;
-    next();
-});
+//app.use((req, res, next) => {
+//   req.pool = pool;
+//    next();
+//});
 
 const authRouter = require('./auth/routes')(pool);
 app.use('/auth', authRouter);
