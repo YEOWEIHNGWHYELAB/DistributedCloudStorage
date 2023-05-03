@@ -16,6 +16,10 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Collapse from "@mui/material/Collapse";
 import ListIcon from "@mui/icons-material/List";
+import AddIcon from '@mui/icons-material/Add';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 
 import { Box } from "@mui/system";
 import { GlobalStyles, useTheme } from "@mui/material";
@@ -29,8 +33,8 @@ const listItems = [
         name: "Dashboard",
         icon: <SpeedIcon />,
         children: [
-            { name: "Ping Stat", icon: <ListIcon />, to: "/dash/pingstat"},
-            { name: "Storage Usage", icon: <ListIcon />, to: "/dash/storageutil" },
+            { name: "Ping Stat", icon: <NetworkCheckIcon />, to: "/dash/pingstat"},
+            { name: "Storage Usage", icon: <PieChartIcon />, to: "/dash/storageutil" },
         ],
     },
     {
@@ -40,7 +44,7 @@ const listItems = [
         icon: <YouTubeIcon />,
         children: [
             { name: "Video List", icon: <ListIcon />, to: "/youtube/list" },
-            { name: "Upload Video", icon: <ListIcon />, to: "/youtube/upload" },
+            { name: "Upload Video", icon: <AddIcon />, to: "/youtube/upload" },
         ],
     },
     {
@@ -50,7 +54,7 @@ const listItems = [
         icon: <GitHubIcon />,
         children: [
             { name: "Repo List", icon: <ListIcon />, to: "/github/repolist" },
-            { name: "Create Repo", icon: <ListIcon />, to: "/github/createrepo" },
+            { name: "Create Repo", icon: <AddIcon />, to: "/github/createrepo" },
         ],
     },
 ];
