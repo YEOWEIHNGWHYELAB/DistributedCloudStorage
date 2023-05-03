@@ -8,9 +8,9 @@ import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import AnalyticsIcon from '@mui/icons-material/Analytics';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import SpeedIcon from '@mui/icons-material/Speed';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 import { NavLink } from "react-router-dom";
 
@@ -24,19 +24,19 @@ const listItems = [
         key: "dashboard",
         to: "/",
         name: "Dashboard",
-        icon: <DashboardIcon />
+        icon: <SpeedIcon />
     },
     {
-        key: "game",
-        to: "/game",
-        name: "Games",
-        icon: <SportsEsportsIcon />
+        key: "youtube",
+        to: "/youtube",
+        name: "YouTube",
+        icon: <YouTubeIcon />
     },
     {
-        key: "gamestat",
-        to: "/gamestat",
-        name: "Game Statistics",
-        icon: <AnalyticsIcon />,
+        key: "github",
+        to: "/github",
+        name: "GitHub",
+        icon: <GitHubIcon />,
     }
 ];
 
@@ -88,7 +88,7 @@ export function SideMenu(props) {
                             to={li.to}
                             key={li.key}
                         >
-                            <ListItem button>
+                            <ListItem>
                                 <ListItemIcon>{li.icon}</ListItemIcon>
                                 <ListItemText primary={li.name} />
                             </ListItem>
