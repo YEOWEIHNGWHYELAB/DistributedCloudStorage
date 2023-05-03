@@ -1,34 +1,29 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import RequestResource from '../../Hooks/RequestResource';
 
 function VideoList() {
-    const [videos, setVideos] = useState([]);
+    const { getResourceList, resourceList, deleteResource } = RequestResource({ endpoint: "youtube", resourceLabel: "YouTube Videos" });
 
     useEffect(() => {
-        const fetchVideos = async () => {
-            try {
-                const response = await axios.get('http://localhost:3600/youtube', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('JWTToken')}`,
-                    },
-                });
-                setVideos(response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        fetchVideos();
-    }, []);
+        getResourceList();
+    }, [getResourceList]);
 
     return (
         <div>
-            <h1>My Uploaded Videos</h1>
-            <ul>
-                {videos.map((video) => (
-                    <li key={video.id}>{video.title}</li>
-                ))}
-            </ul>
+            {resourceList.results.map((video) => (
+                <div key={video.videoId}>
+                    <iframe
+                        title={video.title}
+                        width="560"
+                        height="315"
+                        src={`https://www.youtube.com/embed/${video.videoId}`}
+                        frameborder="0"
+                        allowfullscreen="true"
+                    ></iframe>
+                    <h3>{video.title}</h3>
+                </div>
+            ))}
         </div>
     );
 }
