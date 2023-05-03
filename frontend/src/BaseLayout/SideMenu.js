@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
@@ -8,11 +9,13 @@ import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import YouTubeIcon from '@mui/icons-material/YouTube';
-import SpeedIcon from '@mui/icons-material/Speed';
-import GitHubIcon from '@mui/icons-material/GitHub';
-
-import { NavLink } from "react-router-dom";
+import YouTubeIcon from "@mui/icons-material/YouTube";
+import SpeedIcon from "@mui/icons-material/Speed";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import Collapse from "@mui/material/Collapse";
+import ListIcon from "@mui/icons-material/List";
 
 import { Box } from "@mui/system";
 import { GlobalStyles, useTheme } from "@mui/material";
@@ -24,24 +27,37 @@ const listItems = [
         key: "dashboard",
         to: "/",
         name: "Dashboard",
-        icon: <SpeedIcon />
+        icon: <SpeedIcon />,
+        children: [
+            { name: "Child 1", icon: <ListIcon />, to: "db1"},
+            { name: "Child 2", icon: <ListIcon />, to: "db2" },
+        ],
     },
     {
         key: "youtube",
         to: "/youtube",
         name: "YouTube",
-        icon: <YouTubeIcon />
+        icon: <YouTubeIcon />,
+        children: [
+            { name: "Child 1", icon: <ListIcon />, to: "db3" },
+            { name: "Child 2", icon: <ListIcon />, to: "db4" },
+        ],
     },
     {
         key: "github",
         to: "/github",
         name: "GitHub",
         icon: <GitHubIcon />,
-    }
+        children: [
+            { name: "Child 1", icon: <ListIcon />, to: "" },
+            { name: "Child 2", icon: <ListIcon />, to: "" },
+        ],
+    },
 ];
 
 const SidebarGlobalStyles = () => {
     const theme = useTheme();
+
     return (
         <GlobalStyles
             styles={{
@@ -64,7 +80,59 @@ const SidebarGlobalStyles = () => {
         />
     );
 };
+
 const SidebarGlobalStylesMemo = React.memo(SidebarGlobalStyles);
+
+const NestedListItem = ({ li }) => {
+    const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
+
+    const handleItemClick = () => {
+        navigate(li.to);
+    };
+
+    const handleDropdownClick = (event) => {
+        event.stopPropagation();
+        setOpen(!open);
+    };
+
+    return (
+        <>
+            <ListItem onClick={handleItemClick}>
+                <ListItemIcon>{li.icon}</ListItemIcon>
+                <ListItemText primary={li.name} />
+                {open ? (
+                    <ExpandLess onClick={handleDropdownClick} />
+                ) : (
+                    <ExpandMore onClick={handleDropdownClick} />
+                )}
+            </ListItem>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                    {li.children.map((child) => (
+                        <NavLink
+                            end={li.to === "/" ? true : false}
+                            className={(props) => {
+                                return `${
+                                    props.isActive
+                                        ? "sidebar-nav-item-active"
+                                        : "sidebar-nav-item"
+                                }`;
+                            }}
+                            to={child.to}
+                            key={li.key}
+                        >
+                            <ListItem key={child.name}>
+                                <ListItemIcon>{child.icon}</ListItemIcon>
+                                <ListItemText primary={child.name} />
+                            </ListItem>
+                        </NavLink>
+                    ))}
+                </List>
+            </Collapse>
+        </>
+    );
+};
 
 export function SideMenu(props) {
     const { mobileOpen, setMobileOpen } = props;
@@ -80,19 +148,7 @@ export function SideMenu(props) {
             <List>
                 {listItems.map((li) => {
                     return (
-                        <NavLink
-                            end={li.to === "/" ? true : false}
-                            className={(props) => {
-                                return `${props.isActive ? 'sidebar-nav-item-active' : 'sidebar-nav-item'}`;
-                            }}
-                            to={li.to}
-                            key={li.key}
-                        >
-                            <ListItem>
-                                <ListItemIcon>{li.icon}</ListItemIcon>
-                                <ListItemText primary={li.name} />
-                            </ListItem>
-                        </NavLink>
+                        <NestedListItem key={li.name} li={li} />
                     );
                 })}
             </List>
