@@ -12,6 +12,7 @@ import RequireAuth from './Contexts/RequireAuth';
 import RequireNotAuth from './Contexts/RequireNotAuth';
 import BaseLayout from './BaseLayout';
 import PingStats from "./Pages/Dashboard/PingStats";
+import VideoList from "./Pages/YouTube/VideoList";
 
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
                 <Route element={<RequireAuth />}>
                   <Route element={<BaseLayout />}>
                     <Route path="/dashboard/pingstats" element={<PingStats />}/>
+                    <Route path="/youtube/list" element={<VideoList />}/>
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >

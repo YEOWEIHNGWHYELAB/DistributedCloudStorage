@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function VideoListPage() {
+function VideoList() {
     const [videos, setVideos] = useState([]);
 
     useEffect(() => {
         const fetchVideos = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/youtube', {
+                const response = await axios.get('http://localhost:3600/youtube', {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('JWTToken')}`,
                     },
@@ -33,4 +33,4 @@ function VideoListPage() {
     );
 }
 
-export default VideoListPage;
+export default VideoList;
