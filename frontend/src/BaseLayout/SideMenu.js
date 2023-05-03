@@ -29,8 +29,8 @@ const listItems = [
         name: "Dashboard",
         icon: <SpeedIcon />,
         children: [
-            { name: "Child 1", icon: <ListIcon />, to: "db1"},
-            { name: "Child 2", icon: <ListIcon />, to: "db2" },
+            { name: "Ping Stat", icon: <ListIcon />, to: "/dash/pingstat"},
+            { name: "Storage Usage", icon: <ListIcon />, to: "/dash/storageutil" },
         ],
     },
     {
@@ -40,7 +40,7 @@ const listItems = [
         icon: <YouTubeIcon />,
         children: [
             { name: "Video List", icon: <ListIcon />, to: "/youtube/list" },
-            { name: "Create YouTube Video", icon: <ListIcon />, to: "/youtube/upload" },
+            { name: "Upload Video", icon: <ListIcon />, to: "/youtube/upload" },
         ],
     },
     {
@@ -49,8 +49,8 @@ const listItems = [
         name: "GitHub",
         icon: <GitHubIcon />,
         children: [
-            { name: "Child 1", icon: <ListIcon />, to: "" },
-            { name: "Child 2", icon: <ListIcon />, to: "" },
+            { name: "Repo List", icon: <ListIcon />, to: "/github/repolist" },
+            { name: "Create Repo", icon: <ListIcon />, to: "/github/createrepo" },
         ],
     },
 ];
