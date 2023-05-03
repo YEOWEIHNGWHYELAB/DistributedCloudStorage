@@ -1,6 +1,6 @@
 var fs = require('fs');
 var readline = require('readline');
-var {google} = require('googleapis');
+var { google } = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 
 const TOKEN_DIR = 'C:\\Users\\WHYELAB\\.credentials\\';
@@ -31,13 +31,13 @@ fs.readFile('./client_secret.json', function processClientSecrets(err, content) 
     oauth2Client.setCredentials({
       access_token: JSON.parse(content).access_token
     });
-    
+
     // Set up YouTube API client
     const youtube = google.youtube({
       version: 'v3',
       auth: oauth2Client
     });
-    
+
     // Retrieve the channel's uploads playlist ID
     youtube.channels.list({
       part: 'contentDetails',
@@ -65,11 +65,16 @@ fs.readFile('./client_secret.json', function processClientSecrets(err, content) 
             return;
           }
 
-          videos.push(...response.data.items.map(item => ({
-            title: item.snippet.title,
-            videoId: item.snippet.resourceId.videoId,
-            thumbnailUrl: item.snippet.thumbnails.default.url
-          })));
+          videos.push(...response.data.items.map(item => {
+            const video = {
+              title: item.snippet.title,
+              videoId: item.snippet.resourceId.videoId
+            };
+            if (item.snippet.thumbnails && item.snippet.thumbnails.default) {
+              video.thumbnailUrl = item.snippet.thumbnails.default.url;
+            }
+            return video;
+          }));
 
           // If there are more pages, continue iterating through them
           if (response.data.nextPageToken) {

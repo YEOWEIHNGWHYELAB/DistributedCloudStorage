@@ -17,11 +17,18 @@ async function getChannelVideos(res, youtube, playlistId) {
     while (true) {
         const response = await getPlaylistItems(youtube, playlistId, nextPageToken);
 
-        videos.push(...response.items.map(item => ({
-            title: item.snippet.title,
-            videoId: item.snippet.resourceId.videoId,
-            thumbnailUrl: item.snippet.thumbnails.default.url
-        })));
+        videos.push(...response.items.map(item => {
+            const video = {
+                title: item.snippet.title,
+                videoId: item.snippet.resourceId.videoId
+            };
+            
+            if (item.snippet.thumbnails && item.snippet.thumbnails.default) {
+                video.thumbnailUrl = item.snippet.thumbnails.default.url;
+            }
+
+            return video;
+        }));
 
         if (response.nextPageToken) {
             nextPageToken = response.nextPageToken;

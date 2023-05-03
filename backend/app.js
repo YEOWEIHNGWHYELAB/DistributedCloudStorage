@@ -5,7 +5,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
-const jwt = require('jsonwebtoken');
+const auth = require('./auth/auth');
 var OAuth2 = google.auth.OAuth2;
 
 // File Imports
@@ -14,12 +14,6 @@ const { getChannelVideos } = require('./youtubeapi/apicaller/crudops');
 // ENV Config
 const dotenv = require("dotenv");
 dotenv.config();
-
-// Configure the YouTube API client
-const youtube = google.youtube({
-    version: 'v3',
-    auth: 'YOUR_YOUTUBE_API_KEY' // Replace with your YouTube API key
-});
 
 // Initialize the Express app
 const app = express();
@@ -46,24 +40,6 @@ const pool = new Pool({
     port: process.env.DBPORT,
 });
 
-/*
-pool.connect()
-  .then(() => {
-    // Execute the SQL script
-    pool.query(sqlScript)
-      .then(() => {
-        console.log('SQL initializer script executed successfully');
-      })
-      .catch((err) => {
-        console.error('Error executing SQL script', err);
-      })
-
-    console.log(`Connected to database: ${process.env.DBNAME}`);
-  })
-  .catch((err) => {
-    console.error('Error connecting to PostgreSQL database', err);
-  });
-*/
 
 // Test the database connection
 pool.query('SELECT NOW()', (err, res) => {
@@ -74,8 +50,11 @@ pool.query('SELECT NOW()', (err, res) => {
     }
 });
 
+const authRouter = require('./auth/routes')(pool);
+app.use('/auth', authRouter);
+
 // GET route for listing all videos in the user's YouTube channel
-app.get('/videos', async (req, res, next) => {
+app.get('/youtube', auth.isAuthenticated, async (req, res, next) => {
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
@@ -114,7 +93,7 @@ app.get('/videos', async (req, res, next) => {
 });
 
 // Update video title, description...
-app.patch('/videos', async (req, res, next) => {
+app.patch('/youtube', async (req, res, next) => {
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
@@ -132,18 +111,18 @@ app.patch('/videos', async (req, res, next) => {
             version: 'v3',
             auth: oauth2Client
         });
-        
+
         youtube.videos.update({
             part: 'snippet,status',
             resource: {
-              id: req.body.video_id,
-              snippet: {
-                title: req.body.title,
-                description: req.body.description,
-                categoryId: 28
-              }
+                id: req.body.video_id,
+                snippet: {
+                    title: req.body.title,
+                    description: req.body.description,
+                    categoryId: 28
+                }
             }
-          }, function(err, data) {
+        }, function (err, data) {
             if (err) {
                 res.json('Error updating video metadata: ' + err);
             } else {
@@ -156,7 +135,7 @@ app.patch('/videos', async (req, res, next) => {
 });
 
 // POST route for uploading a video to the user's YouTube channel
-app.post('/videos', tempstorage.fields([
+app.post('/youtube', tempstorage.fields([
     { name: 'video', maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 }
 ]), async (req, res, next) => {
@@ -187,18 +166,18 @@ app.post('/videos', tempstorage.fields([
         const response = await youtube.videos.insert({
             part: 'snippet,status',
             requestBody: {
-              snippet: {
-                title: req.headers.title,
-                description: req.headers.description
-              },
-              status: {
-                privacyStatus: req.headers.privacy_status
-              }
+                snippet: {
+                    title: req.headers.title,
+                    description: req.headers.description
+                },
+                status: {
+                    privacyStatus: req.headers.privacy_status
+                }
             },
             media: {
-              body: videoStream
+                body: videoStream
             }
-        }, async function(err, data) {
+        }, async function (err, data) {
             if (err) {
                 res.json('Error uploading video: ' + err);
             } else {
@@ -212,10 +191,10 @@ app.post('/videos', tempstorage.fields([
                 const thumbnailResponse = await youtube.thumbnails.set({
                     videoID,
                     media: {
-                    mimeType: 'image/png',
-                    body: thumbnailStream
+                        mimeType: 'image/png',
+                        body: thumbnailStream
                     }
-                }, async function() {
+                }, async function () {
                     fs.unlinkSync(thumbnailPath);
 
                     const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1, $2, $3) RETURNING *';
@@ -239,7 +218,7 @@ app.post('/videos', tempstorage.fields([
 });
 
 // DELETE route for deleting a single video
-app.delete('/videos', async (req, res, next) => {
+app.delete('/youtube', async (req, res, next) => {
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
@@ -260,7 +239,7 @@ app.delete('/videos', async (req, res, next) => {
 
         youtube.videos.delete({
             id: req.body.delete_id
-          }, function(err, data) {
+        }, function (err, data) {
             if (err) {
                 res.json('Error deleting video: ' + err);
             } else {

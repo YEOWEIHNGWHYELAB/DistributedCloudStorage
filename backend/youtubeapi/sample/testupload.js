@@ -16,8 +16,8 @@ const SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl'];
 const TOKEN_DIR = 'C:\\Users\\WHYELAB\\.credentials\\';
 const TOKEN_PATH = TOKEN_DIR + 'youtube-nodejs-quickstart.json';
 
-const videoFilePath = './test.mp4';
-const thumbFilePath = './test.png';
+const videoFilePath = './testfiles/test.mp4';
+const thumbFilePath = './testfiles/test.png';
 
 /**
  * Upload the video file.
