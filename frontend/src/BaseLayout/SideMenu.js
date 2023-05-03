@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
@@ -20,7 +20,7 @@ import ListIcon from "@mui/icons-material/List";
 import { Box } from "@mui/system";
 import { GlobalStyles, useTheme } from "@mui/material";
 
-const drawerWidth = 240;
+const drawerWidth = 300;
 
 const listItems = [
     {
@@ -39,8 +39,8 @@ const listItems = [
         name: "YouTube",
         icon: <YouTubeIcon />,
         children: [
-            { name: "Child 1", icon: <ListIcon />, to: "db3" },
-            { name: "Child 2", icon: <ListIcon />, to: "db4" },
+            { name: "Video List", icon: <ListIcon />, to: "/youtube/list" },
+            { name: "Create YouTube Video", icon: <ListIcon />, to: "/youtube/upload" },
         ],
     },
     {
@@ -98,7 +98,7 @@ const NestedListItem = ({ li }) => {
 
     return (
         <>
-            <ListItem onClick={handleItemClick}>
+            <ListItem onClick={handleItemClick} >
                 <ListItemIcon>{li.icon}</ListItemIcon>
                 <ListItemText primary={li.name} />
                 {open ? (
@@ -107,6 +107,7 @@ const NestedListItem = ({ li }) => {
                     <ExpandMore onClick={handleDropdownClick} />
                 )}
             </ListItem>
+
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                     {li.children.map((child) => (
@@ -122,7 +123,9 @@ const NestedListItem = ({ li }) => {
                             to={child.to}
                             key={li.key}
                         >
-                            <ListItem key={child.name}>
+                            <ListItem 
+                                key={child.name}
+                                style={{ paddingLeft: 32, paddingRight: 16, borderLeft: '3px solid transparent' }}>
                                 <ListItemIcon>{child.icon}</ListItemIcon>
                                 <ListItemText primary={child.name} />
                             </ListItem>
