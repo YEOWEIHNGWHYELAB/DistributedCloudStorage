@@ -12,14 +12,13 @@ function VideoList() {
     return (
         <div>
             {resourceList.results.map((video) => (
-                <div key={video.videoId}>
+                <div key={video.videoId} style={{ border: "1px solid", margin: "10px", padding: "10px" }}>
                     <iframe
                         title={video.title}
-                        width="560"
-                        height="315"
+                        width="300"
+                        height="200"
                         src={`https://www.youtube.com/embed/${video.videoId}`}
-                        frameborder="0"
-                        allowfullscreen="true"
+                        allowFullScreen="true"
                     ></iframe>
                     <h3>{video.title}</h3>
                 </div>
