@@ -43,8 +43,9 @@ const listItems = [
         name: "YouTube",
         icon: <YouTubeIcon />,
         children: [
-            { name: "Video List", icon: <ListIcon />, to: "/youtube/list" },
             { name: "Upload Video", icon: <AddIcon />, to: "/youtube/upload" },
+            { name: "List All Videos", icon: <ListIcon />, to: "/youtube/listall" },
+            { name: "List Video Paginated", icon: <ListIcon />, to: "/youtube/listpg" },
         ],
     },
     {
@@ -53,8 +54,8 @@ const listItems = [
         name: "GitHub",
         icon: <GitHubIcon />,
         children: [
-            { name: "Repo List", icon: <ListIcon />, to: "/github/repolist" },
             { name: "Create Repo", icon: <AddIcon />, to: "/github/createrepo" },
+            { name: "Repo List", icon: <ListIcon />, to: "/github/repolist" },
         ],
     },
 ];

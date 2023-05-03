@@ -6,7 +6,7 @@ import HTTPAPIError from "../Errors/HTTPAPIError";
 import { LoadingOverlayResourceContext } from "../Contexts/LoadingOverlayResource";
 import SetHeaderToken from "../Contexts/SetHeaderToken";
 
-export default function useRequestResource({ endpoint, resourceLabel }) {
+export default function RequestResource({ endpoint, resourceLabel }) {
     const [resourceList, setResourceList] = useState({
         results: []
     });
@@ -30,12 +30,13 @@ export default function useRequestResource({ endpoint, resourceLabel }) {
         axios.get(`/${endpoint}/${query}`, SetHeaderToken())
             .then((res) => {
                 setLoading(false);
+
                 if (res.data.results) {
                     setResourceList(res.data);
                 } else {
                     setResourceList({
                         results: res.data
-                    })
+                    });
                 }
             }).catch(handleRequestResourceError)
     }, [endpoint, handleRequestResourceError, setLoading]);

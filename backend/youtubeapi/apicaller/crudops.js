@@ -1,7 +1,22 @@
-async function getPlaylistItems(youtube, playlistId, videos, nextPageToken) {
+function videosArrayDataPopulator(videos, response) {
+    videos.push(...response.items.map(item => {
+        const video = {
+            title: item.snippet.title,
+            videoId: item.snippet.resourceId.videoId
+        };
+
+        if (item.snippet.thumbnails && item.snippet.thumbnails.default) {
+            video.thumbnailUrl = item.snippet.thumbnails.default.url;
+        }
+
+        return video;
+    }));
+}
+
+async function getPlaylistItems(youtube, playlistId, nextPageToken, maxVideoPerPage) {
     const response = await youtube.playlistItems.list({
         part: 'snippet',
-        maxResults: 50,
+        maxResults: maxVideoPerPage,
         playlistId: playlistId,
         pageToken: nextPageToken
     });
@@ -9,26 +24,30 @@ async function getPlaylistItems(youtube, playlistId, videos, nextPageToken) {
     return response.data;
 }
 
-async function getChannelVideos(res, youtube, playlistId) {
+async function getChannelVideoByToken(res, youtube, playlistId, maxVideoPerPage, pageToken) {
+    let videos = [];
+
+    const response = await getPlaylistItems(youtube, playlistId, pageToken, maxVideoPerPage);
+
+    videosArrayDataPopulator(videos, response);
+
+    const data = {
+        video: videos,
+        pageToken: response.nextPageToken
+    };
+
+    res.json(data);
+}
+
+async function getChannelAllVideos(res, youtube, playlistId, maxVideoPerPage) {
     let videos = [];
 
     let nextPageToken = null;
 
     while (true) {
-        const response = await getPlaylistItems(youtube, playlistId, nextPageToken);
+        const response = await getPlaylistItems(youtube, playlistId, nextPageToken, maxVideoPerPage);
 
-        videos.push(...response.items.map(item => {
-            const video = {
-                title: item.snippet.title,
-                videoId: item.snippet.resourceId.videoId
-            };
-            
-            if (item.snippet.thumbnails && item.snippet.thumbnails.default) {
-                video.thumbnailUrl = item.snippet.thumbnails.default.url;
-            }
-
-            return video;
-        }));
+        videosArrayDataPopulator(videos, response);
 
         if (response.nextPageToken) {
             nextPageToken = response.nextPageToken;
@@ -40,4 +59,5 @@ async function getChannelVideos(res, youtube, playlistId) {
     res.json(videos);
 }
 
-exports.getChannelVideos = getChannelVideos;
+exports.getChannelAllVideos = getChannelAllVideos;
+exports.getChannelVideoByToken = getChannelVideoByToken;

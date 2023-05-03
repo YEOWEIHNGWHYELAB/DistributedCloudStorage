@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import RequestResource from '../../Hooks/RequestResource';
 
-function VideoList() {
+function VideoListAll() {
     const { getResourceList, resourceList, deleteResource } = RequestResource({ endpoint: "youtube", resourceLabel: "YouTube Videos" });
 
     useEffect(() => {
@@ -27,4 +27,4 @@ function VideoList() {
     );
 }
 
-export default VideoList;
+export default VideoListAll;

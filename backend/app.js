@@ -9,7 +9,7 @@ const auth = require('./auth/auth');
 var OAuth2 = google.auth.OAuth2;
 
 // File Imports
-const { getChannelVideos } = require('./youtubeapi/apicaller/crudops');
+const { getChannelVideoByToken, getChannelAllVideos } = require('./youtubeapi/apicaller/crudops');
 
 // ENV Config
 const dotenv = require("dotenv");
@@ -83,9 +83,60 @@ app.get('/youtube', auth.isAuthenticated, async (req, res, next) => {
                 return;
             }
 
+            console.log(req.body);
+
             const playlistId = response.data.items[0].contentDetails.relatedPlaylists.uploads;
 
-            getChannelVideos(res, youtube, playlistId);
+            if (req.body.pageToken != null) {
+                getChannelVideoByToken(res, youtube, playlistId, req.body.maxVideo, req.body.pageToken);
+            } else {
+                getChannelAllVideos(res, youtube, playlistId, 50);
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// GET route for listing all videos in the user's YouTube channel
+app.post('/youtube2', auth.isAuthenticated, async (req, res, next) => {
+    try {
+        // Set up OAuth2 client
+        const oauth2Client = new OAuth2(
+            process.env.GOOGLE_OA2_CLIENT_SECRET,
+            process.env.GOOGLE_OA2_CLIENT_ID,
+            process.env.GOOGLE_OA2_REDIRECT_URI
+        );
+
+        oauth2Client.setCredentials({
+            access_token: process.env.GOOGLE_OA2_ACCESS_TOKEN
+        });
+
+        // Set up YouTube API client
+        const youtube = google.youtube({
+            version: 'v3',
+            auth: oauth2Client
+        });
+
+        // Retrieve the channel's uploads playlist ID
+        youtube.channels.list({
+            part: 'contentDetails',
+            mine: true
+        }, (err, response) => {
+            if (err) {
+                console.error('Error retrieving channel information:', err);
+                return;
+            }
+
+            console.log(req.body);
+
+            const playlistId = response.data.items[0].contentDetails.relatedPlaylists.uploads;
+
+            if (req.body.pageToken != null) {
+                getChannelVideoByToken(res, youtube, playlistId, req.body.maxVideo, req.body.pageToken);
+            } else {
+                getChannelAllVideos(res, youtube, playlistId, 50);
+            }
         });
     } catch (err) {
         next(err);

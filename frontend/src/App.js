@@ -12,7 +12,8 @@ import RequireAuth from './Contexts/RequireAuth';
 import RequireNotAuth from './Contexts/RequireNotAuth';
 import BaseLayout from './BaseLayout';
 import PingStats from "./Pages/Dashboard/PingStats";
-import VideoList from "./Pages/YouTube/VideoList";
+import VideoListAll from "./Pages/YouTube/VideoListAll";
+import VideoListPaginated from "./Pages/YouTube/VideoListPaginated";
 
 
 export default function App() {
@@ -29,7 +30,8 @@ export default function App() {
                 <Route element={<RequireAuth />}>
                   <Route element={<BaseLayout />}>
                     <Route path="/dashboard/pingstats" element={<PingStats />}/>
-                    <Route path="/youtube/list" element={<VideoList />}/>
+                    <Route path="/youtube/listall" element={<VideoListAll />}/>
+                    <Route path="/youtube/listpg" element={<VideoListPaginated />}/>
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >
