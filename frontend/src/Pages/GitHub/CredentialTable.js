@@ -1,6 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import RequestResource from "../../Hooks/RequestResource";
+import { Table } from "react-bootstrap";
+import { FitScreen, WidthFull } from "@mui/icons-material";
 
 function CredentialsTable() {
+    const { getResourceList, resourceList, deleteResource } = RequestResource({
+        endpoint: "github/list",
+        resourceLabel: "GitHub Credentials",
+    });
+
+    useEffect(() => {
+        getResourceList();
+    }, [getResourceList]);
+
     const credentials = [
         {
             username: "user1",
@@ -19,27 +31,72 @@ function CredentialsTable() {
         },
     ];
 
+    const handleCopyToken = (token) => {
+        navigator.clipboard.writeText(token);
+    };
+
     return (
-        <div>
-            <h1>Github Credentials:</h1>
-            <table>
+        <div style={{ margin: "0 auto", padding: "20px" }}>
+            <h3> My Github Credentials: </h3>
+
+            <Table style={{width: "100%"}}>
                 <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Personal Access Token</th>
+                        <th
+                            style={{
+                                width: "25%",
+                                border: "2px solid red",
+                                textAlign: "left",
+                            }}
+                        >
+                            Username
+                        </th>
+                        <th
+                            style={{
+                                width: "25%",
+                                border: "2px solid red",
+                                textAlign: "left",
+                            }}
+                        >
+                            Email
+                        </th>
+                        <th
+                            style={{
+                                width: "50%",
+                                border: "2px solid red",
+                                textAlign: "left",
+                            }}
+                        >
+                            Personal Access Token 📋
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {credentials.map((credential, index) => (
                         <tr key={index}>
-                            <td>{credential.username}</td>
-                            <td>{credential.email}</td>
-                            <td>{credential.personalAccessToken}</td>
+                            <td style={{ border: "2px solid" }}>
+                                {credential.username}
+                            </td>
+                            <td style={{ border: "2px solid" }}>
+                                {credential.email}
+                            </td>
+                            <td
+                                style={{
+                                    border: "2px solid",
+                                    cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                    handleCopyToken(
+                                        credential.personalAccessToken
+                                    )
+                                }
+                            >
+                                {credential.personalAccessToken}
+                            </td>
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </Table>
         </div>
     );
 }
