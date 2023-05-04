@@ -14,6 +14,7 @@ import BaseLayout from './BaseLayout';
 import PingStats from "./Pages/Dashboard/PingStats";
 import VideoListAll from "./Pages/YouTube/VideoListAll";
 import VideoListPaginated from "./Pages/YouTube/VideoListPaginated";
+import CredentialsTable from "./Pages/GitHub/CredentialTable";
 
 
 export default function App() {
@@ -32,6 +33,7 @@ export default function App() {
                     <Route path="/dashboard/pingstats" element={<PingStats />}/>
                     <Route path="/youtube/listall" element={<VideoListAll />}/>
                     <Route path="/youtube/listpg" element={<VideoListPaginated />}/>
+                    <Route path="/github/credential" element={<CredentialsTable />}/>
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >
