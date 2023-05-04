@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import RequestResource from "../../Hooks/RequestResource";
-import { Table, Input, Form, Button } from "react-bootstrap";
-import { FitScreen, WidthFull } from "@mui/icons-material";
+import { Table, Input, Button } from "antd";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
 function CredentialsTable() {
@@ -13,6 +12,7 @@ function CredentialsTable() {
     useEffect(() => {
         getResourceList();
     }, [getResourceList]);
+    
     /*
     const [searchTerm, setSearchTerm] = useState("");
 
