@@ -1,7 +1,77 @@
 import React, { useEffect, useState } from "react";
 import RequestResource from "../../Hooks/RequestResource";
-import { Table, Input, Button } from "antd";
+import styled from 'styled-components';
 import { CopyToClipboard } from "react-copy-to-clipboard";
+
+
+const StyledTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 24px;
+`;
+
+const StyledHeaderRow = styled.tr`
+  background-color: #f4f4f4;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  height: 40px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #555;
+`;
+
+const StyledHeaderCell = styled.th`
+  padding: 8px;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ddd;
+  }
+
+  &.sortable {
+    position: relative;
+
+    &:after {
+      content: '';
+      display: inline-block;
+      margin-left: 6px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #aaa;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 8px;
+    }
+
+    &.asc:after {
+      border-top: none;
+      border-bottom: 6px solid #aaa;
+    }
+
+    &.desc:after {
+      border-top: 6px solid #aaa;
+      border-bottom: none;
+    }
+  }
+`;
+
+const StyledRow = styled.tr`
+  height: 48px;
+
+  &:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+`;
+
+const StyledCell = styled.td`
+  padding: 8px;
+  font-size: 14px;
+`;
+
 
 function CredentialsTable() {
     const { getResourceList, resourceList, deleteResource } = RequestResource({
@@ -12,178 +82,6 @@ function CredentialsTable() {
     useEffect(() => {
         getResourceList();
     }, [getResourceList]);
-    
-    /*
-    const [searchTerm, setSearchTerm] = useState("");
-
-    const [sortColumn, setSortColumn] = useState("username");
-    const [sortDirection, setSortDirection] = useState("asc");
-
-    const credentials = [
-        {
-            username: "user1",
-            email: "user1@example.com",
-            personalAccessToken: "abc123",
-        },
-        {
-            username: "user2",
-            email: "user2@example.com",
-            personalAccessToken: "def456",
-        },
-        {
-            username: "user3",
-            email: "user3@example.com",
-            personalAccessToken: "ghi789",
-        },
-    ];
-
-    const handleSort = (column) => {
-        if (column === sortColumn) {
-            // if clicking on the current sort column, toggle the sort direction
-            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-        } else {
-            // if clicking on a new sort column, set the sort column and direction to default values
-            setSortColumn(column);
-            setSortDirection("asc");
-        }
-    };
-
-    const handleSearch = (event) => {
-        setSearchTerm(event.target.value);
-    };
-
-    // filter the credentials array based on the search term
-    const filteredCredentials = credentials.filter((credential) => {
-        return (
-            credential.username
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()) ||
-            credential.email.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    });
-
-    // sort the filtered credentials array based on the current sort column and direction
-    const sortedCredentials = [...filteredCredentials].sort((a, b) => {
-        let comparison = 0;
-
-        if (a[sortColumn] > b[sortColumn]) {
-            comparison = 1;
-        } else if (a[sortColumn] < b[sortColumn]) {
-            comparison = -1;
-        }
-
-        return sortDirection === "asc" ? comparison : comparison * -1;
-    });
-
-    const handleCopyToken = (token) => {
-        navigator.clipboard.writeText(token);
-    };
-
-    return (
-        <div className="credentials-table-wrapper">
-            <h1>Github Credentials:</h1>
-
-            <input
-                type="text"
-                placeholder="Search by Username or Email"
-                style={{
-                    border: "2px solid #007bff",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "100%",
-                    boxSizing: "border-box",
-                    color: "#007bff",
-                    backgroundColor: "transparent",
-                }}
-                value={searchTerm}
-                onChange={handleSearch}
-            />
-
-            <br/>
-            <br/>
-
-            <div className="table-container">
-                <Table >
-                    <thead>
-                        <tr>
-                            <th
-                                style={{
-                                    width: "25%",
-                                    border: "1px solid black",
-                                    cursor: "pointer",
-                                }}
-                                onClick={() => handleSort("username")}
-                            >
-                                Username{" "}
-                                {sortColumn === "username" && (
-                                    <i
-                                        className={`fas fa-sort-${
-                                            sortDirection === "asc"
-                                                ? "up"
-                                                : "down"
-                                        }`}
-                                    />
-                                )}
-                            </th>
-                            <th
-                                style={{
-                                    width: "50%",
-                                    border: "1px solid black",
-                                    cursor: "pointer",
-                                }}
-                                onClick={() => handleSort("email")}
-                            >
-                                Email{" "}
-                                {sortColumn === "email" && (
-                                    <i
-                                        className={`fas fa-sort-${
-                                            sortDirection === "asc"
-                                                ? "up"
-                                                : "down"
-                                        }`}
-                                    />
-                                )}
-                            </th>
-                            <th
-                                style={{
-                                    width: "25%",
-                                    border: "1px solid black",
-                                }}
-                            >
-                                Personal Access Token
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sortedCredentials.map((credential, index) => (
-                            <tr key={index}>
-                                <td style={{ border: "1px solid black" }}>
-                                    {credential.username}
-                                </td>
-                                <td style={{ border: "1px solid black" }}>
-                                    {credential.email}
-                                </td>
-                                <td
-                                    style={{
-                                        border: "1px solid black",
-                                        cursor: "pointer",
-                                    }}
-                                    onClick={() =>
-                                        handleCopyToken(
-                                            credential.personalAccessToken
-                                        )
-                                    }
-                                >
-                                    {credential.personalAccessToken}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            </div>
-        </div>
-    );
-    */
 
     const data = [
         {
@@ -203,6 +101,7 @@ function CredentialsTable() {
         },
     ];
 
+    /*
     const { Search } = Input;
 
     const [searchText, setSearchText] = useState("");
@@ -229,13 +128,16 @@ function CredentialsTable() {
             filteredData = filteredData.sort((a, b) => {
                 const keyA = a[sortKey];
                 const keyB = b[sortKey];
+
                 if (typeof keyA === "string" && typeof keyB === "string") {
                     return keyA.localeCompare(keyB, undefined, {
                         numeric: true,
                     });
                 }
+
                 return keyA - keyB;
             });
+
             if (sortOrder === "descend") {
                 filteredData.reverse();
             }
@@ -267,20 +169,23 @@ function CredentialsTable() {
             ),
         },
         {
-            title: "Edit",
+            title: "Action",
             dataIndex: "edit",
             render: () => <Button>Edit</Button>,
         },
     ];
 
     return (
-        <div style={{ padding: 20 }}>
-            <h1 style={{ textAlign: "center" }}>GitHub Credentials</h1>
+        <div style={{ padding: 20}}>
+            <h1 style={{ textAlign: "left" }}>My GitHub Credentials</h1>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <Search
                     placeholder="Search by username or email"
                     onSearch={handleSearch}
-                    style={{ width: 300, marginRight: 20 }}
+                    style={{ 
+                        width: 300, 
+                        marginRight: 20,
+                    }}
                     allowClear
                 />
             </div>
@@ -291,6 +196,63 @@ function CredentialsTable() {
                 style={{ width: "100%", marginTop: 20 }}
             />
         </div>
+    );
+    */
+    const [sortField, setSortField] = useState('');
+    const [sortDirection, setSortDirection] = useState('asc');
+
+    const handleSort = (field) => {
+        if (field === sortField) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
+
+    const sortedCredentials = data.sort((a, b) => {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+        if (aValue < bValue) {
+            return sortDirection === 'asc' ? -1 : 1;
+        } else if (aValue > bValue) {
+            return sortDirection === 'asc' ? 1 : -1;
+        } else {
+            return 0;
+        }
+    });
+
+    return (
+        <StyledTable>
+            <thead>
+                <StyledHeaderRow>
+                    <StyledHeaderCell>ID</StyledHeaderCell>
+                    <StyledHeaderCell
+                        className={sortField === 'username' ? `sortable ${sortDirection}` : 'sortable'}
+                        onClick={() => handleSort('username')}
+                    >
+                        Username
+                    </StyledHeaderCell>
+                    <StyledHeaderCell
+                        className={sortField === 'email' ? `sortable ${sortDirection}` : 'sortable'}
+                        onClick={() => handleSort('email')}
+                    >
+                        Email
+                    </StyledHeaderCell>
+                    <StyledHeaderCell>Personal Access Token</StyledHeaderCell>
+                </StyledHeaderRow>
+            </thead>
+            <tbody>
+                {sortedCredentials.map((credential) => (
+                    <StyledRow key={credential.id}>
+                        <StyledCell>{credential.id}</StyledCell>
+                        <StyledCell>{credential.username}</StyledCell>
+                        <StyledCell>{credential.email}</StyledCell>
+                        <StyledCell>{credential.personalAccessToken}</StyledCell>
+                    </StyledRow>
+                ))}
+            </tbody>
+        </StyledTable>
     );
 }
 
