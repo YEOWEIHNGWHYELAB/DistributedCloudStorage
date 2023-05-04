@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import RequestResource from "../../Hooks/RequestResource";
-import { Table, Form } from "react-bootstrap";
+import { Table, Input, Form, Button } from "react-bootstrap";
 import { FitScreen, WidthFull } from "@mui/icons-material";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 function CredentialsTable() {
     const { getResourceList, resourceList, deleteResource } = RequestResource({
@@ -12,7 +13,7 @@ function CredentialsTable() {
     useEffect(() => {
         getResourceList();
     }, [getResourceList]);
-
+    /*
     const [searchTerm, setSearchTerm] = useState("");
 
     const [sortColumn, setSortColumn] = useState("username");
@@ -180,6 +181,115 @@ function CredentialsTable() {
                     </tbody>
                 </Table>
             </div>
+        </div>
+    );
+    */
+
+    const data = [
+        {
+            username: "user1",
+            email: "user1@example.com",
+            personalAccessToken: "abc123",
+        },
+        {
+            username: "user2",
+            email: "user2@example.com",
+            personalAccessToken: "def456",
+        },
+        {
+            username: "user3",
+            email: "user3@example.com",
+            personalAccessToken: "ghi789",
+        },
+    ];
+
+    const { Search } = Input;
+
+    const [searchText, setSearchText] = useState("");
+    const [sortKey, setSortKey] = useState("");
+    const [sortOrder, setSortOrder] = useState("");
+
+    const handleSearch = (value) => {
+        setSearchText(value);
+    };
+
+    const handleTableChange = (pagination, filters, sorter) => {
+        setSortKey(sorter.columnKey);
+        setSortOrder(sorter.order);
+    };
+
+    const getSortedData = () => {
+        let filteredData = data.filter(
+            (row) =>
+                row.username.toLowerCase().includes(searchText.toLowerCase()) ||
+                row.email.toLowerCase().includes(searchText.toLowerCase())
+        );
+
+        if (sortKey && sortOrder) {
+            filteredData = filteredData.sort((a, b) => {
+                const keyA = a[sortKey];
+                const keyB = b[sortKey];
+                if (typeof keyA === "string" && typeof keyB === "string") {
+                    return keyA.localeCompare(keyB, undefined, {
+                        numeric: true,
+                    });
+                }
+                return keyA - keyB;
+            });
+            if (sortOrder === "descend") {
+                filteredData.reverse();
+            }
+        }
+
+        return filteredData;
+    };
+
+    const columns = [
+        {
+            title: "Username",
+            dataIndex: "username",
+            sorter: true,
+            sortOrder: sortKey === "username" && sortOrder,
+        },
+        {
+            title: "Email",
+            dataIndex: "email",
+            sorter: true,
+            sortOrder: sortKey === "email" && sortOrder,
+        },
+        {
+            title: "Personal Access Token",
+            dataIndex: "token",
+            render: (token) => (
+                <CopyToClipboard text={token}>
+                    <Button>Copy</Button>
+                </CopyToClipboard>
+            ),
+        },
+        {
+            title: "Edit",
+            dataIndex: "edit",
+            render: () => <Button>Edit</Button>,
+        },
+    ];
+
+    return (
+        <div style={{ padding: 20 }}>
+            <h1 style={{ textAlign: "center" }}>GitHub Credentials</h1>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Search
+                    placeholder="Search by username or email"
+                    onSearch={handleSearch}
+                    style={{ width: 300, marginRight: 20 }}
+                    allowClear
+                />
+            </div>
+            <Table
+                dataSource={getSortedData()}
+                columns={columns}
+                onChange={handleTableChange}
+                style={{ width: "100%", marginTop: 20 }}
+            />
         </div>
     );
 }
