@@ -11,8 +11,6 @@ const StyledTable = styled.table`
 `;
 
 const StyledHeaderRow = styled.tr`
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
   height: 40px;
   font-weight: bold;
   font-size: 14px;
@@ -23,6 +21,7 @@ const StyledHeaderCell = styled.th`
   padding: 8px;
   text-align: left;
   cursor: pointer;
+  border: 2px solid #ddd;
 
   &:hover {
     background-color: #ddd;
@@ -63,6 +62,7 @@ const StyledRow = styled.tr`
 `;
 
 const StyledCell = styled.td`
+  border: 2px solid #ddd;
   padding: 8px;
   font-size: 14px;
 `;
