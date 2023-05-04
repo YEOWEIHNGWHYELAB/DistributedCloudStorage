@@ -14,7 +14,7 @@ module.exports = (pool) => {
     });
 
     router.get('/whoami', (req, res) => {
-        authController.getUsername(req, res);
+        authController.getUsername(req, res, pool);
     });
 
     return router;

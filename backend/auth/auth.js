@@ -72,7 +72,8 @@ exports.login = async (req, res, pool) => {
     }
 };
 
-exports.getUsername = (req, res) => {
+// whoami
+exports.getUsername = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -83,7 +84,8 @@ exports.getUsername = (req, res) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-        res.json({ username: decoded.username });
+        const queryResult = await pool.query('SELECT * FROM users WHERE username = $1', [decoded.username]);
+        res.json({ username: decoded.username, email: queryResult.rows[0].email });
     } catch (err) {
         console.error(err);
         res.status(401).json({ message: 'Invalid token' });
