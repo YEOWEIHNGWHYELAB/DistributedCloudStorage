@@ -4,7 +4,7 @@ const { auth } = require('google-auth-library');
 
 // Register user
 exports.register = async (req, res, pool) => {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
 
     if (!username || !password) {
         return res.status(400).json({ message: 'Username and password are required' });
@@ -23,7 +23,7 @@ exports.register = async (req, res, pool) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insert new user
-        const insertResult = await pool.query('INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);
+        const insertResult = await pool.query('INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *', [username, email, hashedPassword]);
         const newUser = insertResult.rows[0];
 
         // Sign JWT token

@@ -18,6 +18,7 @@ import Collapse from "@mui/material/Collapse";
 import ListIcon from "@mui/icons-material/List";
 import AddIcon from '@mui/icons-material/Add';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
+import KeyIcon from '@mui/icons-material/Key';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 
@@ -45,7 +46,7 @@ const listItems = [
         children: [
             { name: "Upload Video", icon: <AddIcon />, to: "/youtube/upload" },
             { name: "List All Videos", icon: <ListIcon />, to: "/youtube/listall" },
-            { name: "List Video Paginated", icon: <ListIcon />, to: "/youtube/listpg" },
+            { name: "List Videos Paginated", icon: <ListIcon />, to: "/youtube/listpg" },
         ],
     },
     {
@@ -54,6 +55,7 @@ const listItems = [
         name: "GitHub",
         icon: <GitHubIcon />,
         children: [
+            { name: "Credential List", icon: <KeyIcon />, to: "/github/credential" },
             { name: "Create Repo", icon: <AddIcon />, to: "/github/createrepo" },
             { name: "Repo List", icon: <ListIcon />, to: "/github/repolist" },
         ],

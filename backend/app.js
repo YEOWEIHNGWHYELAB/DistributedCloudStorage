@@ -9,7 +9,7 @@ const auth = require('./auth/auth');
 var OAuth2 = google.auth.OAuth2;
 
 // File Imports
-const { getChannelVideoByToken, getChannelAllVideos } = require('./youtubeapi/apicaller/crudops');
+const { getChannelVideoByToken, getChannelAllVideos } = require('./youtubeapi/apicaller/ytvideolist');
 
 // ENV Config
 const dotenv = require("dotenv");
