@@ -11,13 +11,12 @@ const StyledTable = styled.table`
 `;
 
 const StyledHeaderRow = styled.tr`
-  background-color: #f4f4f4;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   height: 40px;
   font-weight: bold;
   font-size: 14px;
-  color: #555;
+  color: red;
 `;
 
 const StyledHeaderCell = styled.th`
@@ -61,17 +60,12 @@ const StyledHeaderCell = styled.th`
 
 const StyledRow = styled.tr`
   height: 48px;
-
-  &:nth-child(even) {
-    background-color: #f9f9f9;
-  }
 `;
 
 const StyledCell = styled.td`
   padding: 8px;
   font-size: 14px;
 `;
-
 
 function CredentialsTable() {
     const { getResourceList, resourceList, deleteResource } = RequestResource({
@@ -83,10 +77,12 @@ function CredentialsTable() {
         getResourceList();
     }, [getResourceList]);
 
+    console.log(resourceList);
+
     const data = [
         {
             username: "user1",
-            email: "user1@example.com",
+            email: "user3@example.com",
             personalAccessToken: "abc123",
         },
         {
@@ -96,7 +92,7 @@ function CredentialsTable() {
         },
         {
             username: "user3",
-            email: "user3@example.com",
+            email: "user1@example.com",
             personalAccessToken: "ghi789",
         },
     ];
@@ -198,7 +194,7 @@ function CredentialsTable() {
         </div>
     );
     */
-    const [sortField, setSortField] = useState('');
+    const [sortField, setSortField] = useState('username');
     const [sortDirection, setSortDirection] = useState('asc');
 
     const handleSort = (field) => {
@@ -206,13 +202,14 @@ function CredentialsTable() {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
         } else {
             setSortField(field);
-            setSortDirection('asc');
+            setSortDirection('na');
         }
     };
 
     const sortedCredentials = data.sort((a, b) => {
         const aValue = a[sortField];
         const bValue = b[sortField];
+
         if (aValue < bValue) {
             return sortDirection === 'asc' ? -1 : 1;
         } else if (aValue > bValue) {
@@ -223,36 +220,43 @@ function CredentialsTable() {
     });
 
     return (
-        <StyledTable>
-            <thead>
-                <StyledHeaderRow>
-                    <StyledHeaderCell>ID</StyledHeaderCell>
-                    <StyledHeaderCell
-                        className={sortField === 'username' ? `sortable ${sortDirection}` : 'sortable'}
-                        onClick={() => handleSort('username')}
-                    >
-                        Username
-                    </StyledHeaderCell>
-                    <StyledHeaderCell
-                        className={sortField === 'email' ? `sortable ${sortDirection}` : 'sortable'}
-                        onClick={() => handleSort('email')}
-                    >
-                        Email
-                    </StyledHeaderCell>
-                    <StyledHeaderCell>Personal Access Token</StyledHeaderCell>
-                </StyledHeaderRow>
-            </thead>
-            <tbody>
-                {sortedCredentials.map((credential) => (
-                    <StyledRow key={credential.id}>
-                        <StyledCell>{credential.id}</StyledCell>
-                        <StyledCell>{credential.username}</StyledCell>
-                        <StyledCell>{credential.email}</StyledCell>
-                        <StyledCell>{credential.personalAccessToken}</StyledCell>
-                    </StyledRow>
-                ))}
-            </tbody>
-        </StyledTable>
+        <div>
+            <h2 style={{ textAlign: "left" }}>My GitHub Credentials</h2>
+
+            <StyledTable>
+                <thead>
+                    <StyledHeaderRow>
+                        <StyledHeaderCell
+                            className={sortField === 'username' ? `sortable ${sortDirection}` : 'sortable'}
+                            onClick={() => handleSort('username')}
+                            style={{ sortField  }}
+                        >
+                            Username
+                        </StyledHeaderCell>
+
+                        <StyledHeaderCell
+                            className={sortField === 'email' ? `sortable ${sortDirection}` : 'sortable'}
+                            onClick={() => handleSort('email')}
+                        >
+                            Email
+                        </StyledHeaderCell>
+
+                        <StyledHeaderCell>
+                            Personal Access Token
+                        </StyledHeaderCell>
+                    </StyledHeaderRow>
+                </thead>
+                <tbody>
+                    {sortedCredentials.map((credential) => (
+                        <StyledRow key={credential.username}>
+                            <StyledCell>{credential.username}</StyledCell>
+                            <StyledCell>{credential.email}</StyledCell>
+                            <StyledCell>{credential.personalAccessToken}</StyledCell>
+                        </StyledRow>
+                    ))}
+                </tbody>
+            </StyledTable>
+        </div>
     );
 }
 
