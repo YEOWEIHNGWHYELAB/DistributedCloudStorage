@@ -1,21 +1,93 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 exports.getCredentials = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).json({ message: 'Authorization header missing' });
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(" ")[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-        const queryResult = await pool.query('SELECT * FROM GitHubCredential WHERE username = $1', [decoded.username]);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            algorithms: ["HS256"],
+        });
+        const queryResult = await pool.query(
+            "SELECT * FROM GitHubCredential WHERE username = $1",
+            [decoded.username]
+        );
         res.json(queryResult.rows);
     } catch (err) {
         console.error(err);
-        res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: "Invalid token" });
     }
-}
+};
+
+exports.editCredetials = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+
+    let editCredentialsQueryBuiler = [];
+    let setClauses = [];
+
+    const updateParams = req.body;
+
+    editCredentialsQueryBuiler.push(`UPDATE GitHubCredential SET`);
+    
+    for (const key in updateParams) {
+        if (key == "id") {
+            continue;
+        }
+
+        const value = updateParams[key];
+
+        if (value != null) {
+            setClauses.push(`${key} = '${value}'`);
+        }
+    }
+
+    editCredentialsQueryBuiler.push(setClauses.join(", "));
+
+    editCredentialsQueryBuiler.push(`WHERE id = ${updateParams.id}`);
+
+    const editCredentialsQuery = editCredentialsQueryBuiler.join(" ");
+
+    try {
+        const queryResult = await pool.query(editCredentialsQuery);
+        res.json({ success: true, message: `Updated ${queryResult.rowCount} rows`});
+    } catch (err) {
+        console.error(err);
+        res.json({ success: false, message: err.message });
+    }
+};
+
+exports.deleteCredetials = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+
+    const sqlQuery = `DELETE FROM GitHubCredential WHERE id = ANY($1::int[])`;
+
+    const idsToDelete = [req.body.id];
+
+    try {
+        const queryResult = await pool.query(sqlQuery, idsToDelete);
+        res.json({ success: true, message: `Deleted ${queryResult.rowCount} rows`});
+      } catch (err) {
+        console.error(err);
+        res.json({ success: false, message: err.message });
+      }
+};

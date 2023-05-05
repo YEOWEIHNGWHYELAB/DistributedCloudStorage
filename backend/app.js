@@ -40,7 +40,6 @@ const pool = new Pool({
     port: process.env.DBPORT,
 });
 
-
 // Test the database connection
 pool.query('SELECT NOW()', (err, res) => {
     if (err) {
