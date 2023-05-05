@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import RequestResource from "../../Hooks/RequestResource";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClipboard, faHandPointer } from "@fortawesome/free-solid-svg-icons";
+import { faClipboard } from "@fortawesome/free-solid-svg-icons";
+import { Box, Button as MUIButton, Dialog, DialogActions, DialogTitle, IconButton, Typography, Pagination } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Button } from "react-bootstrap";
 
 const StyledTable = styled.table`
     width: 100%;
@@ -76,6 +80,18 @@ function CredentialsTable() {
     useEffect(() => {
         getResourceList();
     }, [getResourceList]);
+    
+    const [open, setOpen] = useState(false);
+
+    const handleDeleteClose = () => {
+        setOpen(false);
+    }
+
+    const handleDelete = (id) => {
+        console.log(id);
+        setOpen(true);
+        //deleteResource(id);
+    }
 
     const [sortField, setSortField] = useState("github_username");
     const [sortDirection, setSortDirection] = useState("asc");
@@ -98,6 +114,43 @@ function CredentialsTable() {
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
     };
+
+    
+    function handleDelete22() {
+        const confirmation = window.confirm(
+            "Are you sure you want to delete the selected elements?"
+        );
+        if (confirmation) {
+            //const data = { ids: selectedElements };
+            /*
+            axios
+                .delete("/api/elements", { data })
+                .then((response) => {
+                    console.log(response);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });*/
+        }
+    }
+
+    function handleSingleDelete(id) {
+        const confirmation = window.confirm(
+            `Are you sure you want to delete the element with ID ${id}?`
+        );
+        if (confirmation) {
+            //const data = { ids: [id] };
+            /*
+            axios
+                .delete("/api/elements", { data })
+                .then((response) => {
+                    console.log(response);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });*/
+        }
+    }
 
     // filter the credentials array based on the search term
     const filteredCredentials = resourceList.results.filter((credential) => {
@@ -124,6 +177,25 @@ function CredentialsTable() {
 
     return (
         <div>
+            <Dialog open={open} onClose={handleDeleteClose}>
+                <DialogTitle>
+                    Are you sure you want to delete this Task?
+                </DialogTitle>
+                <DialogActions>
+                    <MUIButton 
+                        onClick={handleDelete}
+                    >
+                        YES!
+                    </MUIButton>
+
+                    <MUIButton 
+                        onClick={handleDeleteClose}
+                    >
+                        NO!
+                    </MUIButton>
+                </DialogActions>
+            </Dialog>
+
             <h2 style={{ textAlign: "left" }}>My GitHub Credentials</h2>
 
             <input
@@ -171,6 +243,8 @@ function CredentialsTable() {
                         <StyledHeaderCell>
                             Personal Access Token 📋
                         </StyledHeaderCell>
+
+                        <StyledHeaderCell>Actions</StyledHeaderCell>
                     </StyledHeaderRow>
                 </thead>
                 <tbody>
@@ -181,14 +255,29 @@ function CredentialsTable() {
                             </StyledCell>
                             <StyledCell>{credential.email}</StyledCell>
                             <StyledCell>
-                                <FontAwesomeIcon
-                                    icon={faClipboard}
-                                    title="Copy"
-                                    style={{ cursor: "pointer" }}
+                                <IconButton
                                     onClick={() =>
                                         copyToClipboard(credential.access_token)
                                     }
-                                />
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faClipboard}
+                                        title="Copy"
+                                    />
+                                </IconButton>
+                            </StyledCell>
+                            <StyledCell>
+                                <IconButton
+                                    //onClick={() => handleDelete(credential.id)}
+                                >
+                                    <EditIcon />
+                                </IconButton>
+
+                                <IconButton
+                                    onClick={() => handleDelete(credential.id)}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>  
                             </StyledCell>
                         </StyledRow>
                     ))}
