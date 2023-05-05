@@ -92,6 +92,8 @@ function CredentialsTable() {
 
     const [open, setOpen] = useState(false);
     const [idDelete, setIDDelete] = useState(null);
+    const [idEdit, setIDEdit] = useState(null);
+    const [credToEdit, setCredToEdit] = useState(null);
 
     const handleOpenDeleteDialog = (id) => {
         setIDDelete(id);
@@ -113,7 +115,16 @@ function CredentialsTable() {
 
     const handleOpen = () => setOpenD(true);
 
-    const handleClose = () => setOpenD(false);
+    const handleOpenEdit = (editID, credEdit) => {
+        setIDEdit(editID);
+        setCredToEdit(credEdit);
+        setOpenD(true);
+    }
+
+    const handleClose = () => {
+        setOpenD(false);
+        setIDEdit(null);
+    };
 
     const handleSubmit = (values) => {
         addResource(values, () => {
@@ -181,11 +192,19 @@ function CredentialsTable() {
 
     return (
         <div>
-            <Dialog open={openD} onClose={handleClose}>
-                <DialogTitle>Add New Credential</DialogTitle>
+            <Dialog open={openD} onClose={handleClose} >
+                <DialogTitle>
+                    {idEdit ? "Edit Credential" : "Add New Credential"}
+                </DialogTitle>
 
                 <Formik
-                    initialValues={{ github_username: "", email: "", access_token: "" }}
+                    initialValues={
+                        { 
+                            github_username: idEdit ? credToEdit.github_username : "", 
+                            email: idEdit ? credToEdit.email : "",
+                            access_token: idEdit ? credToEdit.access_token : "", 
+                        }
+                    }
 
                     onSubmit={(values, { resetForm }) => {
                         handleSubmit(values);
@@ -354,7 +373,17 @@ function CredentialsTable() {
                                 </IconButton>
                             </StyledCell>
                             <StyledCell>
-                                <IconButton>
+                                <IconButton
+                                    onClick={() =>
+                                        handleOpenEdit(credential.id, 
+                                            {
+                                                github_username: credential.github_username, 
+                                                email: credential.email, 
+                                                access_token: credential.access_token
+                                            }
+                                        )
+                                    }
+                                >
                                     <EditIcon />
                                 </IconButton>
 
