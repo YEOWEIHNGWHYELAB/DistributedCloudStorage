@@ -63,8 +63,9 @@ exports.getCredentials = async (req, res, pool) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, {
             algorithms: ["HS256"],
         });
+    
         const queryResult = await pool.query(
-            "SELECT * FROM GitHubCredential WHERE username = $1",
+            "SELECT id, github_username, email, access_token FROM GitHubCredential WHERE username = $1",
             [decoded.username]
         );
         res.json(queryResult.rows);
@@ -107,8 +108,6 @@ exports.editCredetials = async (req, res, pool) => {
     editCredentialsQueryBuiler.push(`WHERE id = ${updateParams.id}`);
 
     const editCredentialsQuery = editCredentialsQueryBuiler.join(" ");
-
-    console.log(editCredentialsQuery);
 
     try {
         const queryResult = await pool.query(editCredentialsQuery);

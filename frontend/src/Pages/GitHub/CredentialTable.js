@@ -16,7 +16,6 @@ import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as Yup from "yup";
-import { update } from "lodash";
 
 const StyledTable = styled.table`
     width: 100%;
@@ -116,9 +115,9 @@ function CredentialsTable() {
 
     const handleOpen = () => setOpenD(true);
 
-    const handleOpenEdit = (editID, credEdit) => {
+    const handleOpenEdit = (editID, credToEdit) => {
         setIDEdit(editID);
-        setCredToEdit(credEdit);
+        setCredToEdit(credToEdit);
         setOpenD(true);
     }
 
@@ -134,10 +133,9 @@ function CredentialsTable() {
         handleClose();
     };
 
-    const handleUpdateSubmit = () => {
-        updateResource(credToEdit, () => {
-            
-        });
+    const handleUpdateSubmit = (values) => {
+        values["id"] = idEdit;
+        updateResource(values);
         handleClose();
     }
 
@@ -215,7 +213,7 @@ function CredentialsTable() {
 
                     onSubmit={(values, { resetForm }) => {
                         if (idEdit) {
-                            handleUpdateSubmit();
+                            handleUpdateSubmit(values);
                         } else {
                             handleSubmit(values);
                         }
@@ -387,14 +385,12 @@ function CredentialsTable() {
                             <StyledCell>
                                 <IconButton
                                     onClick={() =>
-                                        handleOpenEdit(credential.id, 
-                                            {
-                                                id: credential.id,
-                                                github_username: credential.github_username, 
-                                                email: credential.email, 
-                                                access_token: credential.access_token
-                                            }
-                                        )
+                                        handleOpenEdit(credential.id, {
+                                            id: credential.id,
+                                            github_username: credential.github_username, 
+                                            email: credential.email, 
+                                            access_token: credential.access_token
+                                        })
                                     }
                                 >
                                     <EditIcon />

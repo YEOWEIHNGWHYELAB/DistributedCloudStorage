@@ -66,7 +66,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError)
     }, [endpoint, handleRequestResourceError, setLoading]);
 
-    const updateResource = useCallback((values, successCallback) => {
+    const updateResource = useCallback((values) => {
         setLoading(true);
 
         axios.patch(`/${endpoint}`, values, SetHeaderToken())
@@ -76,25 +76,20 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                  * data obtained from the API, so the list will be displayed 
                  * with the updated task
                  */
-                const updated = res.data;
+                const updatedResourceID = values.id;
                 const newResourceList = {
                     results: resourceList.results.map((r) => {
-                        if (values.id === r.id) {
-                            return updated;
+                        if (r.id === updatedResourceID) {
+                            return values;
                         }
 
                         return r;
-                    }),
-                    count: resourceList.count
+                    })
                 }
 
                 setResourceList(newResourceList);
                 setLoading(false);
                 enqueueSnackbar(`${resourceLabel} updated`);
-
-                if (successCallback) {
-                    successCallback();
-                }
             }).catch(handleRequestResourceError)
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading, resourceList]);
 
