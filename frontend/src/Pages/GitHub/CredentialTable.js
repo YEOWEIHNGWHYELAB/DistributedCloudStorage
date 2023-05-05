@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import RequestResource from "../../Hooks/RequestResource";
 import styled from 'styled-components';
-import { CopyToClipboard } from "react-copy-to-clipboard";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClipboard, faHandPointer } from '@fortawesome/free-solid-svg-icons';
 
 
 const StyledTable = styled.table`
@@ -77,7 +78,7 @@ function CredentialsTable() {
         getResourceList();
     }, [getResourceList]);
 
-    const [sortField, setSortField] = useState('username');
+    const [sortField, setSortField] = useState('github_username');
     const [sortDirection, setSortDirection] = useState('asc');
 
     function copyToClipboard(personalAccessToken) {
@@ -114,8 +115,8 @@ function CredentialsTable() {
                 <thead>
                     <StyledHeaderRow>
                         <StyledHeaderCell
-                            className={sortField === 'username' ? `sortable ${sortDirection}` : 'sortable'}
-                            onClick={() => handleSort('username')}
+                            className={sortField === 'github_username' ? `sortable ${sortDirection}` : 'sortable'}
+                            onClick={() => handleSort('github_username')}
                             style={{ sortField }}
                         >
                             Username
@@ -135,13 +136,16 @@ function CredentialsTable() {
                 </thead>
                 <tbody>
                     {sortedCredentials.map((credential) => (
-                        <StyledRow key={credential.username}>
+                        <StyledRow key={credential.github_username}>
                             <StyledCell>{credential.github_username}</StyledCell>
                             <StyledCell>{credential.email}</StyledCell>
                             <StyledCell>
-                                <button onClick={() => copyToClipboard(credential.access_token)}>
-                                    Copy
-                                </button>
+                                <FontAwesomeIcon
+                                    icon={faClipboard}
+                                    title="Copy"
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => copyToClipboard(credential.access_token)}
+                                />
                             </StyledCell>
                         </StyledRow>
                     ))}
