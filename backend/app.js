@@ -52,7 +52,7 @@ pool.query('SELECT NOW()', (err, res) => {
 const authRouter = require('./auth/routes')(pool);
 app.use('/auth', authRouter);
 
-const githubRouter = require('./githubapi/routes/routes')(pool);
+const githubRouter = require('./githubapi/routes/credentialroutes')(pool);
 app.use('/github', githubRouter);
 
 // GET route for listing all videos in the user's YouTube channel

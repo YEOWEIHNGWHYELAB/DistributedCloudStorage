@@ -1,6 +1,45 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+exports.createCredentials = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const createQuery = `
+        INSERT INTO GitHubCredential
+        (username, github_username, email, access_token)
+        VALUES ($1, $2, $3, $4)
+    `;
+
+    let decoded;
+
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            algorithms: ["HS256"],
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(401).json({ message: "Invalid token" });
+    }
+    
+    const createParam = req.body;
+
+    try {
+        const queryResult = await pool.query(createQuery, [decoded.username, createParam.github_username, createParam.email, createParam.access_token]);
+        res.json({ success: true, message: `Created ${queryResult.rowCount} rows`});
+    } catch (err) {
+        console.error(err);
+        res.json({ success: false, message: err.message });
+    }
+};
+
 exports.getCredentials = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
 
