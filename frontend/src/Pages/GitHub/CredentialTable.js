@@ -3,10 +3,19 @@ import RequestResource from "../../Hooks/RequestResource";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboard } from "@fortawesome/free-solid-svg-icons";
-import { Box, Button as MUIButton, Dialog, DialogActions, DialogTitle, IconButton, Typography, Pagination } from "@mui/material";
+import {
+    Button as MUIButton,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    TextField
+} from "@mui/material";
+import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Button } from "react-bootstrap";
+import * as Yup from "yup";
 
 const StyledTable = styled.table`
     width: 100%;
@@ -72,7 +81,7 @@ const StyledCell = styled.td`
 `;
 
 function CredentialsTable() {
-    const { getResourceList, resourceList, deleteResource } = RequestResource({
+    const { addResource, getResourceList, resourceList, deleteResource } = RequestResource({
         endpoint: "github/credentials",
         resourceLabel: "GitHub Credentials",
     });
@@ -80,25 +89,38 @@ function CredentialsTable() {
     useEffect(() => {
         getResourceList();
     }, [getResourceList]);
-    
+
     const [open, setOpen] = useState(false);
     const [idDelete, setIDDelete] = useState(null);
 
     const handleOpenDeleteDialog = (id) => {
         setIDDelete(id);
         setOpen(true);
-    }
+    };
 
     const handleDeleteClose = () => {
         setOpen(false);
         setIDDelete(null);
-    }
+    };
 
     const handleDelete = () => {
         deleteResource(idDelete);
         setOpen(false);
         setIDDelete(null);
-    }
+    };
+
+    const [openD, setOpenD] = useState(false);
+
+    const handleOpen = () => setOpenD(true);
+
+    const handleClose = () => setOpenD(false);
+
+    const handleSubmit = (values) => {
+        addResource(values, () => {
+            window.location.reload();
+        });
+        handleClose();
+    };
 
     const [sortField, setSortField] = useState("github_username");
     const [sortDirection, setSortDirection] = useState("asc");
@@ -114,7 +136,6 @@ function CredentialsTable() {
             setSortDirection(sortDirection === "asc" ? "desc" : "asc");
         } else {
             setSortField(field);
-            setSortDirection("na");
         }
     };
 
@@ -122,17 +143,7 @@ function CredentialsTable() {
         setSearchTerm(event.target.value);
     };
 
-    // filter the credentials array based on the search term
-    const filteredCredentials = resourceList.results.filter((credential) => {
-        return (
-            credential.github_username
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()) ||
-            credential.email.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    });
-
-    const sortedCredentials = filteredCredentials.sort((a, b) => {
+    const sortedCredentials = resourceList.results.sort((a, b) => {
         const aValue = a[sortField];
         const bValue = b[sortField];
 
@@ -145,28 +156,134 @@ function CredentialsTable() {
         }
     });
 
+    // filter the credentials array based on the search term
+    const filteredCredentials = sortedCredentials.filter((credential) => {
+        return (
+            credential.github_username
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()) ||
+            credential.email
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+        );
+    });
+
+
+    const validationSchema = Yup.object().shape({
+        github_username: Yup.string()
+            .required("Username is required"),
+        email: Yup.string()
+            .email("Invalid email address")
+            .required("Email is required"),
+        access_token: Yup.string()
+            .required("Personal Access Token is required"),
+    });
+
     return (
         <div>
+            <Dialog open={openD} onClose={handleClose}>
+                <DialogTitle>Add New Credential</DialogTitle>
+
+                <Formik
+                    initialValues={{ github_username: "", email: "", access_token: "" }}
+
+                    onSubmit={(values, { resetForm }) => {
+                        handleSubmit(values);
+                        resetForm();
+                    }}
+
+                    validationSchema={validationSchema}
+                >
+                    {({ values, errors, touched, handleChange }) => (
+                        <Form>
+                            <DialogContent>
+                                <Field
+                                    name="github_username"
+                                    as={TextField}
+                                    label="Username"
+                                    fullWidth
+                                    margin="normal"
+                                    value={values.github_username}
+                                    error={errors.github_username && touched.github_username}
+                                    helperText={
+                                        touched.username && errors.username
+                                    }
+                                    onChange={handleChange}
+                                />
+                                <Field
+                                    name="email"
+                                    as={TextField}
+                                    label="Email"
+                                    fullWidth
+                                    margin="normal"
+                                    value={values.email}
+                                    error={errors.email && touched.email}
+                                    helperText={touched.email && errors.email}
+                                    onChange={handleChange}
+                                />
+                                <Field
+                                    name="access_token"
+                                    as={TextField}
+                                    label="Personal Access Token"
+                                    fullWidth
+                                    margin="normal"
+                                    value={values.access_token}
+                                    error={errors.access_token && touched.access_token}
+                                    helperText={touched.access_token && errors.access_token}
+                                    onChange={handleChange}
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <MUIButton onClick={handleClose} color="primary">
+                                    Cancel
+                                </MUIButton>
+                                <MUIButton
+                                    type="submit"
+                                    color="primary"
+                                    disabled={
+                                        !values.github_username ||
+                                        !values.email ||
+                                        !values.access_token
+                                    }
+                                >
+                                    Add
+                                </MUIButton>
+                            </DialogActions>
+                        </Form>
+                    )}
+                </Formik>
+            </Dialog>
+
             <Dialog open={open} onClose={handleDeleteClose}>
                 <DialogTitle>
                     Are you sure you want to delete this Credential?
                 </DialogTitle>
                 <DialogActions>
-                    <MUIButton 
-                        onClick={handleDelete}
-                    >
-                        YES!
-                    </MUIButton>
+                    <MUIButton onClick={handleDelete}>YES!</MUIButton>
 
-                    <MUIButton 
-                        onClick={handleDeleteClose}
-                    >
-                        NO!
-                    </MUIButton>
+                    <MUIButton onClick={handleDeleteClose}>NO!</MUIButton>
                 </DialogActions>
             </Dialog>
 
             <h2 style={{ textAlign: "left" }}>My GitHub Credentials</h2>
+            
+            <MUIButton 
+                onClick={handleOpen}
+                style={{
+                    border: "2px solid #ff7bff",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "20%",
+                    boxSizing: "border-box",
+                    color: "#ff0",
+                    backgroundColor: "22f",
+                }}
+            >
+                ADD NEW CREDENTIAL
+            </MUIButton>
+
+            <br/>
+            <br/>
 
             <input
                 type="text"
@@ -211,15 +328,15 @@ function CredentialsTable() {
                         </StyledHeaderCell>
 
                         <StyledHeaderCell>
-                            Personal Access Token 📋
+                            Access Token 📋
                         </StyledHeaderCell>
 
                         <StyledHeaderCell>Actions</StyledHeaderCell>
                     </StyledHeaderRow>
                 </thead>
                 <tbody>
-                    {sortedCredentials.map((credential) => (
-                        <StyledRow key={credential.github_username}>
+                    {filteredCredentials.map((credential) => (
+                        <StyledRow key={credential.id}>
                             <StyledCell>
                                 {credential.github_username}
                             </StyledCell>
@@ -237,17 +354,17 @@ function CredentialsTable() {
                                 </IconButton>
                             </StyledCell>
                             <StyledCell>
-                                <IconButton
-                                    
-                                >
+                                <IconButton>
                                     <EditIcon />
                                 </IconButton>
 
                                 <IconButton
-                                    onClick={() => handleOpenDeleteDialog(credential.id)}
+                                    onClick={() =>
+                                        handleOpenDeleteDialog(credential.id)
+                                    }
                                 >
                                     <DeleteIcon />
-                                </IconButton>  
+                                </IconButton>
                             </StyledCell>
                         </StyledRow>
                     ))}

@@ -43,14 +43,15 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     const addResource = useCallback((values, successCallback) => {
         setLoading(true);
-        axios.post(`/${endpoint}/`, values, SetHeaderToken())
+        
+        axios.post(`/${endpoint}`, values, SetHeaderToken())
             .then(() => {
                 setLoading(false);
-                enqueueSnackbar(`${resourceLabel} added`)
+                enqueueSnackbar(`${resourceLabel} added`);
                 if (successCallback) {
                     successCallback();
                 }
-            }).catch(handleRequestResourceError)
+            }).catch(handleRequestResourceError);
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
     const getResource = useCallback((id) => {
@@ -122,6 +123,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
     return {
+        addResource,
         resourceList,
         getResourceList,
         addResource,
