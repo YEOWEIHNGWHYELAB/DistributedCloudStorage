@@ -16,6 +16,7 @@ import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as Yup from "yup";
+import { update } from "lodash";
 
 const StyledTable = styled.table`
     width: 100%;
@@ -81,7 +82,7 @@ const StyledCell = styled.td`
 `;
 
 function CredentialsTable() {
-    const { addResource, getResourceList, resourceList, deleteResource } = RequestResource({
+    const { addResource, getResourceList, resourceList, updateResource, deleteResource } = RequestResource({
         endpoint: "github/credentials",
         resourceLabel: "GitHub Credentials",
     });
@@ -133,6 +134,13 @@ function CredentialsTable() {
         handleClose();
     };
 
+    const handleUpdateSubmit = () => {
+        updateResource(credToEdit, () => {
+            
+        });
+        handleClose();
+    }
+
     const [sortField, setSortField] = useState("github_username");
     const [sortDirection, setSortDirection] = useState("asc");
 
@@ -179,7 +187,6 @@ function CredentialsTable() {
         );
     });
 
-
     const validationSchema = Yup.object().shape({
         github_username: Yup.string()
             .required("Username is required"),
@@ -207,7 +214,12 @@ function CredentialsTable() {
                     }
 
                     onSubmit={(values, { resetForm }) => {
-                        handleSubmit(values);
+                        if (idEdit) {
+                            handleUpdateSubmit();
+                        } else {
+                            handleSubmit(values);
+                        }
+                        
                         resetForm();
                     }}
 
@@ -265,7 +277,7 @@ function CredentialsTable() {
                                         !values.access_token
                                     }
                                 >
-                                    Add
+                                    {idEdit ? "Edit" : "Add"}
                                 </MUIButton>
                             </DialogActions>
                         </Form>
@@ -377,6 +389,7 @@ function CredentialsTable() {
                                     onClick={() =>
                                         handleOpenEdit(credential.id, 
                                             {
+                                                id: credential.id,
                                                 github_username: credential.github_username, 
                                                 email: credential.email, 
                                                 access_token: credential.access_token

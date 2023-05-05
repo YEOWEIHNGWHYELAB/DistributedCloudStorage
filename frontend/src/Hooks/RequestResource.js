@@ -27,6 +27,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     // Callback lets us recreate function when dependencies created 
     const getResourceList = useCallback(({ query = "" } = {}) => {
         setLoading(true);
+
         axios.get(`/${endpoint}/${query}`, SetHeaderToken())
             .then((res) => {
                 setLoading(false);
@@ -56,6 +57,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     const getResource = useCallback((id) => {
         setLoading(true);
+
         axios.get(`/${endpoint}/${id}/`, SetHeaderToken())
             .then((res) => {
                 setLoading(false);
@@ -64,9 +66,10 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError)
     }, [endpoint, handleRequestResourceError, setLoading]);
 
-    const updateResource = useCallback((id, values, successCallback) => {
+    const updateResource = useCallback((values, successCallback) => {
         setLoading(true);
-        axios.patch(`/${endpoint}/${id}/`, values, SetHeaderToken())
+
+        axios.patch(`/${endpoint}`, values, SetHeaderToken())
             .then((res) => {
                 /**
                  * Replacing the task to be updated inside the list with the 
@@ -76,16 +79,19 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                 const updated = res.data;
                 const newResourceList = {
                     results: resourceList.results.map((r) => {
-                        if (r.id === id) {
+                        if (values.id === r.id) {
                             return updated;
                         }
+
                         return r;
                     }),
                     count: resourceList.count
                 }
+
                 setResourceList(newResourceList);
                 setLoading(false);
-                enqueueSnackbar(`${resourceLabel} updated`)
+                enqueueSnackbar(`${resourceLabel} updated`);
+
                 if (successCallback) {
                     successCallback();
                 }

@@ -108,6 +108,8 @@ exports.editCredetials = async (req, res, pool) => {
 
     const editCredentialsQuery = editCredentialsQueryBuiler.join(" ");
 
+    console.log(editCredentialsQuery);
+
     try {
         const queryResult = await pool.query(editCredentialsQuery);
         res.json({
