@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const credentialController = require('../apicaller/credential');
+const credentialController = require('../apicaller/credentials');
 
 module.exports = (pool) => {
     // Create new GitHub Credentials for user
@@ -19,7 +19,7 @@ module.exports = (pool) => {
     });
 
     // Delete user's GitHub Credentials
-    router.delete('/credentials', (req, res) => {
+    router.delete('/credentials/:id', (req, res) => {
         credentialController.deleteCredetials(req, res, pool);
     });
 

@@ -91,19 +91,34 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError)
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading, resourceList]);
 
+    /**
+     * In general, it is not recommended to embed IDs into the request body of a DELETE request. 
+     * According to the HTTP specification, the DELETE method should not have a request body, since 
+     * it is intended to delete a resource identified by the URI. Instead, the resource to be 
+     * deleted should be identified in the URI itself.
+     * 
+     * However, some API designs may choose to allow DELETE requests with a request body, in which 
+     * case you can embed the IDs to delete in the request body. To do this using Axios, you can pass 
+     * an object with the IDs as a property to the axios.delete method.
+     * 
+     * If you really want to perform multiple delete for a delete heavy application, use POST instead.
+     */
     const deleteResource = useCallback((id) => {
         setLoading(true);
-        axios.delete(`/${endpoint}/${id}/`, SetHeaderToken())
+        axios.delete(`/${endpoint}/${id}`, SetHeaderToken())
             .then(() => {
                 setLoading(false);
-                enqueueSnackbar(`${resourceLabel} deleted`)
+                enqueueSnackbar(`${resourceLabel} deleted`);
+
                 const newResourceList = {
                     results: resourceList.results.filter((r) => {
                         return r.id !== id
                     })
-                }
+                };
+
                 setResourceList(newResourceList);
-            }).catch(handleRequestResourceError)
+            })
+            .catch(handleRequestResourceError);
     }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
     return {

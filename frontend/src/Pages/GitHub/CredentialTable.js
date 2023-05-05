@@ -73,7 +73,7 @@ const StyledCell = styled.td`
 
 function CredentialsTable() {
     const { getResourceList, resourceList, deleteResource } = RequestResource({
-        endpoint: "github/list",
+        endpoint: "github/credentials",
         resourceLabel: "GitHub Credentials",
     });
 
@@ -82,15 +82,22 @@ function CredentialsTable() {
     }, [getResourceList]);
     
     const [open, setOpen] = useState(false);
+    const [idDelete, setIDDelete] = useState(null);
+
+    const handleOpenDeleteDialog = (id) => {
+        setIDDelete(id);
+        setOpen(true);
+    }
 
     const handleDeleteClose = () => {
         setOpen(false);
+        setIDDelete(null);
     }
 
-    const handleDelete = (id) => {
-        console.log(id);
-        setOpen(true);
-        //deleteResource(id);
+    const handleDelete = () => {
+        deleteResource(idDelete);
+        setOpen(false);
+        setIDDelete(null);
     }
 
     const [sortField, setSortField] = useState("github_username");
@@ -114,43 +121,6 @@ function CredentialsTable() {
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
     };
-
-    
-    function handleDelete22() {
-        const confirmation = window.confirm(
-            "Are you sure you want to delete the selected elements?"
-        );
-        if (confirmation) {
-            //const data = { ids: selectedElements };
-            /*
-            axios
-                .delete("/api/elements", { data })
-                .then((response) => {
-                    console.log(response);
-                })
-                .catch((error) => {
-                    console.error(error);
-                });*/
-        }
-    }
-
-    function handleSingleDelete(id) {
-        const confirmation = window.confirm(
-            `Are you sure you want to delete the element with ID ${id}?`
-        );
-        if (confirmation) {
-            //const data = { ids: [id] };
-            /*
-            axios
-                .delete("/api/elements", { data })
-                .then((response) => {
-                    console.log(response);
-                })
-                .catch((error) => {
-                    console.error(error);
-                });*/
-        }
-    }
 
     // filter the credentials array based on the search term
     const filteredCredentials = resourceList.results.filter((credential) => {
@@ -179,7 +149,7 @@ function CredentialsTable() {
         <div>
             <Dialog open={open} onClose={handleDeleteClose}>
                 <DialogTitle>
-                    Are you sure you want to delete this Task?
+                    Are you sure you want to delete this Credential?
                 </DialogTitle>
                 <DialogActions>
                     <MUIButton 
@@ -268,13 +238,13 @@ function CredentialsTable() {
                             </StyledCell>
                             <StyledCell>
                                 <IconButton
-                                    //onClick={() => handleDelete(credential.id)}
+                                    
                                 >
                                     <EditIcon />
                                 </IconButton>
 
                                 <IconButton
-                                    onClick={() => handleDelete(credential.id)}
+                                    onClick={() => handleOpenDeleteDialog(credential.id)}
                                 >
                                     <DeleteIcon />
                                 </IconButton>  
