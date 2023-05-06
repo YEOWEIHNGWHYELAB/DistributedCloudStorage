@@ -13,11 +13,11 @@ exports.register = async (req, res, pool) => {
 
     try {
         // Check if user already exists
-        const queryResult = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        const queryResult = await pool.query('SELECT * FROM users WHERE username = $1 OR email = $2', [username, email]);
         const user = queryResult.rows[0];
 
         if (user) {
-            return res.status(409).json({ message: 'Username already taken' });
+            return res.status(409).json({ message: 'Username / Email already taken' });
         }
 
         // Hash password
@@ -97,6 +97,65 @@ exports.getUsername = async (req, res, pool) => {
         }
     }
 }
+
+// Change password
+exports.changePassword = async (req, res, pool) => {
+    const { old_password, new_password } = req.body;
+
+    if (!old_password || !new_password) {
+        return res.status(401).json({ message: 'Old password and new password are required' });
+    }
+
+    if (old_password == new_password) {
+        return res.status(401).json({ message: 'Bruh same old and new password!' });
+    }
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+
+    try {
+        const decoded = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET, { algorithms: ['HS256'], ignoreExpiration: false });
+
+        // Check if user exists
+        const queryResult = await pool.query('SELECT * FROM users WHERE username = $1', [decoded.username]);
+        const user = queryResult.rows[0];
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid username!' });
+        }
+
+        // Check if password is correct
+        const oldPasswordMatch = await bcrypt.compare(old_password, user.password);
+
+        if (!oldPasswordMatch) {
+            return res.status(401).json({ message: 'Invalid old password!' });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+
+        const updateResult = await pool.query(`
+            UPDATE users
+            SET password = $2
+            WHERE username = $1`, [decoded.username, hashedPassword]);
+
+        // Sign JWT token
+        res.json({ message: "Password changed successfully" });
+    } catch (err) {
+        // console.error(err);
+        
+        if (err instanceof jwt.TokenExpiredError) {
+            res.status(401).json({ message: 'Please login again' });
+        } else {
+            res.status(500).json({ message: 'Password change error!' });
+        }
+    }
+};
 
 // Verify JWT token
 exports.isAuthenticated = async (req, res, next, pool) => {

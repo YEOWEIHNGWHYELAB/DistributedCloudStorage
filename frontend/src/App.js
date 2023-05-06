@@ -5,8 +5,9 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { Box } from "@mui/material";
 import { SnackbarProvider } from "notistack";
 
-import Login from "./Pages/Auth/Login"
-import ThemeModeProvider from "./Contexts/ThemeModeProvider"
+import Login from "./Pages/Auth/Login";
+import Register from "./Pages/Auth/Register"
+import ThemeModeProvider from "./Contexts/ThemeModeProvider";
 import AuthContextProvider from './Contexts/AuthContextProvider';
 import RequireAuth from './Contexts/RequireAuth';
 import RequireNotAuth from './Contexts/RequireNotAuth';
@@ -38,6 +39,7 @@ export default function App() {
                 </Route>
                 <Route element={<RequireNotAuth />} >
                   <Route path="/auth/login" element={<Login />} />
+                  <Route path="/auth/register" element={<Register />} />
                 </Route>
               </Routes>
             </Box>

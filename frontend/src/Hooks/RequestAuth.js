@@ -3,8 +3,8 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 
 import formatHttpApiError from "../Errors/HTTPAPIError";
-import { AuthContext } from "../Contexts/AuthContextProvider"; 
-import setHeaderToken from "../Contexts/SetHeaderToken";
+import { AuthContext } from "../Contexts/AuthContextProvider";
+import SetHeaderToken from "../Contexts/SetHeaderToken";
 
 export default function useRequestAuth() {
     const [loading, setLoading] = useState(false);
@@ -18,33 +18,22 @@ export default function useRequestAuth() {
         setError(formattedError);
         enqueueSnackbar(formattedError);
         setLoading(false);
-    }, [enqueueSnackbar, setLoading, setError])
+    }, [enqueueSnackbar, setLoading, setError]);
 
-    const requestResetPassword = useCallback((email, gRecaptchaRes) => {
+    const resetPassword = useCallback((data) => {
         setLoading(true);
-        axios.post("/auth/users/reset_password/", { email, g_recaptcha_response: gRecaptchaRes })
-            .then(() => {
-                setLoading(false);
-                enqueueSnackbar("Reset password link will be sent to the provided email")
-            }).catch(handleRequestError);
-    }, [enqueueSnackbar, handleRequestError]);
-
-    const resetPassword = useCallback((data, successCallback) => {
-        setLoading(true);
-        axios.post("/auth/users/reset_password_confirm/", data)
+        
+        axios.post("/auth/resetpwd", data, SetHeaderToken())
             .then(() => {
                 enqueueSnackbar("Successfully updated password");
                 setLoading(false);
-                if (successCallback) {
-                    successCallback();
-                }
-            }).catch(handleRequestError)
-    }, [enqueueSnackbar, handleRequestError])
+            }).catch(handleRequestError);
+    }, [enqueueSnackbar, handleRequestError]);
 
     const register = useCallback(({ username, email, password }, successCallback) => {
         setLoading(true);
 
-        axios.post("/auth/users/", { username, email, password })
+        axios.post("/auth/register", { username, email, password })
             .then(() => {
                 enqueueSnackbar("Sign up is successful, you can now sign in with your credentials");
                 setLoading(false);
@@ -66,7 +55,7 @@ export default function useRequestAuth() {
                 setIsAuthenticated(true);
             })
             .catch(handleRequestError);
-    }, [handleRequestError, setLoading, setIsAuthenticated])
+    }, [handleRequestError, setLoading, setIsAuthenticated]);
 
     // There is no communication with DB if you logout
     const logout = useCallback(() => {
@@ -74,7 +63,7 @@ export default function useRequestAuth() {
         setIsAuthenticated(false);
         localStorage.removeItem("JWTToken");
         setLogoutPending(false);
-    }, [handleRequestError, setLogoutPending, setIsAuthenticated])
+    }, [handleRequestError, setLogoutPending, setIsAuthenticated]);
 
     return {
         register,
@@ -83,7 +72,6 @@ export default function useRequestAuth() {
         logoutPending,
         loading,
         error,
-        requestResetPassword,
         resetPassword
-    }
+    };
 }

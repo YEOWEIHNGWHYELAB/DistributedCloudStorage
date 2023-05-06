@@ -13,6 +13,11 @@ module.exports = (pool) => {
         authController.login(req, res, pool);
     });
 
+    // Change Password
+    router.post('/resetpwd', (req, res) => {
+        authController.changePassword(req, res, pool);
+    });
+
     // User self-identify
     router.get('/whoami', (req, res) => {
         authController.getUsername(req, res, pool);

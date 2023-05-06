@@ -1,5 +1,6 @@
 import {
     AppBar,
+    Button,
     IconButton,
     Menu,
     MenuItem,
@@ -29,7 +30,7 @@ const modalStyle = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: "50%",
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
@@ -41,23 +42,32 @@ export function AppHeader({ mobileOpen, setMobileOpen }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const [modalIsOpen, setModalIsOpen] = React.useState(false);
+    const [pwdModalIsOpen, setPwdModalIsOpen] = React.useState(false);
     const { user } = React.useContext(AuthContext);
-    const { logout, logoutPending } = RequestAuth();
+    const { logout, logoutPending, resetPassword } = RequestAuth();
+    const [oldPassword, setOldPassword] = React.useState('');
+    const [newPassword, setNewPassword] = React.useState('');
 
     const handleLogout = () => {
         logout();
     }
 
+    const handleOpenPwdModal = () => {
+        setPwdModalIsOpen(true);
+        setAnchorEl(null);
+    }
+
     const handleOpenModal = () => {
         setModalIsOpen(true);
-
-        // When set to null, will close the drop down
         setAnchorEl(null);
+    }
+
+    const handleClosePwdModal = () => {
+        setPwdModalIsOpen(false);
     }
 
     const handleCloseModal = () => {
         setModalIsOpen(false);
-
     }
 
     const handleClose = () => {
@@ -72,15 +82,87 @@ export function AppHeader({ mobileOpen, setMobileOpen }) {
         setMobileOpen(!mobileOpen);
     };
 
+    const handleChangeOldPwd = (event) => {
+        setOldPassword(event.target.value);
+    };
+
+    const handleChangeNewPwd = (event) => {
+        setNewPassword(event.target.value);
+    }
+
+    const handleChangePassword = () => {
+        const pwdChange = {
+            old_password: oldPassword,
+            new_password: newPassword
+        };
+        
+        setOldPassword("");
+        setNewPassword("");
+
+        resetPassword(pwdChange);
+    }
+
+    const pwdModal = (
+        <Modal open={pwdModalIsOpen} onClose={handleClosePwdModal}>
+            <Box sx={modalStyle}>
+                <Typography variant="h6" component="h2" sx={{
+                    mb: 3
+                }}>
+                    Change Password
+                </Typography>
+
+                <TextField
+                    id="oldpassword"
+                    variant="outlined"
+                    label="Old Password"
+                    autoComplete="old-password"
+                    type="password"
+                    value={oldPassword}
+                    onChange={handleChangeOldPwd}
+                    sx={{
+                        mb: 3,
+                        width: "100%"
+                    }}
+                />
+
+                <TextField
+                    id="newpassword"
+                    variant="outlined"
+                    label="New Password"
+                    autoComplete="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={handleChangeNewPwd}
+                    sx={{
+                        mb: 3,
+                        width: "100%"
+                    }}
+                />
+
+                <Button 
+                    onClick={handleChangePassword} 
+                    color="primary"
+                    style={{
+                        background: "grey"
+                    }}
+                >
+                    <Typography fontWeight={700}>Change Password</Typography>
+                </Button>
+            </Box>
+        </Modal>
+    )
+
     const modal = (
         <Modal open={modalIsOpen} onClose={handleCloseModal}>
             <Box sx={modalStyle}>
                 <Typography variant="h6" component="h2" sx={{
                     mb: 3
                 }}>
-                    Profile
+                    My Profile
                 </Typography>
-                <TextField id="username"
+
+                <TextField
+                    id="username"
                     variant="outlined"
                     label="Username"
                     value={user ? user.username : ""}
@@ -90,7 +172,9 @@ export function AppHeader({ mobileOpen, setMobileOpen }) {
                         width: "100%"
                     }}
                 />
-                <TextField id="email"
+
+                <TextField
+                    id="email"
                     variant="outlined"
                     label="Email"
                     value={user ? user.email : ""}
@@ -102,7 +186,7 @@ export function AppHeader({ mobileOpen, setMobileOpen }) {
                 />
             </Box>
         </Modal>
-    )
+    );
 
     const authLinks = (
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -137,7 +221,11 @@ export function AppHeader({ mobileOpen, setMobileOpen }) {
                 onClose={handleClose}
             >
                 <MenuItem onClick={handleOpenModal}>
-                    Profile
+                    My Profile
+                </MenuItem>
+
+                <MenuItem onClick={handleOpenPwdModal}>
+                    Change Password
                 </MenuItem>
 
                 <MenuItem disabled={logoutPending} onClick={handleLogout}>
@@ -178,12 +266,14 @@ export function AppHeader({ mobileOpen, setMobileOpen }) {
                 >
                     <MenuIcon />
                 </IconButton>
+
                 <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
                     DISTRIBUTED CLOUD STORAGE SYSTEM
                 </Typography>
                 {authLinks}
             </Toolbar>
             {modal}
+            {pwdModal}
         </AppBar>
     );
 }
