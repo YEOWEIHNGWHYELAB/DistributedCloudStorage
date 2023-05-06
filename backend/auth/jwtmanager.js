@@ -14,9 +14,14 @@ function verifyJWT(token, res, next) {
     try {
         jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'], ignoreExpiration: false });
         next();
-    } catch(err) {
+    } catch (err) {
         console.error(err);
-        res.status(401).json({ message: 'Invalid token' });
+
+        if (err instanceof jwt.TokenExpiredError) {
+            res.status(401).json({ message: 'Please login again' });
+        } else {
+            res.status(401).json({ message: 'Invalid token' });
+        }
     }
 }
 
@@ -35,7 +40,7 @@ async function generateToken(pool, user, res, isRegister = false) {
         } else {
             // Token is valid, sign it and return the token string
             const token = await jwt.sign(payload, process.env.JWT_SECRET, options);
-            
+
             // Return token
             if (isRegister) {
                 // Registration
@@ -45,7 +50,7 @@ async function generateToken(pool, user, res, isRegister = false) {
                 res.json({ message: 'Login successfully', token: token });
             }
         }
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
