@@ -43,9 +43,9 @@ export default function Login() {
           Login
         </Typography>
 
-        <Formik 
-          validationSchema={validationSchema} 
-          validateOnBlur={false} 
+        <Formik
+          validationSchema={validationSchema}
+          validateOnBlur={false}
           onSubmit={handleSubmit}
           initialValues={{
             username: "",
