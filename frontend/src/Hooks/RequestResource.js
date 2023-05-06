@@ -18,7 +18,8 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     const { setLoading } = loadingOverlay;
 
     function deleteSelectedResultID(results, idToDelete) {
-        return results.filter(result => !idToDelete.includes(result.id));
+        const idSet = new Set(idToDelete);
+        return results.filter(result => !idSet.has(result.id));
     }
 
     const handleRequestResourceError = useCallback((err) => {
