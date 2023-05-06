@@ -6,9 +6,9 @@ import setHeaderToken from "./SetHeaderToken";
 
 export const AuthContext = createContext({
     isAuthenticated: null,
-    setIsAuthenticated: () => { },
+    setIsAuthenticated: () => {},
     user: null,
-    setUser: () => { }
+    setUser: () => {}
 })
 
 export default function AuthContextProvider({ children }) {

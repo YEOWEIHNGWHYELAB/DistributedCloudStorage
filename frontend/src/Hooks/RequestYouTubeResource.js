@@ -23,6 +23,7 @@ export default function RequestResourceYouTube({ endpoint, resourceLabel}) {
         setError(formattedError);
         setLoading(false);
         enqueueSnackbar(formattedError);
+        window.location.href = '/auth/login';
     }, [enqueueSnackbar, setError, setLoading]);
 
     const getVideoListByPageToken = useCallback(({ pageToken = "" } = {}) => {

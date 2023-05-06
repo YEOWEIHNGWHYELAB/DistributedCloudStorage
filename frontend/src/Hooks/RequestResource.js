@@ -10,7 +10,6 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     const [resourceList, setResourceList] = useState({
         results: []
     });
-    const [resource, setResource] = useState(null);
     const [error, setError] = useState(null);
 
     const loadingOverlay = useContext(LoadingOverlayResourceContext);
@@ -60,17 +59,6 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                 }
             }).catch(handleRequestResourceError);
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
-
-    const getResource = useCallback((id) => {
-        setLoading(true);
-
-        axios.get(`/${endpoint}/${id}/`, SetHeaderToken())
-            .then((res) => {
-                setLoading(false);
-                const { data } = res;
-                setResource(data);
-            }).catch(handleRequestResourceError)
-    }, [endpoint, handleRequestResourceError, setLoading]);
 
     const updateResource = useCallback((values) => {
         setLoading(true);
@@ -150,8 +138,6 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         resourceList,
         getResourceList,
         addResource,
-        resource,
-        getResource,
         updateResource,
         deleteResource,
         deleteSelectedResource,

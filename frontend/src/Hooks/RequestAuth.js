@@ -43,26 +43,24 @@ export default function useRequestAuth() {
 
     const register = useCallback(({ username, email, password }, successCallback) => {
         setLoading(true);
-        axios.post("/auth/users/", {
-            username,
-            email,
-            password
-        })
+
+        axios.post("/auth/users/", { username, email, password })
             .then(() => {
                 enqueueSnackbar("Sign up is successful, you can now sign in with your credentials");
                 setLoading(false);
                 if (successCallback) {
                     successCallback();
                 }
-            }).catch(handleRequestError)
-    }, [enqueueSnackbar, handleRequestError, setLoading])
+            })
+            .catch(handleRequestError);
+    }, [enqueueSnackbar, handleRequestError, setLoading]);
 
     const login = useCallback(({ username, password }) => {
         setLoading(true);
 
         axios.post("/auth/login", { username, password })
             .then((res) => {
-                const token = res.data.token
+                const token = res.data.token;
                 localStorage.setItem("JWTToken", token);
                 setLoading(false);
                 setIsAuthenticated(true);
@@ -70,21 +68,13 @@ export default function useRequestAuth() {
             .catch(handleRequestError);
     }, [handleRequestError, setLoading, setIsAuthenticated])
 
+    // There is no communication with DB if you logout
     const logout = useCallback(() => {
         setLogoutPending(true);
-
-        axios.post("/auth/logout", null, setHeaderToken())
-            .then(() => {
-                localStorage.removeItem("JWTToken");
-                setLogoutPending(false);
-                setUser(null);
-                setIsAuthenticated(false);
-            })
-            .catch((err) => {
-                setLogoutPending(false);
-                handleRequestError(err);
-            })
-    }, [handleRequestError, setLogoutPending, setIsAuthenticated, setUser])
+        setIsAuthenticated(false);
+        localStorage.removeItem("JWTToken");
+        setLogoutPending(false);
+    }, [handleRequestError, setLogoutPending, setIsAuthenticated])
 
     return {
         register,

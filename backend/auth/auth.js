@@ -67,40 +67,6 @@ exports.login = async (req, res, pool) => {
     }
 };
 
-// Logout user
-exports.logout = async (req, res, pool) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res.status(401).json({ message: 'Authorization header missing' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-
-    if (!decoded || !decoded.header || !decoded.header.jti) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    const logoutTime = new Date();
-    const token_id = decoded.header.jti;
-
-    try {
-        // Update the expiry to the logout time which is when the user logs out
-        await client.query(
-            `UPDATE JWTBlackList 
-            SET expires_at = $1 
-            WHERE username = $2 
-                AND token_id = $3 
-                AND expires_at > $4`,
-            [logoutTime, decoded.username, token_id, logoutTime]);
-
-        return res.json({ success: true, message: 'Logged out successfully' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
 // whoami
 exports.getUsername = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
