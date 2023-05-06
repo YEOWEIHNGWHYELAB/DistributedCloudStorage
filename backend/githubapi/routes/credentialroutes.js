@@ -23,5 +23,10 @@ module.exports = (pool) => {
         credentialController.deleteCredetials(req, res, pool);
     });
 
+    // Delete multiple GitHub Credentials from user
+    router.post('/credentials/muldel', (req, res) => {
+        credentialController.deleteMultipleCredetials(req, res, pool);
+    });
+
     return router;
 };

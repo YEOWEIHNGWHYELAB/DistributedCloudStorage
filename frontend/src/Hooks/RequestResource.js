@@ -17,6 +17,10 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     const { enqueueSnackbar } = useSnackbar();
     const { setLoading } = loadingOverlay;
 
+    function deleteSelectedResultID(results, idToDelete) {
+        return results.filter(result => !idToDelete.includes(result.id));
+    }
+
     const handleRequestResourceError = useCallback((err) => {
         const formattedError = HTTPAPIError(err);
         setError(formattedError);
@@ -44,7 +48,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     const addResource = useCallback((values, successCallback) => {
         setLoading(true);
-        
+
         axios.post(`/${endpoint}`, values, SetHeaderToken())
             .then(() => {
                 setLoading(false);
@@ -123,6 +127,22 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             .catch(handleRequestResourceError);
     }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
+    const deleteSelectedResource = useCallback((selectedIDs) => {
+        setLoading(true);
+
+        axios.post(`/${endpoint}/muldel`, { id: selectedIDs }, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+                enqueueSnackbar(`Selected ${resourceLabel} deleted!`);
+
+                const newResourceList = {
+                    results: deleteSelectedResultID(resourceList.results, selectedIDs)
+                };
+
+                setResourceList(newResourceList);
+            }).catch(handleRequestResourceError);
+    }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
     return {
         addResource,
         resourceList,
@@ -132,6 +152,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         getResource,
         updateResource,
         deleteResource,
+        deleteSelectedResource,
         error
     }
 }

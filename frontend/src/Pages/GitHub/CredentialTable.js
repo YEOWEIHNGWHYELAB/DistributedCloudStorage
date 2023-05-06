@@ -81,7 +81,7 @@ const StyledCell = styled.td`
 `;
 
 function CredentialsTable() {
-    const { addResource, getResourceList, resourceList, updateResource, deleteResource } = RequestResource({
+    const { addResource, getResourceList, resourceList, updateResource, deleteResource, deleteSelectedResource } = RequestResource({
         endpoint: "github/credentials",
         resourceLabel: "GitHub Credentials",
     });
@@ -94,6 +94,7 @@ function CredentialsTable() {
     const [idDelete, setIDDelete] = useState(null);
     const [idEdit, setIDEdit] = useState(null);
     const [credToEdit, setCredToEdit] = useState(null);
+    const [selectedElements, setSelectedElements] = useState([]);
 
     const handleOpenDeleteDialog = (id) => {
         setIDDelete(id);
@@ -114,6 +115,10 @@ function CredentialsTable() {
     const [openD, setOpenD] = useState(false);
 
     const handleOpen = () => setOpenD(true);
+
+    const handleDeleteSelected = () => {
+        deleteSelectedResource(selectedElements);
+    }
 
     const handleOpenEdit = (editID, credToEdit) => {
         setIDEdit(editID);
@@ -300,6 +305,7 @@ function CredentialsTable() {
                 onClick={handleOpen}
                 style={{
                     border: "2px solid #ff7bff",
+                    margin: "2px",
                     borderRadius: "4px",
                     padding: "8px",
                     width: "20%",
@@ -309,6 +315,22 @@ function CredentialsTable() {
                 }}
             >
                 ADD NEW CREDENTIAL
+            </MUIButton>
+
+            <MUIButton 
+                onClick={handleDeleteSelected}
+                style={{
+                    border: "2px solid #ff0000",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "20%",
+                    boxSizing: "border-box",
+                    color: "#ff0",
+                    backgroundColor: "22f",
+                }}
+            >
+                Delete Selected Credentials
             </MUIButton>
 
             <br/>
@@ -333,6 +355,10 @@ function CredentialsTable() {
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
+                        <StyledHeaderCell>
+                            Select
+                        </StyledHeaderCell>
+
                         <StyledHeaderCell
                             className={
                                 sortField === "github_username"
@@ -367,8 +393,31 @@ function CredentialsTable() {
                     {filteredCredentials.map((credential) => (
                         <StyledRow key={credential.id}>
                             <StyledCell>
+                                <input
+                                    type="checkbox"
+                                    onChange={(event) => {
+                                        const isChecked = event.target.checked;
+
+                                        setSelectedElements((prevSelectedElements) => {
+                                            if (isChecked) {
+                                                return [
+                                                    ...prevSelectedElements,
+                                                    credential.id,
+                                                ];
+                                            } else {
+                                                return prevSelectedElements.filter(
+                                                    (id) => id !== credential.id
+                                                );
+                                            }
+                                        });
+                                    }}
+                                    checked={selectedElements.includes(credential.id)}
+                                />
+                            </StyledCell>
+                            <StyledCell>
                                 {credential.github_username}
                             </StyledCell>
+
                             <StyledCell>{credential.email}</StyledCell>
                             <StyledCell>
                                 <IconButton
@@ -382,6 +431,7 @@ function CredentialsTable() {
                                     />
                                 </IconButton>
                             </StyledCell>
+
                             <StyledCell>
                                 <IconButton
                                     onClick={() =>
