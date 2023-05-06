@@ -27,7 +27,8 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         setError(formattedError);
         setLoading(false);
         enqueueSnackbar(formattedError);
-    }, [enqueueSnackbar, setError, setLoading])
+        window.location.href = '/auth/login';
+    }, [enqueueSnackbar, setError, setLoading]);
 
     // Callback lets us recreate function when dependencies created 
     const getResourceList = useCallback(({ query = "" } = {}) => {

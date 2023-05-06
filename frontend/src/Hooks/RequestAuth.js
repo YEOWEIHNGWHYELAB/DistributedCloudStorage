@@ -26,9 +26,8 @@ export default function useRequestAuth() {
             .then(() => {
                 setLoading(false);
                 enqueueSnackbar("Reset password link will be sent to the provided email")
-
-            }).catch(handleRequestError)
-    }, [enqueueSnackbar, handleRequestError])
+            }).catch(handleRequestError);
+    }, [enqueueSnackbar, handleRequestError]);
 
     const resetPassword = useCallback((data, successCallback) => {
         setLoading(true);
@@ -73,7 +72,8 @@ export default function useRequestAuth() {
 
     const logout = useCallback(() => {
         setLogoutPending(true);
-        axios.post("/auth/token/logout/", null, setHeaderToken())
+
+        axios.post("/auth/logout", null, setHeaderToken())
             .then(() => {
                 localStorage.removeItem("JWTToken");
                 setLogoutPending(false);

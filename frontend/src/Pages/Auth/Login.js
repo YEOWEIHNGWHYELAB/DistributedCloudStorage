@@ -59,7 +59,7 @@ export default function Login() {
                   required
                   fullWidth
                   id="username"
-                  label="Username / Email Address"
+                  label="Username"
                   name="username"
                   autoFocus
                   {...formik.getFieldProps("username")}
@@ -70,11 +70,10 @@ export default function Login() {
                   margin="normal"
                   required
                   fullWidth
+                  id="password"
                   name="password"
                   label="Password"
                   type="password"
-                  id="password"
-                  autoComplete="current-password"
                   {...formik.getFieldProps("password")}
                   error={formik.touched.password && Boolean(formik.errors.password)}
                   helperText={formik.touched.password && formik.errors.password}
@@ -96,7 +95,7 @@ export default function Login() {
                   </Grid>
                   <Grid item>
                     <Link to="/auth/signup" keys="signup">
-                      {"Don't have an account? Sign Up"}
+                      {"Don't have an account? Register"}
                     </Link>
                   </Grid>
                 </Grid>

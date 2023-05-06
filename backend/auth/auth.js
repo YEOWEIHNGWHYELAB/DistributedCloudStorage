@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { auth } = require('google-auth-library');
+const jwtManager = require('./jwtmanager');
+
 
 // Register user
 exports.register = async (req, res, pool) => {
@@ -27,10 +28,7 @@ exports.register = async (req, res, pool) => {
         const newUser = insertResult.rows[0];
 
         // Sign JWT token
-        const token = jwt.sign({ username: newUser.username }, process.env.JWT_SECRET, { algorithm: 'HS256' });
-
-        // Return token
-        res.json({  message: 'User created successfully', user: insertResult.rows[0], token });
+        jwtManager.generateToken(pool, newUser, res, true);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -62,10 +60,41 @@ exports.login = async (req, res, pool) => {
         }
 
         // Sign JWT token
-        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { algorithm: 'HS256' });
+        jwtManager.generateToken(pool, user, res, false);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
-        // Return token
-        res.json({ token });
+// Logout user
+exports.logout = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Authorization header missing' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+
+    if (!decoded || !decoded.header || !decoded.header.jti) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const logoutTime = new Date();
+    const token_id = decoded.header.jti;
+
+    try {
+        // Update the expiry to the logout time which is when the user logs out
+        await client.query(
+            `UPDATE JWTBlackList 
+            SET expires_at = $1 
+            WHERE username = $2 
+                AND token_id = $3 
+                AND expires_at > $4`,
+            [logoutTime, decoded.username, token_id, logoutTime]);
+
+        return res.json({ success: true, message: 'Logged out successfully' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -83,7 +112,7 @@ exports.getUsername = async (req, res, pool) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'], ignoreExpiration: false });
         const queryResult = await pool.query('SELECT * FROM users WHERE username = $1', [decoded.username]);
         res.json({ username: decoded.username, email: queryResult.rows[0].email });
     } catch (err) {
@@ -93,7 +122,7 @@ exports.getUsername = async (req, res, pool) => {
 }
 
 // Verify JWT token
-exports.isAuthenticated = (req, res, next) => {
+exports.isAuthenticated = async (req, res, next, pool) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -102,13 +131,11 @@ exports.isAuthenticated = (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-        req.username = decoded.username;
-        // console.log(decoded.username + " have successfully requested for...")
-        next();
-    } catch (err) {
-        console.error(err);
+    const countBlackListedToken = await jwtManager.isBlacklistedToken(jwtManager.jwtOptions(), pool);
+
+    if (countBlackListedToken > 0) {
         res.status(401).json({ message: 'Invalid token' });
+    } else {
+        jwtManager.verifyJWT(token, res, next);
     }
 };

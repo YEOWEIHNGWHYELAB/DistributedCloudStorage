@@ -6,6 +6,13 @@ CREATE TABLE IF NOT EXISTS Users (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- This table is for banning certain JWT only
+CREATE TABLE IF NOT EXISTS JWTBlackList (
+    id SERIAL PRIMARY KEY,
+    token_id TEXT NOT NULL,
+    revoked_at TIMESTAMP DEFAULT NOW()
+);
+
 /* YouTube Tables */
 CREATE TABLE IF NOT EXISTS YouTubeCredential (
     id SERIAL PRIMARY KEY,

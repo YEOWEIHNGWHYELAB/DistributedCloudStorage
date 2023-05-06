@@ -13,6 +13,12 @@ module.exports = (pool) => {
         authController.login(req, res, pool);
     });
 
+    // Logout user
+    router.post('/logout', (req, res) => {
+        authController.logout(req, res, pool);
+    });
+
+    // User self-identify
     router.get('/whoami', (req, res) => {
         authController.getUsername(req, res, pool);
     });
