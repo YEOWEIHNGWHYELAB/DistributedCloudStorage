@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('./auth');
+const authController = require('../apicaller/auth');
 
 module.exports = (pool) => {
     // Register user

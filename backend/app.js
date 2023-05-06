@@ -5,7 +5,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
-const auth = require('./auth/auth');
+const auth = require('./auth/apicaller/auth');
 var OAuth2 = google.auth.OAuth2;
 
 // File Imports
@@ -50,7 +50,7 @@ pool.query('SELECT NOW()', (err, res) => {
 });
 
 // Authentication Routing
-const authRouter = require('./auth/routes')(pool);
+const authRouter = require('./auth/routes/authroutes')(pool);
 app.use('/auth', authRouter);
 
 // GitHub Routers

@@ -80,10 +80,21 @@ exports.getUsername = async (req, res, pool) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'], ignoreExpiration: false });
         const queryResult = await pool.query('SELECT * FROM users WHERE username = $1', [decoded.username]);
+
+        const count = await jwtManager.isBlacklistedToken(decoded.jti, pool);
+
+        if (count > 0) {
+            res.status(401).json({ message: 'Banned token!' });
+            return;
+        }
+
         res.json({ username: decoded.username, email: queryResult.rows[0].email });
     } catch (err) {
-        console.error(err);
-        res.status(401).json({ message: 'Invalid token' });
+        if (err instanceof jwt.TokenExpiredError) {
+            res.status(401).json({ message: 'Please login again' });
+        } else {
+            res.status(401).json({ message: 'Invalid token' });
+        }
     }
 }
 
@@ -102,6 +113,6 @@ exports.isAuthenticated = async (req, res, next, pool) => {
     if (countBlackListedToken > 0) {
         res.status(401).json({ message: 'Invalid token' });
     } else {
-        jwtManager.verifyJWT(token, res, next);
+        jwtManager.verifyJWT(token, res, next, pool);
     }
 };

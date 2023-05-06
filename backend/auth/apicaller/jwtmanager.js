@@ -10,13 +10,18 @@ const jwtOptions = () => {
 }
 
 // Verifies the JWT and return the decoded result
-function verifyJWT(token, res, next) {
+async function verifyJWT(token, res, next, pool) {
     try {
-        jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'], ignoreExpiration: false });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'], ignoreExpiration: false });
+        const count = await isBlacklistedToken(decoded.jti, pool);
+
+        if (count > 0) {
+            res.status(401).json({ message: 'Banned token!' });
+            return;
+        }
+
         next();
     } catch (err) {
-        console.error(err);
-
         if (err instanceof jwt.TokenExpiredError) {
             res.status(401).json({ message: 'Please login again' });
         } else {
@@ -32,7 +37,7 @@ async function generateToken(pool, user, res, isRegister = false) {
 
     try {
         // Check if the token_id has been blacklisted
-        const count = await isBlacklistedToken(options, pool);
+        const count = await isBlacklistedToken(options.jwtid, pool);
 
         if (count > 0) {
             // Token has been blacklisted, generate a new one
@@ -57,11 +62,11 @@ async function generateToken(pool, user, res, isRegister = false) {
 }
 
 // Checks if the token is blacklisted
-async function isBlacklistedToken(options, pool) {
+async function isBlacklistedToken(jwt_id, pool) {
     const queryResult = await pool.query(
         `SELECT COUNT(*) 
             FROM JWTBlackList 
-            WHERE token_id = $1`, [options.jwtid]);
+            WHERE token_id = $1`, [jwt_id]);
 
     const count = parseInt(queryResult.rows[0].count);
 

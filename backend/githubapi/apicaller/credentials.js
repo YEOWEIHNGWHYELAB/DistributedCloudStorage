@@ -68,6 +68,7 @@ exports.getCredentials = async (req, res, pool) => {
             "SELECT id, github_username, email, access_token FROM GitHubCredential WHERE username = $1",
             [decoded.username]
         );
+        
         res.json(queryResult.rows);
     } catch (err) {
         console.error(err);
