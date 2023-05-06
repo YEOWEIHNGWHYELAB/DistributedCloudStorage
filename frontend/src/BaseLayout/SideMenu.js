@@ -128,7 +128,7 @@ const NestedListItem = ({ li }) => {
                                 }`;
                             }}
                             to={child.to}
-                            key={li.key}
+                            key={child.name}
                         >
                             <ListItem 
                                 key={child.name}
