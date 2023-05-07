@@ -30,8 +30,12 @@ exports.register = async (req, res, pool) => {
         // Sign JWT token
         jwtManager.generateToken(pool, newUser, res, true);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        // console.error(err);
+        if (err.code === '23505' && err.constraint === 'unique_username') {
+            res.status(401).json({ message: 'Username already taken!' });
+        } else {
+            res.status(500).json({ message: 'Server error' });
+        }
     }
 };
 

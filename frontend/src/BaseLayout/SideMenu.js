@@ -18,9 +18,11 @@ import Collapse from "@mui/material/Collapse";
 import ListIcon from "@mui/icons-material/List";
 import AddIcon from '@mui/icons-material/Add';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import KeyIcon from '@mui/icons-material/Key';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
+import ArticleIcon from '@mui/icons-material/Article';
 
 import { Box } from "@mui/system";
 import { GlobalStyles, useTheme } from "@mui/material";
@@ -39,6 +41,17 @@ const listItems = [
         ],
     },
     {
+        key: "github",
+        to: "/github",
+        name: "GitHub",
+        icon: <GitHubIcon />,
+        children: [
+            { name: "Credentials Table", icon: <KeyIcon />, to: "/github/credential" },
+            { name: "Repositories Table", icon: <ViewListIcon />, to: "/github/repo" },
+            { name: "My Files", icon: <ArticleIcon />, to: "/github/files" },
+        ],
+    },
+    {
         key: "youtube",
         to: "/youtube",
         name: "YouTube",
@@ -48,18 +61,7 @@ const listItems = [
             { name: "List All Videos", icon: <ListIcon />, to: "/youtube/listall" },
             { name: "List Videos Paginated", icon: <ListIcon />, to: "/youtube/listpg" },
         ],
-    },
-    {
-        key: "github",
-        to: "/github",
-        name: "GitHub",
-        icon: <GitHubIcon />,
-        children: [
-            { name: "Credential List", icon: <KeyIcon />, to: "/github/credential" },
-            { name: "Create Repo", icon: <AddIcon />, to: "/github/createrepo" },
-            { name: "Repo List", icon: <ListIcon />, to: "/github/repolist" },
-        ],
-    },
+    }
 ];
 
 const SidebarGlobalStyles = () => {

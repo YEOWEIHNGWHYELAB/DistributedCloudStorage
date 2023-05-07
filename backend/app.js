@@ -53,11 +53,18 @@ pool.query('SELECT NOW()', (err, res) => {
 const authRouter = require('./auth/routes/authroutes')(pool);
 app.use('/auth', authRouter);
 
-// GitHub Routers
-const githubRouter = require('./githubapi/routes/credentialroutes')(pool);
+// GitHub Credential Routers
+const githubCredentialsRouter = require('./githubapi/routes/credentialroutes')(pool);
 app.use('/github', (req, res, next) => {
     auth.isAuthenticated(req, res, next, pool);
-}, githubRouter);
+}, githubCredentialsRouter);
+
+const githubMyFilesRouter = require('./githubapi/routes/myfilesroutes')(pool);
+app.use('/github', (req, res, next) => {
+    auth.isAuthenticated(req, res, next, pool);
+}, githubMyFilesRouter);
+
+// GitHub Credential Routers
 
 // GET route for listing all videos in the user's YouTube channel
 app.get('/youtube', auth.isAuthenticated, async (req, res, next) => {
