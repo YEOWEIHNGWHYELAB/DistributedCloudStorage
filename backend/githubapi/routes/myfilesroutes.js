@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const myFilesController = require('../apicaller/credentials');
+const myFilesController = require('../apicaller/myfiles');
 
 module.exports = (pool) => {
     // Create new files for user

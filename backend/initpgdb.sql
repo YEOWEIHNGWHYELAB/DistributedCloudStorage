@@ -75,3 +75,10 @@ CREATE TABLE IF NOT EXISTS GitHubFID (
     gh_repo_id SERIAL REFERENCES GitHubRepoList(id),
     gh_file_uid BIGINT DEFAULT 1 NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS GitHubAccountStorage (
+    id SERIAL PRIMARY KEY,
+    gh_account_id SERIAL REFERENCES GitHubCredential(id),
+    gh_storage BIGINT DEFAULT 0 NOT NULL,
+    gh_latest_repo_storage INT DEFAULT 0 NOT NULL
+);
