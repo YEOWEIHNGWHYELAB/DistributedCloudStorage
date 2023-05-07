@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS GitHubCredential (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) REFERENCES Users(username),
     github_username VARCHAR(50) UNIQUE NOT NULL,
-    latest_file_id SERIAL UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     access_token VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -61,7 +60,7 @@ CREATE TABLE IF NOT EXISTS GitHubFiles (
 ) PARTITION BY LIST (username);
 
 /*
-    Each user should only have 1 GitHubFID entry 
+    Each user should only have 1 GitHubFID per account!
 
     To decide what the next file should be uploaded to and what it should 
     be named, do note that we should consider which account to upload the 
@@ -76,6 +75,10 @@ CREATE TABLE IF NOT EXISTS GitHubFID (
     gh_file_uid BIGINT DEFAULT 1 NOT NULL
 );
 
+/* 
+    One account will have a total storage and its latest "working" repo's
+    storage to in it
+*/
 CREATE TABLE IF NOT EXISTS GitHubAccountStorage (
     id SERIAL PRIMARY KEY,
     gh_account_id SERIAL REFERENCES GitHubCredential(id),

@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const myFilesController = require('../apicaller/myfiles');
+const multer = require('multer');
+const uploadsTempStorage = multer({ dest: '../../tempstorage/' });
 
 module.exports = (pool) => {
     // Create new files for user
-    router.post('/files', (req, res) => {
-        myFilesController.createNewFile(req, res, pool);
+    router.post('/files', uploadsTempStorage.single('File'), (req, res) => {
+        myFilesController.createNewFile(req, res, pool, uploadsTempStorage);
     });
 
     // Get all user's available files

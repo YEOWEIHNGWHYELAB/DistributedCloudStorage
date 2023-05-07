@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const initializerTable = require("./initializer");
+
 
 exports.createCredentials = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
@@ -38,6 +40,12 @@ exports.createCredentials = async (req, res, pool) => {
             createParam.email,
             createParam.access_token,
         ]);
+
+        const newRepoName = "dcs_1";
+
+        const intializingResult = await initializerTable.initializeNewCredentialRepo(createParam.access_token, newRepoName);
+        const intializingNewCredentialTable = await initializerTable.initializeNewCredentialRepoDCS(pool, decoded.username, newRepoName, createParam.github_username);
+
         res.json({
             success: true,
             message: `Created ${queryResult.rowCount} rows`,

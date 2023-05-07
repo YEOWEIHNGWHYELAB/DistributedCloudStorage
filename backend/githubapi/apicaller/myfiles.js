@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const fetch = require('node-fetch');
+const { Octokit } = require("@octokit/rest");
+const fs = require("fs");
+
 
 // Check if the auth header exist from DCS
 function checkAuthHeader(authHeader, res) {
@@ -20,7 +23,7 @@ function checkAuthHeader(authHeader, res) {
  * takes a long time to be up to date!
  * 
  * You could use this for statistics for non-mission critical application
- */ 
+ */
 async function getRepositoriesSize(token) {
     const response = await fetch('https://api.github.com/user/repos', {
         headers: {
@@ -61,7 +64,7 @@ async function getRepositoriesSize(token) {
  * Insert into the file table with the original file name and the name 
  * on github.
  */
-exports.createNewFile = async (req, res, pool) => {
+exports.createNewFile = async (req, res, pool, uploadsTempStorage) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
@@ -87,41 +90,48 @@ exports.createNewFile = async (req, res, pool) => {
 
     const queryGitHubUsernameToken = queryCredentials.rows;
 
-    console.log(queryGitHubUsernameToken);
-
     let optimalGitHubUsername;
     let maxStorage = Number.MAX_VALUE;
 
     const queryForAccountStorage = `
-        SELECT gh_account_id, access_token 
-        FROM GitHubCredential 
+        SELECT gh_account_id, access_token
+        FROM GitHubCredential
         WHERE username = $1`;
 
-    /*
-    const createQuery = `
-        INSERT INTO GitHubCredential
-        (username, github_username, email, access_token)
-        VALUES ($1, $2, $3, $4)
-    `;
+    const { filePath } = req.file;
 
-    const createParam = req.body;
+    const octokit = new Octokit({
+        auth: process.env.GH_ACCESS_TOKEN
+    });
 
+    const branch = "main";
+
+    // Upload file to GitHub using GitHub API
     try {
-        const queryResult = await pool.query(createQuery, [
-            decoded.username,
-            createParam.github_username,
-            createParam.email,
-            createParam.access_token,
-        ]);
+        const fileContent = fs.readFileSync(filePath);
+        const encodedContent = Buffer.from(fileContent).toString("base64");
+
+        const { data } = await octokit.repos.createOrUpdateFileContents({
+            owner: optimalGitHubUsername,
+            repo: repo,
+            message: "Added new file",
+            content: encodedContent,
+            committer: {
+                name: optimalGitHubUsername,
+            },
+            branch: branch
+        });
+
+        console.log(data);
+
         res.json({
             success: true,
-            message: `Created ${queryResult.rowCount} rows`,
+            message: `Successfully uploaded file!`
         });
-    } catch (err) {
-        console.error(err);
-        res.json({ success: false, message: err.message });
+    } catch (error) {
+        res.status(401).json({ message: "File upload failed!" });
+        console.log(error);
     }
-    */
 };
 
 exports.getAllFiles = async (req, res, pool) => {

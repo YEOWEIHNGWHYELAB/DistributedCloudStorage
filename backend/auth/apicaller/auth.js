@@ -28,6 +28,12 @@ exports.register = async (req, res, pool) => {
         const insertResult = await pool.query('INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *', [username, email, hashedPassword]);
         const newUser = insertResult.rows[0];
 
+        /**
+         * Creates the table parition on files table
+         * 
+         * Note that we pass username without converting it to lower case as 
+         * postgresql would do it automatically
+         */
         const createTableResult = await createtTablePartition.createRequiredFileTable(username, pool);
         // console.log(createTableResult);
 
