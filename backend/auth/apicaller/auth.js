@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const jwtManager = require('./jwtmanager');
+const createtTablePartition = require('../filemanager/createtable');
 
 
 // Register user
@@ -26,6 +27,9 @@ exports.register = async (req, res, pool) => {
         // Insert new user
         const insertResult = await pool.query('INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *', [username, email, hashedPassword]);
         const newUser = insertResult.rows[0];
+
+        const createTableResult = await createtTablePartition.createRequiredFileTable(username, pool);
+        // console.log(createTableResult);
 
         // Sign JWT token
         jwtManager.generateToken(pool, newUser, res, true);

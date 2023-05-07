@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS GitHubRepoList (
     the same name!
 */ 
 CREATE TABLE IF NOT EXISTS GitHubFiles (
-    id SERIAL PRIMARY KEY,
+    id SERIAL,
     username VARCHAR(255) REFERENCES Users(username),
     gh_account_id SERIAL REFERENCES GitHubCredential(id),
     gh_repo_id SERIAL REFERENCES GitHubRepoList(id),
@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS GitHubFiles (
     gh_filename SERIAL NOT NULL, 
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    UNIQUE(username, gh_filename)
-);
+    PRIMARY KEY (id, username)
+) PARTITION BY LIST (username);
 
 /*
     Each user should only have 1 GitHubFID entry 

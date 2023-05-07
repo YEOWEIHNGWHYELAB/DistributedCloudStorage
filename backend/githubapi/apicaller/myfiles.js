@@ -77,45 +77,25 @@ exports.createNewFile = async (req, res, pool) => {
     }
 
     const username = decoded.username;
-    const query = `
-        SELECT github_username, access_token 
+    const queryForCredentials = `
+        SELECT id, github_username, access_token 
         FROM GitHubCredential 
         WHERE username = $1`;
     const values = [username];
 
-    const queryCredentials = await pool.query(query, values);
+    const queryCredentials = await pool.query(queryForCredentials, values);
 
     const queryGitHubUsernameToken = queryCredentials.rows;
+
+    console.log(queryGitHubUsernameToken);
 
     let optimalGitHubUsername;
     let maxStorage = Number.MAX_VALUE;
 
-    // Do not use this method to obtain the storage!
-    for (let i = 0; i < queryGitHubUsernameToken.length; i++) {
-        const gh_username = queryGitHubUsernameToken[i].github_username;
-        const gh_access_token = queryGitHubUsernameToken[i].access_token;
-        
-        let currStorage = 0;
-
-        try {
-            const repositories = await getRepositoriesSize(gh_access_token);
-
-            for (let curr_repo of repositories) {
-                currStorage += curr_repo.size;
-            }
-
-            // console.log(currStorage);
-
-            if (maxStorage > currStorage) {
-                maxStorage = currStorage;
-                optimalGitHubUsername = gh_username;
-            }
-        } catch(error) {
-            res.status(401).json({ message: "GitHub API Error" });
-        }
-    }
-    
-    console.log(optimalGitHubUsername);
+    const queryForAccountStorage = `
+        SELECT gh_account_id, access_token 
+        FROM GitHubCredential 
+        WHERE username = $1`;
 
     /*
     const createQuery = `
