@@ -64,7 +64,7 @@ async function getRepositoriesSize(token) {
  * Insert into the file table with the original file name and the name 
  * on github.
  */
-exports.createNewFile = async (req, res, pool, uploadsTempStorage) => {
+exports.createNewFile = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
@@ -107,8 +107,10 @@ exports.createNewFile = async (req, res, pool, uploadsTempStorage) => {
     // All required information for upload decision
     let optimalGitHubCredUsername;
     let optimalGitHubCredAccessToken;
-    let optimalRepo;
+    let optimalRepoFullName;
+    let optimalFileName;
     
+    // Obtain the GitHub's username for otimal account as well as the personal access token
     for (currCred of queryGitHubUsernameToken) {
         if (currCred.id == optimalGitHubAccount) {
             optimalGitHubCredUsername = currCred.github_username;
@@ -116,33 +118,52 @@ exports.createNewFile = async (req, res, pool, uploadsTempStorage) => {
         }
     }
 
-    /*
+    // Get latest repo name
+    const queryForReponame = `
+        SELECT repo_name
+        FROM GitHubRepoList
+        WHERE id = (
+            SELECT gh_repo_id
+            FROM GitHubFID
+            WHERE gh_account_id = $1)
+    `;
+    const queryOptimalRepoName = await pool.query(queryForReponame, [optimalGitHubAccount]);
+    optimalRepoFullName = queryOptimalRepoName.rows[0].repo_name;
 
-    const { filePath } = req.file;
-
+    // Get latest filename
+    const queryForFileName = `
+        SELECT gh_file_uid
+        FROM GitHubFID
+        WHERE gh_account_id = $1
+    `;
+    const queryOptimalFileName = await pool.query(queryForFileName, [optimalGitHubAccount]);
+    optimalFileName = queryOptimalFileName.rows[0].gh_file_uid;
+    
+    // Upload to chosen GitHub optimal account
+    const { originalname, filename, path } = req.file;
     const octokit = new Octokit({
-        auth: process.env.GH_ACCESS_TOKEN
+        auth: optimalGitHubCredAccessToken
     });
-
     const branch = "main";
 
-    // Upload file to GitHub using GitHub API
     try {
-        const fileContent = fs.readFileSync(filePath);
+        const fileContent = fs.readFileSync(path);
         const encodedContent = Buffer.from(fileContent).toString("base64");
 
         const { data } = await octokit.repos.createOrUpdateFileContents({
-            owner: optimalGitHubUsername,
-            repo: repo,
-            message: "Added new file",
+            owner: optimalGitHubCredUsername,
+            repo: optimalRepoFullName,
+            message: `Added new file ${originalname}`,
             content: encodedContent,
+            path: optimalFileName,
             committer: {
-                name: optimalGitHubUsername,
+                name: optimalGitHubCredUsername,
+                email: "whyelab@gmail.com"
             },
             branch: branch
         });
 
-        console.log(data);
+        // console.log(data);
 
         res.json({
             success: true,
@@ -152,7 +173,9 @@ exports.createNewFile = async (req, res, pool, uploadsTempStorage) => {
         res.status(401).json({ message: "File upload failed!" });
         console.log(error);
     }
-    */
+
+    // Update file ID & GitHub latest account if applicable
+
 };
 
 exports.getAllFiles = async (req, res, pool) => {

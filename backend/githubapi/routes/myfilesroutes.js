@@ -7,7 +7,7 @@ const uploadsTempStorage = multer({ dest: '../../tempstorage/' });
 module.exports = (pool) => {
     // Create new files for user
     router.post('/files', uploadsTempStorage.single('File'), (req, res) => {
-        myFilesController.createNewFile(req, res, pool, uploadsTempStorage);
+        myFilesController.createNewFile(req, res, pool);
     });
 
     // Get all user's available files
