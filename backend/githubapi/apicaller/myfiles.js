@@ -90,13 +90,33 @@ exports.createNewFile = async (req, res, pool, uploadsTempStorage) => {
 
     const queryGitHubUsernameToken = queryCredentials.rows;
 
-    let optimalGitHubUsername;
-    let maxStorage = Number.MAX_VALUE;
-
     const queryForAccountStorage = `
-        SELECT gh_account_id, access_token
-        FROM GitHubCredential
-        WHERE username = $1`;
+        SELECT gh_account_id, gh_storage
+        FROM GitHubAccountStorage
+        WHERE gh_account_id IN (
+            SELECT gh_account_id
+            FROM GitHubCredential
+            WHERE username = $1
+        )
+        ORDER BY gh_storage ASC
+        LIMIT 1`;
+
+    const queryAllAccountStorage = await pool.query(queryForAccountStorage, [username]);
+    const optimalGitHubAccount = queryAllAccountStorage.rows[0].gh_account_id;
+    
+    // All required information for upload decision
+    let optimalGitHubCredUsername;
+    let optimalGitHubCredAccessToken;
+    let optimalRepo;
+    
+    for (currCred of queryGitHubUsernameToken) {
+        if (currCred.id == optimalGitHubAccount) {
+            optimalGitHubCredUsername = currCred.github_username;
+            optimalGitHubCredAccessToken = currCred.access_token;
+        }
+    }
+
+    /*
 
     const { filePath } = req.file;
 
@@ -132,6 +152,7 @@ exports.createNewFile = async (req, res, pool, uploadsTempStorage) => {
         res.status(401).json({ message: "File upload failed!" });
         console.log(error);
     }
+    */
 };
 
 exports.getAllFiles = async (req, res, pool) => {
