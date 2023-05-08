@@ -55,6 +55,36 @@ async function getRepositoriesSize(token) {
 }
 
 /**
+ * Creation of a new repo when the current repo is almost full or when we need more than 1 repo
+ */
+async function createNewRepo() {
+
+}
+
+/**
+ * Performs uploading of the file to GitHub using octokit
+ */
+async function uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch) {
+    const fileContent = fs.readFileSync(path);
+    const encodedContent = Buffer.from(fileContent).toString("base64");
+
+    const { data } = await octokit.repos.createOrUpdateFileContents({
+        owner: optimalGitHubCredUsername,
+        repo: optimalRepoFullName,
+        message: `Added new file ${originalname}`,
+        content: encodedContent,
+        path: optimalFileName,
+        committer: {
+            name: optimalGitHubCredUsername,
+            email: "whyelab@gmail.com"
+        },
+        branch: branch
+    });
+
+    // console.log(data);
+}
+
+/**
  * Get existing account storage, then chose the one with lowest first.
  * 
  * Get the latest repo upload ID and verify the storage again. If the
@@ -67,6 +97,7 @@ async function getRepositoriesSize(token) {
 exports.createNewFile = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
+    const hardRepoLimitSize = 102400; // In kB
 
     // Decoding the JWT
     let decoded;
@@ -91,7 +122,7 @@ exports.createNewFile = async (req, res, pool) => {
     const queryGitHubUsernameToken = queryCredentials.rows;
 
     const queryForAccountStorage = `
-        SELECT gh_account_id, gh_storage
+        SELECT gh_account_id, gh_storage, gh_latest_repo_storage
         FROM GitHubAccountStorage
         WHERE gh_account_id IN (
             SELECT gh_account_id
@@ -109,6 +140,8 @@ exports.createNewFile = async (req, res, pool) => {
     let optimalGitHubCredAccessToken;
     let optimalRepoFullName;
     let optimalFileName;
+    let currStorageOfOptimalAccount =  queryAllAccountStorage.rows[0].gh_storage;
+    let currStorageOfOptimalRepo = queryAllAccountStorage.rows[0].gh_latest_repo_storage;
     
     // Obtain the GitHub's username for otimal account as well as the personal access token
     for (currCred of queryGitHubUsernameToken) {
@@ -147,35 +180,55 @@ exports.createNewFile = async (req, res, pool) => {
     const branch = "main";
 
     try {
-        const fileContent = fs.readFileSync(path);
-        const encodedContent = Buffer.from(fileContent).toString("base64");
+        // Update the GitHub account's storage and performing checks
+        const stats = fs.statSync(path);
+        const fileSizeInBytes = stats.size;
+        const fileSizeInKB = fileSizeInBytes / 1024;
+        const newAccountStorage = currStorageOfOptimalAccount + fileSizeInKB;
+        const newRepoStorage = currStorageOfOptimalRepo + fileSizeInKB;
 
-        const { data } = await octokit.repos.createOrUpdateFileContents({
-            owner: optimalGitHubCredUsername,
-            repo: optimalRepoFullName,
-            message: `Added new file ${originalname}`,
-            content: encodedContent,
-            path: optimalFileName,
-            committer: {
-                name: optimalGitHubCredUsername,
-                email: "whyelab@gmail.com"
-            },
-            branch: branch
-        });
+        if (fileSizeInKB > hardRepoLimitSize) {
+            res.status(401).json({ message: "Yowza file too large!" });
+        }
 
-        // console.log(data);
+        // If new size exceeds repo limit, then you have to create a new repo before 
+        // uploading file to GitHub
+        if (newRepoStorage > hardRepoLimitSize) {
+             
+        }
 
-        res.json({
-            success: true,
-            message: `Successfully uploaded file!`
-        });
+        // Uploade the file to GitHub
+        await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch);
+
+        // Get latest filename
+        const queryForStorage = `
+            UPDATE GitHubAccountStorage
+            SET gh_storage = $2, gh_latest_repo_storage = $3
+            WHERE gh_account_id = $1, 
+        `;
+        const queryUpdateForNewStorage = await pool.query(queryForStorage, [optimalGitHubAccount, newAccountStorage, newRepoStorage]);
     } catch (error) {
         res.status(401).json({ message: "File upload failed!" });
         console.log(error);
     }
 
-    // Update file ID & GitHub latest account if applicable
-
+    
+    /**
+     * Update file ID & GitHub latest account if applicable
+     * 
+     * There are 3 tables to update here:
+     *  - GitHubFID
+     *  - GitHubFiles
+     *  - GitHubRepoList (Only if you have created a new repo)
+     * 
+     */ 
+    
+    /*
+    res.json({
+        success: true,
+        message: `Successfully uploaded file!`
+    });
+    */
 };
 
 exports.getAllFiles = async (req, res, pool) => {
