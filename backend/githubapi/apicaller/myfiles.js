@@ -191,8 +191,17 @@ exports.createNewFile = async (req, res, pool) => {
             res.status(401).json({ message: "Yowza file too large!" });
         }
 
-        // If new size exceeds repo limit, then you have to create a new repo before 
-        // uploading file to GitHub
+        /**
+         * If new size exceeds repo limit, then you have to create a new repo before 
+         * uploading file to GitHub
+         * 
+         * 2 cases:
+         * 
+         * 1) Create new repo, and update GitHubRepoList, GitHubFID, GitHubAccountStorage (with the new 
+         * storage of new repo and the new account storage) and you can straight away respond back to the 
+         * client already.
+         * 2) Just upload to GitHub and update the new GitHubAccountStorage, GitHubFID by incrementing.
+         */
         if (newRepoStorage > hardRepoLimitSize) {
              
         }
@@ -212,17 +221,6 @@ exports.createNewFile = async (req, res, pool) => {
         console.log(error);
     }
 
-    
-    /**
-     * Update file ID & GitHub latest account if applicable
-     * 
-     * There are 3 tables to update here:
-     *  - GitHubFID
-     *  - GitHubFiles
-     *  - GitHubRepoList (Only if you have created a new repo)
-     * 
-     */ 
-    
     /*
     res.json({
         success: true,
