@@ -57,8 +57,40 @@ async function getRepositoriesSize(token) {
 /**
  * Creation of a new repo when the current repo is almost full or when we need more than 1 repo
  */
-async function createNewRepo() {
+async function createNewRepo(personal_access_token, new_repo_name) {
+    const octokit = new Octokit({
+        auth: personal_access_token
+    });
 
+    const options = {
+        name: new_repo_name,
+        private: true
+    };
+
+    return await octokit.repos.createForAuthenticatedUser(options);
+}
+
+/**
+ * Create the new repo entry on pg db
+ */
+async function createNewRepoPgDb(username, credID, new_repo_name) {
+    const insertGH = await pool.query(`
+        INSERT INTO 
+        GitHubRepoList (username, gh_account_id, repo_name) 
+        VALUES ($1, $2, $3)
+    `, [username,
+        credID,
+        new_repo_name]);
+
+    const repoID = await pool.quert(`
+        SELECT id
+        FROM GitHubList
+        WHERE username = $1, gh_account_id = $2, repo_name = $3
+    `, [username,
+        credID,
+        new_repo_name]);
+
+    return repoID.rows[0].id; 
 }
 
 /**
@@ -82,6 +114,14 @@ async function uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, opti
     });
 
     // console.log(data);
+}
+
+// Obtain latest repo from name
+function extractIndex(str) {
+    const prefix = 'dcs_';
+    const indexStr = str.slice(prefix.length);
+    const index = parseInt(indexStr);
+    return index;
 }
 
 /**
@@ -134,15 +174,15 @@ exports.createNewFile = async (req, res, pool) => {
 
     const queryAllAccountStorage = await pool.query(queryForAccountStorage, [username]);
     const optimalGitHubAccount = queryAllAccountStorage.rows[0].gh_account_id;
-    
+
     // All required information for upload decision
     let optimalGitHubCredUsername;
     let optimalGitHubCredAccessToken;
     let optimalRepoFullName;
     let optimalFileName;
-    let currStorageOfOptimalAccount =  queryAllAccountStorage.rows[0].gh_storage;
+    let currStorageOfOptimalAccount = queryAllAccountStorage.rows[0].gh_storage;
     let currStorageOfOptimalRepo = queryAllAccountStorage.rows[0].gh_latest_repo_storage;
-    
+
     // Obtain the GitHub's username for otimal account as well as the personal access token
     for (currCred of queryGitHubUsernameToken) {
         if (currCred.id == optimalGitHubAccount) {
@@ -171,7 +211,7 @@ exports.createNewFile = async (req, res, pool) => {
     `;
     const queryOptimalFileName = await pool.query(queryForFileName, [optimalGitHubAccount]);
     optimalFileName = queryOptimalFileName.rows[0].gh_file_uid;
-    
+
     // Upload to chosen GitHub optimal account
     const { originalname, filename, path } = req.file;
     const octokit = new Octokit({
@@ -191,6 +231,8 @@ exports.createNewFile = async (req, res, pool) => {
             res.status(401).json({ message: "Yowza file too large!" });
         }
 
+        const repoIndexID = extractIndex(currStorageOfOptimalRepo);
+
         /**
          * If new size exceeds repo limit, then you have to create a new repo before 
          * uploading file to GitHub
@@ -202,31 +244,56 @@ exports.createNewFile = async (req, res, pool) => {
          * client already.
          * 2) Just upload to GitHub and update the new GitHubAccountStorage, GitHubFID by incrementing.
          */
-        if (newRepoStorage > hardRepoLimitSize) {
-             
-        }
+        if (newRepoStorage >= hardRepoLimitSize) {
+            // Create a new repo
+            const newRepoIndexID = repoIndexID + 1;
+            const newRepoName = "dcs_" + newRepoIndexID.toString();
+            const initializeNewRepo = createNewRepo(optimalGitHubCredAccessToken, newRepoName);
+            const newRepoID = createNewRepoPgDb(optimalGitHubCredUsername, optimalGitHubAccount, newRepoName);
 
-        // Uploade the file to GitHub
-        await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch);
+            // Upload file to GitHub
+            await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, newRepoName, originalname, optimalFileName, branch);
 
-        // Get latest filename
-        const queryForStorage = `
+            // Get latest filename
+            const queryForStorage = `
             UPDATE GitHubAccountStorage
             SET gh_storage = $2, gh_latest_repo_storage = $3
-            WHERE gh_account_id = $1, 
-        `;
-        const queryUpdateForNewStorage = await pool.query(queryForStorage, [optimalGitHubAccount, newAccountStorage, newRepoStorage]);
+            WHERE gh_account_id = $1`;
+            const queryUpdateForNewStorage = await pool.query(queryForStorage, [optimalGitHubAccount, newAccountStorage, fileSizeInKB]);
+
+            // Update the latest FID
+            const queryUpdateForFID = `
+            UPDATE GitHubFID
+            SET gh_file_uid = $2, gh_repo_id = $3
+            WHERE gh_account_id = $1`;
+            const queryUpdateForNewFID = await pool.query(queryUpdateForFID, [optimalFileName + 1, newAccountStorage, newRepoID]);
+        } else {
+            // Uploade the file to GitHub
+            await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch);
+
+            // Get latest filename
+            const queryForStorage = `
+            UPDATE GitHubAccountStorage
+            SET gh_storage = $2
+            WHERE gh_account_id = $1`;
+            const queryUpdateForNewStorage = await pool.query(queryForStorage, [optimalGitHubAccount, newAccountStorage]);
+            
+            // Update the latest FID
+            const queryUpdateForFID = `
+            UPDATE GitHubFID
+            SET gh_file_uid = $2
+            WHERE gh_account_id = $1`;
+            const queryUpdateForNewFID = await pool.query(queryUpdateForFID, [optimalFileName + 1, newAccountStorage]);
+        }
+
+        res.json({
+            success: true,
+            message: `Successfully uploaded file!`
+        });
     } catch (error) {
         res.status(401).json({ message: "File upload failed!" });
         console.log(error);
     }
-
-    /*
-    res.json({
-        success: true,
-        message: `Successfully uploaded file!`
-    });
-    */
 };
 
 exports.getAllFiles = async (req, res, pool) => {
