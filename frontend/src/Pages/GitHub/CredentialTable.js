@@ -324,7 +324,7 @@ function CredentialsTable() {
                     margin: "2px",
                     borderRadius: "4px",
                     padding: "8px",
-                    width: "20%",
+                    width: "30%",
                     boxSizing: "border-box",
                     color: "#ff0",
                     backgroundColor: "black"

@@ -26,11 +26,6 @@ app.use(cors());
 const multer = require('multer');
 const tempstorage = multer({ dest: 'tempstorage/' });
 
-/*
-const sqlScriptPath = path.join(__dirname, "initpgdb.sql");
-const sqlScript = fs.readFileSync(sqlScriptPath);
-*/
-
 // Set up the database connection pool
 const pool = new Pool({
     user: process.env.DBUSERNAME,
@@ -39,6 +34,12 @@ const pool = new Pool({
     password: process.env.DBPASSWORD,
     port: process.env.DBPORT,
 });
+
+// Initialize PG DB
+const sqlScriptPath = path.join(__dirname, "./dbmanager/initializedb/initpgdb.sql");
+const sqlScript = fs.readFileSync(sqlScriptPath, "utf-8");
+const pgDBInitializer = require('./dbmanager/initializedb/initpgdb');
+pgDBInitializer.initpgdb(pool, sqlScript);
 
 // Test the database connection
 pool.query('SELECT NOW()', (err, res) => {

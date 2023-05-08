@@ -44,7 +44,9 @@ exports.createCredentials = async (req, res, pool) => {
         const newRepoName = "dcs_1";
 
         const intializingResult = await initializerTable.initializeNewCredentialRepo(createParam.access_token, newRepoName);
-        const intializingNewCredentialTable = await initializerTable.initializeNewCredentialRepoDCS(pool, decoded.username, newRepoName, createParam.github_username);
+        const credIDResult = await initializerTable.initializeNewCredentialRepoDCS(pool, decoded.username, newRepoName, createParam.github_username);
+        const intializingFileIDForUpload = await initializerTable.initializeNewCredentialForFileIDUsage(pool, decoded.username, credIDResult);
+        const initializeNewStorageTrack = await initializerTable.initalizeNewStorageTrack(pool, credIDResult);
 
         res.json({
             success: true,
