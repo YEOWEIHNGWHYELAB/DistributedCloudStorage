@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS GitHubFiles (
     This table tracks the latest usable file ID, repo ID and credential ID 
     the user could upload the next file using...
 
-    Each user should only have 1 GitHubFID per account!
+    Each user should only have 1 GitHubFID per account they own!
 
     To decide what the next file should be uploaded to and what it should 
     be named, do note that we should consider which account to upload the 

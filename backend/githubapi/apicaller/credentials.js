@@ -41,11 +41,12 @@ exports.createCredentials = async (req, res, pool) => {
             createParam.access_token,
         ]);
 
+        // All github account will have incremental repo naming and it starts with dcs_1
         const newRepoName = "dcs_1";
 
         const intializingResult = await initializerTable.initializeNewCredentialRepo(createParam.access_token, newRepoName);
         const credIDResult = await initializerTable.initializeNewCredentialRepoDCS(pool, decoded.username, newRepoName, createParam.github_username);
-        const intializingFileIDForUpload = await initializerTable.initializeNewCredentialForFileIDUsage(pool, decoded.username, credIDResult);
+        const intializingFileIDForUpload = await initializerTable.initializeNewCredentialForFileIDUsage(pool, decoded.username, newRepoName, credIDResult);
         const initializeNewStorageTrack = await initializerTable.initalizeNewStorageTrack(pool, credIDResult);
 
         res.json({

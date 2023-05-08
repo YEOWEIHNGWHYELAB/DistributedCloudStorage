@@ -18,14 +18,6 @@ async function getRepoID(github_account_id, repo_name, pool) {
     `, [github_account_id, repo_name]);
 }
 
-async function getLatestFID(username, pool) {
-    return await pool.query(`
-        SELECT id
-        FROM GitHubFID
-        WHERE username = $1
-    `, [username]);
-}
-
 exports.initializeNewCredentialRepo = async (personal_access_token, newRepoName) => {
     const octokit = new Octokit({
         auth: personal_access_token
@@ -49,31 +41,20 @@ exports.initializeNewCredentialRepoDCS = async (pool, username, newRepoName, git
     `, [username,
         credIDResult.rows[0].id,
         newRepoName]);
-
+    
     return credIDResult.rows[0].id;
 }
 
-exports.initializeNewCredentialForFileIDUsage = async (pool, username, credIDResult) => {
-    const repoID = await getRepoID(credIDResult, github_repo_name, pool);
-    const latestFID = await getLatestFID(username, pool);
-
-    if (latestFID.rows[0] == null) {
-        return await pool.query(`
-            INSERT INTO 
-            GitHubFID (username, gh_account_id, gh_repo_id) 
-            VALUES ($1, $2, $3)
-        `, [username,
-            credIDResult,
-            repoID]);
-    }
+exports.initializeNewCredentialForFileIDUsage = async (pool, username, newRepoName, credIDResult) => {
+    const repoIDRes = await getRepoID(credIDResult, newRepoName, pool);
+    const repoID = repoIDRes.rows[0].id;
 
     return await pool.query(`
-        UPDATE GitHubFID
-        SET gh_account_id = $2, gh_repo_id = $3
-        WHERE username = $1
-    `, [username,
-        credIDResult,
-        repoID]);
+        INSERT INTO 
+        GitHubFID (username, gh_account_id, gh_repo_id) 
+        VALUES ($1, $2, $3)`, 
+        [username, credIDResult, repoID]
+    );
 }
 
 exports.initalizeNewStorageTrack = async (pool, credIDResult) => {
