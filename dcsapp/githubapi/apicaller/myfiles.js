@@ -318,99 +318,15 @@ exports.getAllFiles = async (req, res, pool) => {
     }
 };
 
-/*
-exports.editCredetials = async (req, res, pool) => {
-    const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
-        return res
-            .status(401)
-            .json({ message: "Authorization header missing" });
-    }
+exports.replaceFile = async (req, res, pool) => {
 
-    let editCredentialsQueryBuiler = [];
-    let setClauses = [];
+}
 
-    const updateParams = req.body;
-
-    editCredentialsQueryBuiler.push(`UPDATE GitHubCredential SET`);
-
-    for (const key in updateParams) {
-        if (key == "id") {
-            continue;
-        }
-
-        const value = updateParams[key];
-
-        if (value != null) {
-            setClauses.push(`${key} = '${value}'`);
-        }
-    }
-
-    editCredentialsQueryBuiler.push(setClauses.join(", "));
-
-    editCredentialsQueryBuiler.push(`WHERE id = ${updateParams.id}`);
-
-    const editCredentialsQuery = editCredentialsQueryBuiler.join(" ");
-
-    try {
-        const queryResult = await pool.query(editCredentialsQuery);
-        res.json({
-            success: true,
-            message: `Updated ${queryResult.rowCount} rows`,
-        });
-    } catch (err) {
-        console.error(err);
-        res.json({ success: false, message: err.message });
-    }
+exports.renameFile = async (req, res, pool) => {
+    
 };
 
-exports.deleteCredetials = async (req, res, pool) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res
-            .status(401)
-            .json({ message: "Authorization header missing" });
-    }
-
-    const sqlQuery = `DELETE FROM GitHubCredential WHERE id = $1`;
-    const idToDelete = [req.params.id];
-
-    try {
-        const queryResult = await pool.query(sqlQuery, idToDelete);
-        res.json({
-            success: true,
-            message: `Deleted ${queryResult.rowCount} rows`,
-        });
-    } catch (err) {
-        console.error(err);
-        res.json({ success: false, message: err.message });
-    }
+exports.deleteFiles = async (req, res, pool) => {
+    
 };
-
-exports.deleteMultipleCredetials = async (req, res, pool) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res
-            .status(401)
-            .json({ message: "Authorization header missing" });
-    }
-
-    const sqlQuery = `DELETE FROM GitHubCredential WHERE id = ANY($1::int[])`;
-
-    const idsToDelete = [req.body.id];
-
-    try {
-        const queryResult = await pool.query(sqlQuery, idsToDelete);
-        res.json({
-            success: true,
-            message: `Deleted ${queryResult.rowCount} rows`,
-        });
-    } catch (err) {
-        console.error(err);
-        res.json({ success: false, message: err.message });
-    }
-};
-*/

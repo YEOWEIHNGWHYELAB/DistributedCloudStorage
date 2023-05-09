@@ -12,12 +12,12 @@ module.exports = (pool) => {
 
     // Get all user's available files
     router.get('/files', (req, res) => {
-        myFilesController.getCredentials(req, res, pool);
+        myFilesController.getAllFiles(req, res, pool);
     });
 
-    // Edit user's filename
-    router.patch('/files', (req, res) => {
-        myFilesController.editCredetials(req, res, pool);
+    // Replace the user's file
+    router.patch('/files', uploadsTempStorage.single('File'), (req, res) => {
+        myFilesController.replaceFile(req, res, pool);
     });
 
     return router;
