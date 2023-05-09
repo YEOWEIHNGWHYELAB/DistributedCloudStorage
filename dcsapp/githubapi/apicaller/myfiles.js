@@ -114,6 +114,8 @@ async function uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, opti
     });
 
     // console.log(data);
+
+    return data;
 }
 
 /**
@@ -238,8 +240,8 @@ exports.createNewFile = async (req, res, pool) => {
         const stats = fs.statSync(path);
         const fileSizeInBytes = stats.size;
         const fileSizeInKB =  Math.round(fileSizeInBytes / 1024);
-        const newAccountStorage = currStorageOfOptimalAccount + fileSizeInKB;
-        const newRepoStorage = currStorageOfOptimalRepo + fileSizeInKB;
+        const newAccountStorage = BigInt(currStorageOfOptimalAccount) + BigInt(fileSizeInKB);
+        const newRepoStorage = BigInt(currStorageOfOptimalRepo) + BigInt(fileSizeInKB);
 
         if (fileSizeInKB > hardRepoLimitSize) {
             res.status(401).json({ message: "Yowza file too large!" });
@@ -266,7 +268,7 @@ exports.createNewFile = async (req, res, pool) => {
             const newRepoID = createNewRepoPgDb(pool, optimalGitHubCredUsername, optimalGitHubAccount, newRepoName);
 
             // Upload file to GitHub
-            await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, newRepoName, originalname, optimalFileName, branch);
+            const dataUpload = await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, newRepoName, originalname, optimalFileName, branch);
 
             // Get latest filename
             const queryForStorage = `
@@ -280,24 +282,26 @@ exports.createNewFile = async (req, res, pool) => {
             UPDATE GitHubFID
             SET gh_file_uid = $2, gh_repo_id = $3
             WHERE gh_account_id = $1`;
-            const queryUpdateForNewFID = await pool.query(queryUpdateForFID, [optimalGitHubAccount, optimalFileName + 1, newRepoID]);
+            const queryUpdateForNewFID = await pool.query(queryUpdateForFID, [optimalGitHubAccount, parseInt(optimalFileName) + 1, newRepoID]);
         } else {
             // Uploade the file to GitHub
-            await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch);
+            const dataUpload = await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch);
 
             // Get latest filename
             const queryForStorage = `
             UPDATE GitHubAccountStorage
             SET gh_storage = $2, gh_latest_repo_storage = $3 
             WHERE gh_account_id = $1`;
+
             const queryUpdateForNewStorage = await pool.query(queryForStorage, [optimalGitHubAccount, newAccountStorage, newRepoStorage]);
-            
+
             // Update the latest FID
             const queryUpdateForFID = `
             UPDATE GitHubFID
             SET gh_file_uid = $2
             WHERE gh_account_id = $1`;
-            const queryUpdateForNewFID = await pool.query(queryUpdateForFID, [optimalGitHubAccount, optimalFileName + 1]);
+            const queryUpdateForNewFID = await pool.query(queryUpdateForFID, [optimalGitHubAccount, parseInt(optimalFileName) + 1]);
+            console.log(queryUpdateForNewFID);
         }
 
         const recordFile = await recordFilePg(pool, username, originalname, optimalGitHubAccount, queryOptimalRepoName.rows[0].id, optimalFileName);
