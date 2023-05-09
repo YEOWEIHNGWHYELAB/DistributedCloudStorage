@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const myFilesController = require('../apicaller/myfiles');
+const myFilesAdvancedController = require('../apicaller/advancedmyfiles');
 const multer = require('multer');
 const uploadsTempStorage = multer({ dest: '../../tempstorage/' });
 
@@ -31,16 +32,25 @@ module.exports = (pool) => {
     /**
      * Advanced operations
      */
-    // Obtain download link for file
-    // router.get('/getfiles', )
+    // Obtain all download link for selected file
+    router.post('/filespag', (req, res) => {
+        myFilesAdvancedController.getFilesPag(req, res, pool);
+    })
+
+    // Obtain all download link for selected file
+    router.post('/getfiles', (req, res) => {
+        myFilesAdvancedController.getDownloadLink(req, res, pool);
+    })
 
     // Replace the user's file
-    /*
-    router.patch('/files', uploadsTempStorage.single('File'), (req, res) => {
+    router.patch('/getfiles', uploadsTempStorage.single('File'), (req, res) => {
         myFilesController.replaceFile(req, res, pool);
-    });*/
+    });
 
     // Perform multiple soft delete on selected files
+    router.post('/files/muldel', (req, res) => {
+        myFilesController.multipleDelete(req, res, pool);
+    });
 
     return router;
 };

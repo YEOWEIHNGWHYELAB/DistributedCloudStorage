@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const fetch = require('node-fetch');
 const { Octokit } = require("@octokit/rest");
 const fs = require("fs");
@@ -344,11 +343,6 @@ exports.getAllFiles = async (req, res, pool) => {
         res.status(401).json({ message: "Invalid token" });
     }
 };
-
-
-exports.replaceFile = async (req, res, pool) => {
-    
-}
 
 exports.renameFile = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
