@@ -244,7 +244,8 @@ exports.createNewFile = async (req, res, pool) => {
         const newRepoStorage = BigInt(currStorageOfOptimalRepo) + BigInt(fileSizeInKB);
 
         if (fileSizeInKB > hardRepoLimitSize) {
-            res.status(401).json({ message: "Yowza file too large!" });
+            res.status(401).json({ success: false, message: "Yowza file too large!" });
+            return;
         }
 
         const repoIndexID = extractIndex(optimalRepoFullName);
@@ -301,7 +302,6 @@ exports.createNewFile = async (req, res, pool) => {
             SET gh_file_uid = $2
             WHERE gh_account_id = $1`;
             const queryUpdateForNewFID = await pool.query(queryUpdateForFID, [optimalGitHubAccount, parseInt(optimalFileName) + 1]);
-            console.log(queryUpdateForNewFID);
         }
 
         const recordFile = await recordFilePg(pool, username, originalname, optimalGitHubAccount, queryOptimalRepoName.rows[0].id, optimalFileName);
@@ -311,7 +311,7 @@ exports.createNewFile = async (req, res, pool) => {
             message: `Successfully uploaded file!`
         });
     } catch (error) {
-        res.status(401).json({ message: "File upload failed!" });
+        res.status(401).json({ success: false, message: "File upload failed!" });
         console.log(error);
     }
 };
