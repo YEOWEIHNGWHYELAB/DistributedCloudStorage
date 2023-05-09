@@ -32,12 +32,12 @@ module.exports = (pool) => {
     /**
      * Advanced operations
      */
-    // Obtain all download link for selected file
+    // Get all files in a paginated format
     router.post('/filespag', (req, res) => {
         myFilesAdvancedController.getFilesPag(req, res, pool);
     })
 
-    // Obtain all download link for selected file
+    // Obtain download link for a file
     router.post('/getfiles', (req, res) => {
         myFilesAdvancedController.getDownloadLink(req, res, pool);
     })
