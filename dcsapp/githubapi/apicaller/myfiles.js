@@ -73,7 +73,7 @@ async function createNewRepo(personal_access_token, new_repo_name) {
 /**
  * Create the new repo entry on pg db
  */
-async function createNewRepoPgDb(username, credID, new_repo_name) {
+async function createNewRepoPgDb(pool, username, credID, new_repo_name) {
     const insertGH = await pool.query(`
         INSERT INTO 
         GitHubRepoList (username, gh_account_id, repo_name) 
@@ -82,7 +82,7 @@ async function createNewRepoPgDb(username, credID, new_repo_name) {
         credID,
         new_repo_name]);
 
-    const repoID = await pool.quert(`
+    const repoID = await pool.query(`
         SELECT id
         FROM GitHubList
         WHERE username = $1, gh_account_id = $2, repo_name = $3
@@ -114,6 +114,20 @@ async function uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, opti
     });
 
     // console.log(data);
+}
+
+/**
+ * Inserts the filename into GitHubFiles to keep a record and a symbolic 
+ * link to the remote github where it is at
+ */
+async function recordFilePg(pool, username, originalFileName, gh_account_id, repoID, ghFileName) {
+    const partitionName = `GitHubFiles_${username}`;
+
+    const recordFileQuery = `
+        INSERT INTO ${partitionName} (username, filename, gh_account_id, gh_repo_id, gh_filename) 
+        VALUES ($1, $2, $3, $4, $5)`;
+
+    return await pool.query(recordFileQuery, [username, originalFileName, gh_account_id, repoID, ghFileName]);
 }
 
 // Obtain latest repo from name
@@ -193,7 +207,7 @@ exports.createNewFile = async (req, res, pool) => {
 
     // Get latest repo name
     const queryForReponame = `
-        SELECT repo_name
+        SELECT id, repo_name
         FROM GitHubRepoList
         WHERE id = (
             SELECT gh_repo_id
@@ -231,7 +245,7 @@ exports.createNewFile = async (req, res, pool) => {
             res.status(401).json({ message: "Yowza file too large!" });
         }
 
-        const repoIndexID = extractIndex(currStorageOfOptimalRepo);
+        const repoIndexID = extractIndex(optimalRepoFullName);
 
         /**
          * If new size exceeds repo limit, then you have to create a new repo before 
@@ -249,7 +263,7 @@ exports.createNewFile = async (req, res, pool) => {
             const newRepoIndexID = repoIndexID + 1;
             const newRepoName = "dcs_" + newRepoIndexID.toString();
             const initializeNewRepo = createNewRepo(optimalGitHubCredAccessToken, newRepoName);
-            const newRepoID = createNewRepoPgDb(optimalGitHubCredUsername, optimalGitHubAccount, newRepoName);
+            const newRepoID = createNewRepoPgDb(pool, optimalGitHubCredUsername, optimalGitHubAccount, newRepoName);
 
             // Upload file to GitHub
             await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, newRepoName, originalname, optimalFileName, branch);
@@ -274,9 +288,9 @@ exports.createNewFile = async (req, res, pool) => {
             // Get latest filename
             const queryForStorage = `
             UPDATE GitHubAccountStorage
-            SET gh_storage = $2
+            SET gh_storage = $2, gh_latest_repo_storage = $3 
             WHERE gh_account_id = $1`;
-            const queryUpdateForNewStorage = await pool.query(queryForStorage, [optimalGitHubAccount, newAccountStorage]);
+            const queryUpdateForNewStorage = await pool.query(queryForStorage, [optimalGitHubAccount, newAccountStorage, newRepoStorage]);
             
             // Update the latest FID
             const queryUpdateForFID = `
@@ -285,6 +299,8 @@ exports.createNewFile = async (req, res, pool) => {
             WHERE gh_account_id = $1`;
             const queryUpdateForNewFID = await pool.query(queryUpdateForFID, [optimalFileName + 1, newAccountStorage]);
         }
+
+        const recordFile = await recordFilePg(pool, username, originalname, optimalGitHubAccount, queryOptimalRepoName.rows[0].id, optimalFileName);
 
         res.json({
             success: true,

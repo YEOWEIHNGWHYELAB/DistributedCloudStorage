@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS GitHubFiles (
     gh_account_id SERIAL REFERENCES GitHubCredential(id),
     gh_repo_id SERIAL REFERENCES GitHubRepoList(id),
     filename TEXT NOT NULL, 
-    gh_filename SERIAL NOT NULL, 
+    gh_filename BIGINT NOT NULL, 
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id, username)
