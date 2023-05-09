@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS GitHubRepoList (
     the same name!
 */ 
 CREATE TABLE IF NOT EXISTS GitHubFiles (
-    id SERIAL,
+    id BIGSERIAL,
     username VARCHAR(255) REFERENCES Users(username),
     gh_account_id SERIAL REFERENCES GitHubCredential(id),
     gh_repo_id SERIAL REFERENCES GitHubRepoList(id),

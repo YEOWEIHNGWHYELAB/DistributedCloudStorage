@@ -322,7 +322,6 @@ exports.createNewFile = async (req, res, pool) => {
 
 exports.getAllFiles = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
-
     const token = checkAuthHeader(authHeader, res);
 
     try {
@@ -330,8 +329,12 @@ exports.getAllFiles = async (req, res, pool) => {
             algorithms: ["HS256"],
         });
 
+        const tablePartitionName = `GitHubFiles_${decoded.username}`;
+
         const queryResult = await pool.query(
-            "SELECT id, github_username, email, access_token FROM GitHubCredential WHERE username = $1",
+            `SELECT id, gh_account_id, gh_repo_id, gh_filename, filename 
+            FROM ${tablePartitionName} 
+            WHERE username = $1 AND is_deleted = false`,
             [decoded.username]
         );
 
@@ -348,9 +351,63 @@ exports.replaceFile = async (req, res, pool) => {
 }
 
 exports.renameFile = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    const token = checkAuthHeader(authHeader, res);
     
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            algorithms: ["HS256"],
+        });
+
+        const tablePartitionName = `GitHubFiles_${decoded.username}`;
+
+        const queryResult = await pool.query(
+            `UPDATE GitHubFiles
+            SET filename = $3
+            WHERE username = $1 
+                AND id = $2`
+            , [decoded.username, req.body.id, req.body.new_filename]
+        );
+
+        res.json(
+            {
+                success: true,
+                message: `Successfully renamed file!`
+            }
+        );
+    } catch (err) {
+        // console.error(err);
+        res.status(401).json({ message: "Failed to rename!" });
+    }
 };
 
 exports.deleteFiles = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    const token = checkAuthHeader(authHeader, res);
     
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            algorithms: ["HS256"],
+        });
+
+        const tablePartitionName = `GitHubFiles_${decoded.username}`;
+
+        const queryResult = await pool.query(
+            `UPDATE GitHubFiles
+            SET is_deleted = true
+            WHERE username = $1
+                AND id = $2`
+            , [decoded.username, req.params.id]
+        );
+
+        res.json(
+            {
+                success: true,
+                message: `Successfully deleted file!`
+            }
+        );
+    } catch (err) {
+        console.error(err);
+        res.status(401).json({ message: "Failed to delete!" });
+    }
 };
