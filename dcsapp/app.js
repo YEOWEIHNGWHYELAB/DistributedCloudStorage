@@ -60,12 +60,18 @@ app.use('/github', (req, res, next) => {
     auth.isAuthenticated(req, res, next, pool);
 }, githubCredentialsRouter);
 
+// GitHub Files Routers
 const githubMyFilesRouter = require('./githubapi/routes/myfilesroutes')(pool);
 app.use('/github', (req, res, next) => {
     auth.isAuthenticated(req, res, next, pool);
 }, githubMyFilesRouter);
 
-// GitHub Credential Routers
+// GitHub Account Stat
+const githubAccountStatRouter = require('./githubapi/routes/accountstatroutes')(pool);
+app.use('/github', (req, res, next) => {
+    auth.isAuthenticated(req, res, next, pool);
+}, githubAccountStatRouter);
+
 
 // GET route for listing all videos in the user's YouTube channel
 app.get('/youtube', auth.isAuthenticated, async (req, res, next) => {
