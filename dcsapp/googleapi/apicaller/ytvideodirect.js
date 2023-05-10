@@ -59,5 +59,46 @@ async function getChannelAllVideos(res, youtube, playlistId, maxVideoPerPage) {
     res.json(videos);
 }
 
-exports.getChannelAllVideos = getChannelAllVideos;
-exports.getChannelVideoByToken = getChannelVideoByToken;
+exports.listVideoPaginated = async (req, res) => {
+    try {
+        // Set up OAuth2 client
+        const oauth2Client = new OAuth2(
+            process.env.GOOGLE_OA2_CLIENT_SECRET,
+            process.env.GOOGLE_OA2_CLIENT_ID,
+            process.env.GOOGLE_OA2_REDIRECT_URI
+        );
+
+        oauth2Client.setCredentials({
+            access_token: process.env.GOOGLE_OA2_ACCESS_TOKEN
+        });
+
+        // Set up YouTube API client
+        const youtube = google.youtube({
+            version: 'v3',
+            auth: oauth2Client
+        });
+
+        // Retrieve the channel's uploads playlist ID
+        youtube.channels.list({
+            part: 'contentDetails',
+            mine: true
+        }, (err, response) => {
+            if (err) {
+                console.error('Error retrieving channel information:', err);
+                return;
+            }
+
+            console.log(req.body);
+
+            const playlistId = response.data.items[0].contentDetails.relatedPlaylists.uploads;
+
+            if (req.body.pageToken != null) {
+                getChannelVideoByToken(res, youtube, playlistId, req.body.maxVideo, req.body.pageToken);
+            } else {
+                getChannelAllVideos(res, youtube, playlistId, 50);
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+}
