@@ -53,6 +53,10 @@ async function getMetaFileInfo(pool, req) {
     return metaFileInfo;
 }
 
+/**
+ * We can only obtain a single file download link at a time, if you want to obtain 
+ * multiple file download link, please do it at the frontend side and 
+ */
 exports.getDownloadLink = async (req, res, pool) => {
     // Perform a look up on where the file is located remotely on GitHub
     // We need credential ID, repo ID, filename and we are given file ID
@@ -88,7 +92,35 @@ exports.getDownloadLink = async (req, res, pool) => {
 }
 
 exports.getFilesPag = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    const token = myFilesFunc.checkAuthHeader(authHeader, res);
 
+    const page = parseInt(req.body.page) || 1;
+    const limit = parseInt(req.body.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            algorithms: ["HS256"],
+        });
+
+        const tablePartitionName = `GitHubFiles_${decoded.username}`;
+
+        const queryPaginatedFiles = `
+            SELECT id, gh_account_id, gh_repo_id, gh_filename, filename
+            FROM GitHubFiles
+            WHERE username = $1 AND is_deleted = false
+            LIMIT $2 OFFSET $3`;
+
+        const queryResult = await pool.query(queryPaginatedFiles,
+            [decoded.username, limit, offset]
+        );
+
+        res.json({ success: true, results: queryResult.rows});
+    } catch (err) {
+        console.error(err);
+        res.status(401).json({ success: false, message: "Unable to retrieve files" });
+    }
 }
 
 /**
