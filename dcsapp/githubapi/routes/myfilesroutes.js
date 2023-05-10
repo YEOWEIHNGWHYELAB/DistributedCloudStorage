@@ -44,12 +44,12 @@ module.exports = (pool) => {
 
     // Replace the user's file
     router.patch('/getfiles', uploadsTempStorage.single('File'), (req, res) => {
-        myFilesController.replaceFile(req, res, pool);
+        myFilesAdvancedController.replaceFile(req, res, pool);
     });
 
     // Perform multiple soft delete on selected files
     router.post('/files/muldel', (req, res) => {
-        myFilesController.multipleDelete(req, res, pool);
+        myFilesAdvancedController.multipleDelete(req, res, pool);
     });
 
     return router;
