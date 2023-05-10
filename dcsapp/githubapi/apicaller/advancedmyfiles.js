@@ -123,15 +123,6 @@ exports.getFilesPag = async (req, res, pool) => {
     }
 }
 
-/**
- * When replacing file, you should not replace exisiting file and create a new file
- * to simplify the process. Because the file uploaded might upset the repository's
- * storage
- */
-exports.replaceFile = async (req, res, pool) => {
-    // const metaFileInfo = await getMetaFileInfo(pool, req);
-}
-
 exports.multipleDelete = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const token = myFilesFunc.checkAuthHeader(authHeader, res);
