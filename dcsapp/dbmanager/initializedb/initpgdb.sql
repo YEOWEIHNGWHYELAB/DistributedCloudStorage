@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS JWTBlackList (
 );
 
 /* YouTube Tables */
-CREATE TABLE IF NOT EXISTS YouTubeCredential (
+CREATE TABLE IF NOT EXISTS GoogleCredential (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) REFERENCES Users(username),
     data jsonb NOT NULL,

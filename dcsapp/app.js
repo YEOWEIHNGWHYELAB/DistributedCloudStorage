@@ -50,10 +50,17 @@ pool.query('SELECT NOW()', (err, res) => {
     }
 });
 
+/**
+ * Authentication for DCS
+ */
 // Authentication Routing
 const authRouter = require('./auth/routes/authroutes')(pool);
 app.use('/auth', authRouter);
 
+
+/**
+ * GitHub DCS
+ */
 // GitHub Credential Routers
 const githubCredentialsRouter = require('./githubapi/routes/credentialroutes')(pool);
 app.use('/github', (req, res, next) => {
@@ -72,6 +79,20 @@ app.use('/github', (req, res, next) => {
     auth.isAuthenticated(req, res, next, pool);
 }, githubAccountStatRouter);
 
+
+/**
+ * Google Drive & YouTube DCS
+ */
+// Google Credentials Route
+
+
+// Youtube Videos Routers
+const youtubeVideosRoute = require('./youtubeapi/routes/ytvideoroutes')(pool);
+app.use('youtube', (req, res, next) => {
+    auth.isAuthenticated(req, res, next, pool);
+}, youtubeVideosRoute)
+
+// Youtube Direct Routers
 
 // GET route for listing all videos in the user's YouTube channel
 app.get('/youtube', auth.isAuthenticated, async (req, res, next) => {
