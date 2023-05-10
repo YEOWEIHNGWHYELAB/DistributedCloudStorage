@@ -363,7 +363,10 @@ exports.deleteFiles = async (req, res, pool) => {
             }
         );
     } catch (err) {
-        console.error(err);
+        // console.error(err);
         res.status(401).json({ message: "Failed to delete!" });
     }
 };
+
+
+exports.checkAuthHeader = checkAuthHeader;

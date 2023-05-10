@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const fetch = require('node-fetch');
 const { Octokit } = require("@octokit/rest");
 const fs = require("fs");
+const myFilesFunc = require("./myfiles");
 
 async function getDownloadLink(octokit, owner, repo, ghPath) {
     try {
@@ -11,7 +12,7 @@ async function getDownloadLink(octokit, owner, repo, ghPath) {
             path: ghPath
         });
     } catch (error) {
-        console.log(error);
+        return error;
     }
 }
 
@@ -82,7 +83,7 @@ exports.getDownloadLink = async (req, res, pool) => {
                 message: "Unable to retrieve file!"
             }
         );
-        console.log(error);
+        // console.log(error);
     }
 }
 
@@ -90,10 +91,44 @@ exports.getFilesPag = async (req, res, pool) => {
 
 }
 
+/**
+ * When replacing file, you should not replace exisiting file and create a new file
+ * to simplify the process. Because the file uploaded might upset the repository's
+ * storage
+ */
 exports.replaceFile = async (req, res, pool) => {
-    
+    // const metaFileInfo = await getMetaFileInfo(pool, req);
 }
 
 exports.multipleDelete = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    const token = myFilesFunc.checkAuthHeader(authHeader, res);
 
+    const idArr = [req.body.id];
+    
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            algorithms: ["HS256"],
+        });
+
+        const tablePartitionName = `GitHubFiles_${decoded.username}`;
+
+        const mulDelQuery = `
+            UPDATE ${tablePartitionName}
+            SET is_deleted = true 
+            WHERE username = '${decoded.username}' AND 
+                id = ANY($1::bigint[])`;
+
+        const queryResult = await pool.query(mulDelQuery, idArr);
+
+        res.json(
+            {
+                success: true,
+                message: `Successfully deleted file!`
+            }
+        );
+    } catch (err) {
+        // console.error(err);
+        res.status(401).json({ success: false, message: "Failed to delete!" });
+    }
 }
