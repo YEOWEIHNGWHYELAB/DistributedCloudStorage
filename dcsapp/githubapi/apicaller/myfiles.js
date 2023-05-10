@@ -59,7 +59,7 @@ async function createNewRepoPgDb(pool, username, credID, new_repo_name) {
 /**
  * Performs uploading of the file to GitHub using octokit
  */
-async function uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch) {
+async function uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch, ghEmail) {
     const fileContent = fs.readFileSync(path);
     const encodedContent = Buffer.from(fileContent).toString("base64");
 
@@ -71,7 +71,7 @@ async function uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, opti
         path: optimalFileName,
         committer: {
             name: optimalGitHubCredUsername,
-            email: "whyelab@gmail.com"
+            email: ghEmail
         },
         branch: branch
     });
@@ -131,7 +131,7 @@ exports.createNewFile = async (req, res, pool) => {
 
     const username = decoded.username;
     const queryForCredentials = `
-        SELECT id, github_username, access_token 
+        SELECT id, github_username, access_token, email
         FROM GitHubCredential 
         WHERE username = $1`;
     const values = [username];
@@ -144,19 +144,20 @@ exports.createNewFile = async (req, res, pool) => {
         SELECT gh_account_id, gh_storage, gh_latest_repo_storage
         FROM GitHubAccountStorage
         WHERE gh_account_id IN (
-            SELECT gh_account_id
+            SELECT id
             FROM GitHubCredential
             WHERE username = $1
         )
         ORDER BY gh_storage ASC
         LIMIT 1`;
 
-    const queryAllAccountStorage = await pool.query(queryForAccountStorage, [username]);
+    const queryAllAccountStorage = await pool.query(queryForAccountStorage, values);
     const optimalGitHubAccount = queryAllAccountStorage.rows[0].gh_account_id;
 
     // All required information for upload decision
     let optimalGitHubCredUsername;
     let optimalGitHubCredAccessToken;
+    let optimalGitHubEmail;
     let optimalRepoFullName;
     let optimalFileName;
     let currStorageOfOptimalAccount = queryAllAccountStorage.rows[0].gh_storage;
@@ -167,6 +168,8 @@ exports.createNewFile = async (req, res, pool) => {
         if (currCred.id == optimalGitHubAccount) {
             optimalGitHubCredUsername = currCred.github_username;
             optimalGitHubCredAccessToken = currCred.access_token;
+            optimalGitHubEmail = currCred.email;
+            break;
         }
     }
 
@@ -233,7 +236,7 @@ exports.createNewFile = async (req, res, pool) => {
             const newRepoID = await createNewRepoPgDb(pool, username, optimalGitHubAccount, newRepoName);
 
             // Upload file to GitHub
-            const dataUpload = await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, newRepoName, originalname, optimalFileName, branch);
+            const dataUpload = await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, newRepoName, originalname, optimalFileName, branch, optimalGitHubEmail);
 
             // Get latest filename
             const queryForStorage = `
@@ -252,7 +255,7 @@ exports.createNewFile = async (req, res, pool) => {
             resultingRepoID = newRepoID;
         } else {
             // Uploade the file to GitHub
-            const dataUpload = await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch);
+            const dataUpload = await uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, optimalRepoFullName, originalname, optimalFileName, branch, optimalGitHubEmail);
 
             // Get latest filename
             const queryForStorage = `
@@ -277,7 +280,7 @@ exports.createNewFile = async (req, res, pool) => {
         });
     } catch (error) {
         res.status(401).json({ success: false, message: "File upload failed!" });
-        console.log(error);
+        // console.log(error);
     }
 };
 
