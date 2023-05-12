@@ -6,3 +6,13 @@ exports.initpgdb = async (pool, sqlScript) => {
         console.log("Error connecting to PostgreSQL database", error);
     }
 };
+
+exports.testPGConnection = async (pool) => {
+    pool.query('SELECT NOW()', (err, res) => {
+        if (err) {
+            console.error('Error connecting to Postgres Database', err);
+        } else {
+            console.log('Connected to the Postgres Database at', res.rows[0].now);
+        }
+    });
+}

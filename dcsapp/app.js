@@ -1,25 +1,25 @@
-const express = require('express');
-const { google } = require('googleapis');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
 const auth = require('./auth/apicaller/auth');
-var OAuth2 = google.auth.OAuth2;
+
 
 // ENV Config
 const dotenv = require("dotenv");
 dotenv.config();
 
 // Initialize the Express app
+const express = require('express');
 const app = express();
 
 // Use middlewares
 app.use(bodyParser.json());
 app.use(cors());
 
-// Set up the database connection pool
+
+// Initialize PG DB
+const { Pool } = require('pg');
 const pool = new Pool({
     user: process.env.DBUSERNAME,
     host: process.env.DBHOST,
@@ -27,21 +27,16 @@ const pool = new Pool({
     password: process.env.DBPASSWORD,
     port: process.env.DBPORT,
 });
-
-// Initialize PG DB
 const sqlScriptPath = path.join(__dirname, "./dbmanager/initializedb/initpgdb.sql");
 const sqlScript = fs.readFileSync(sqlScriptPath, "utf-8");
 const pgDBInitializer = require('./dbmanager/initializedb/initpgdb');
 pgDBInitializer.initpgdb(pool, sqlScript);
+pgDBInitializer.testPGConnection(pool);
 
-// Test the database connection
-pool.query('SELECT NOW()', (err, res) => {
-    if (err) {
-        console.error('Error connecting to the database', err);
-    } else {
-        console.log('Connected to the database at', res.rows[0].now);
-    }
-});
+
+// Initialize MongoDB
+const { MongoClient } = require('mongodb');
+
 
 /**
  * Authentication for DCS
@@ -95,8 +90,7 @@ app.use('/google', (req, res, next) => {
 }, youtubeDirectRoute);
 
 // Start the server
-const PORT = process.env.WEBPORT || 3000;
-
+const PORT = process.env.WEBPORT || 3600;
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
 });
