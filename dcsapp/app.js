@@ -21,21 +21,23 @@ app.use(cors());
 // Initialize PG DB
 const { Pool } = require('pg');
 const pool = new Pool({
-    user: process.env.DBUSERNAME,
-    host: process.env.DBHOST,
-    database: process.env.DBNAME,
-    password: process.env.DBPASSWORD,
-    port: process.env.DBPORT,
+    user: process.env.PGDBUSERNAME,
+    host: process.env.PGDBHOST,
+    database: process.env.PGDBNAME,
+    password: process.env.PGDBPASSWORD,
+    port: process.env.PGDBPORT,
 });
 const sqlScriptPath = path.join(__dirname, "./dbmanager/initializedb/initpgdb.sql");
 const sqlScript = fs.readFileSync(sqlScriptPath, "utf-8");
 const pgDBInitializer = require('./dbmanager/initializedb/initpgdb');
-pgDBInitializer.initpgdb(pool, sqlScript);
+pgDBInitializer.initpgdb(pool, sqlScript, process.env.PGDBNAME);
 pgDBInitializer.testPGConnection(pool);
 
 
 // Initialize MongoDB
-const { MongoClient } = require('mongodb');
+const uriMongoDB = process.env.MONGODBURI;
+const mongoDBInitializer = require('./dbmanager/initializedb/initmongodb');
+const mongoClient = mongoDBInitializer.mongoDBConnector(uriMongoDB);
 
 
 /**

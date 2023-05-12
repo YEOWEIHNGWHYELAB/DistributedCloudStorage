@@ -1,7 +1,7 @@
-exports.initpgdb = async (pool, sqlScript) => {
+exports.initpgdb = async (pool, sqlScript, dbName) => {
     try {
         await pool.query(sqlScript);
-        console.log(`Completed initialization to database: ${process.env.DBNAME}`);
+        console.log(`Completed initialization to database: ${dbName}`);
     } catch(error) {
         console.log("Error connecting to PostgreSQL database", error);
     }
