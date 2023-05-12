@@ -15,11 +15,19 @@ CREATE TABLE IF NOT EXISTS JWTBlackList (
     revoked_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-/* YouTube Tables */
+/* Google Tables */
 CREATE TABLE IF NOT EXISTS GoogleCredential (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) REFERENCES Users(username),
+    email VARCHAR(255) UNIQUE NOT NULL,
     data jsonb NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS YouTubeVideos (
+    video_id VARCHAR(255) PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    google_account_id SERIAL REFERENCES GoogleCredential(id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

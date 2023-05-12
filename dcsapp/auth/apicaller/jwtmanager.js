@@ -15,6 +15,19 @@ async function verifyJWT(token, res, next, pool) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'], ignoreExpiration: false });
         const count = await isBlacklistedToken(decoded.jti, pool);
 
+        const selectQueryCredential = `
+            SELECT * 
+            FROM Users
+            WHERE username = $1
+        `;
+        const usernameValue = [decoded.username];
+        const queryCredential = await pool.query(selectQueryCredential, usernameValue);
+
+        if (queryCredential.rows[0] == null) {
+            res.status(401).json({ message: 'User removed!' });
+            return;
+        }
+
         if (count > 0) {
             res.status(401).json({ message: 'Banned token!' });
             return;
