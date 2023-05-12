@@ -116,7 +116,7 @@ function extractIndex(str) {
 exports.createNewFile = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
-    const hardRepoLimitSize = 102400; // In kB
+    const hardRepoLimitSize = 51200; // In kB
 
     // Decoding the JWT
     let decoded;
