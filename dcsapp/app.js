@@ -1,47 +1,44 @@
-const express = require('express');
-const { google } = require('googleapis');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
 const auth = require('./auth/apicaller/auth');
-var OAuth2 = google.auth.OAuth2;
+
 
 // ENV Config
 const dotenv = require("dotenv");
 dotenv.config();
 
 // Initialize the Express app
+const express = require('express');
 const app = express();
 
 // Use middlewares
 app.use(bodyParser.json());
 app.use(cors());
 
-// Set up the database connection pool
-const pool = new Pool({
-    user: process.env.DBUSERNAME,
-    host: process.env.DBHOST,
-    database: process.env.DBNAME,
-    password: process.env.DBPASSWORD,
-    port: process.env.DBPORT,
-});
 
 // Initialize PG DB
+const { Pool } = require('pg');
+const pool = new Pool({
+    user: process.env.PGDBUSERNAME,
+    host: process.env.PGDBHOST,
+    database: process.env.PGDBNAME,
+    password: process.env.PGDBPASSWORD,
+    port: process.env.PGDBPORT,
+});
 const sqlScriptPath = path.join(__dirname, "./dbmanager/initializedb/initpgdb.sql");
 const sqlScript = fs.readFileSync(sqlScriptPath, "utf-8");
 const pgDBInitializer = require('./dbmanager/initializedb/initpgdb');
-pgDBInitializer.initpgdb(pool, sqlScript);
+pgDBInitializer.initpgdb(pool, sqlScript, process.env.PGDBNAME);
+pgDBInitializer.testPGConnection(pool);
 
-// Test the database connection
-pool.query('SELECT NOW()', (err, res) => {
-    if (err) {
-        console.error('Error connecting to the database', err);
-    } else {
-        console.log('Connected to the database at', res.rows[0].now);
-    }
-});
+
+// Initialize MongoDB
+const uriMongoDB = process.env.MONGODBURI;
+const mongoDBInitializer = require('./dbmanager/initializedb/initmongodb');
+const mongoClient = mongoDBInitializer.mongoDBConnector(uriMongoDB);
+
 
 /**
  * Authentication for DCS
@@ -95,8 +92,7 @@ app.use('/google', (req, res, next) => {
 }, youtubeDirectRoute);
 
 // Start the server
-const PORT = process.env.WEBPORT || 3000;
-
+const PORT = process.env.WEBPORT || 3600;
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
 });
