@@ -30,14 +30,28 @@ const pool = new Pool({
 const sqlScriptPath = path.join(__dirname, "./dbmanager/initializedb/initpgdb.sql");
 const sqlScript = fs.readFileSync(sqlScriptPath, "utf-8");
 const pgDBInitializer = require('./dbmanager/initializedb/initpgdb');
-pgDBInitializer.initpgdb(pool, sqlScript, process.env.PGDBNAME);
-pgDBInitializer.testPGConnection(pool);
 
 
 // Initialize MongoDB
 const uriMongoDB = process.env.MONGODBURI;
 const mongoDBInitializer = require('./dbmanager/initializedb/initmongodb');
 const mongoClient = mongoDBInitializer.mongoDBConnector(uriMongoDB);
+
+
+// Call the initialization for each database when the server starts
+Promise.all([
+    pgDBInitializer.initpgdb(pool, sqlScript, process.env.PGDBNAME),
+    pgDBInitializer.testPGConnection(pool)
+]).then(() => {
+    // Start the server
+    const PORT = process.env.WEBPORT || 3600;
+
+    app.listen(PORT, () => {
+        console.log(`Server started listening on port ${PORT}`);
+    });
+}).catch((error) => {
+    console.error('Failed to initialize databases:', error);
+});
 
 
 /**
@@ -90,9 +104,3 @@ const youtubeDirectRoute = require('./googleapi/routes/ytdirectroutes')(pool);
 app.use('/google', (req, res, next) => {
     auth.isAuthenticated(req, res, next, pool);
 }, youtubeDirectRoute);
-
-// Start the server
-const PORT = process.env.WEBPORT || 3600;
-app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
-});

@@ -8,11 +8,10 @@ exports.initpgdb = async (pool, sqlScript, dbName) => {
 };
 
 exports.testPGConnection = async (pool) => {
-    pool.query('SELECT NOW()', (err, res) => {
-        if (err) {
-            console.error('Error connecting to Postgres Database', err);
-        } else {
-            console.log('Connected to the Postgres Database at', res.rows[0].now);
-        }
-    });
+    try {
+        const resultTime = await pool.query('SELECT NOW()');
+        console.log('Connected to PostgresDB at', resultTime.rows[0].now);
+    } catch(error) {
+        console.error('Error connecting to Postgres Database', error);
+    }
 }
