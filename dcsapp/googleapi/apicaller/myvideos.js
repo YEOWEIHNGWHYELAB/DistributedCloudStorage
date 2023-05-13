@@ -54,110 +54,121 @@ exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
     // Decoding the JWT
     let decoded = decodeAuthToken(dcsAuthToken, res);
 
+    // Decide which credentials to use
+    const currentDate = moment().format('DDMMYYYY');
+
+    // Key for the monogo YouTubeStatLog
+    const keyStatLog = `${decoded.username}_${currentDate}`;
+
     // Obtaining all the available credentials from the account
     const selectQueryCredential = `
-        SELECT * 
+        SELECT id
         FROM GoogleCredential
         WHERE username = $1
     `;
     const queryCredential = await pool.query(selectQueryCredential, [decoded.username]);
 
-    // Decide which credentials to use
-    const currentDate = moment().format('DDMMYYYY');
-    const ytUploadStatLogDoc = {
-        key: `${decoded.username}_${currentDate}`,
-        value:
-            [
-                {
-                    credentials: 'a321321bc',
-                    ids: 'abc'
-                },
-                {
-                    credentials: '123abc',
-                    ids: '123abc'
-                }
-            ]
-            
-    };
+    // Credential ID that will be used
+    let credentialIDUsed;
 
-    // mongoYTTrackCollection.insertOne(ytUploadStatLogDoc);
+    const existingCurrentYTLog = await mongoYTTrackCollection.findOne({ _id: keyStatLog });
+    if (existingCurrentYTLog != null) {
+        // Update the existing document, note that there could be new 
+        // credentials added
 
-    // mongoClientDB.collection().insertOne();
-    //console.log(mongoClientDB);
-    // mongoClientDB.connection(process.env.MONGOYTTRACK);
+    } else {
+        // Creating the new logging document to insert to the mongoDB 
+        let valueStatLog = queryCredential.rows;
+        let hasRan = false;
 
-    // Insert the document into the collection
-    //const result = await mongoClient.insertOne(ytUploadStatLogDoc);
-    //console.log('Document inserted successfully:', result.insertedId);
+        for (let currCred of valueStatLog) {
+            // We will just pick the first entry if no uploads have been 
+            // performed today
+            if (!hasRan) {
+                credentialIDUsed = currCred.id;
+                currCred["count"] = 1;
+                hasRan = true;
+            }
 
+            currCred["count"] = 0;
+        }
+
+        const ytUploadStatLogDoc = {
+            _id: keyStatLog,
+            yt_log: valueStatLog
+        };
+        mongoYTTrackCollection.insertOne(ytUploadStatLogDoc);
+    }
+
+    // Perform actual upload
     /*
-  try {
-      // Set up OAuth2 client
-      const oauth2Client = setUpOAuth2Client();
+    try {
+        // Set up OAuth2 client
+        const oauth2Client = setUpOAuth2Client();
 
-      // Set up YouTube API client
-      const youtube = setUpYTAPIClient(oauth2Client);
+        // Set up YouTube API client
+        const youtube = setUpYTAPIClient(oauth2Client);
 
-      const { path: videoPath, originalname: videoName } = req.files['video'][0];
-      const { path: thumbnailPath, originalname: thumbnailName } = req.files['thumbnail'][0];
+        const { path: videoPath, originalname: videoName } = req.files['video'][0];
+        const { path: thumbnailPath, originalname: thumbnailName } = req.files['thumbnail'][0];
 
-      const videoStream = fs.createReadStream(videoPath);
-      const thumbnailStream = fs.createReadStream(thumbnailPath);
+        const videoStream = fs.createReadStream(videoPath);
+        const thumbnailStream = fs.createReadStream(thumbnailPath);
 
-      const response = await youtube.videos.insert({
-          part: 'snippet,status',
-          requestBody: {
-              snippet: {
-                  title: req.headers.title,
-                  description: req.headers.description
-              },
-              status: {
-                  privacyStatus: req.headers.privacy_status
-              }
-          },
-          media: {
-              body: videoStream
-          }
-      }, async function (err, data) {
-          if (err) {
-              res.json('Error uploading video: ' + err);
-          } else {
-              // Clean up the uploaded file
-              fs.unlinkSync(videoPath);
+        const response = await youtube.videos.insert({
+            part: 'snippet,status',
+            requestBody: {
+                snippet: {
+                    title: req.headers.title,
+                    description: req.headers.description
+                },
+                status: {
+                    privacyStatus: req.headers.privacy_status
+                }
+            },
+            media: {
+                body: videoStream
+            }
+        }, async function (err, data) {
+            if (err) {
+                res.json('Error uploading video: ' + err);
+            } else {
+                // Clean up the uploaded file
+                fs.unlinkSync(videoPath);
 
-              // Upload thumbnails
-              const video = data.data;
-              const videoID = data.data.id;
+                // Upload thumbnails
+                const video = data.data;
+                const videoID = data.data.id;
 
-              const thumbnailResponse = await youtube.thumbnails.set({
-                  videoID,
-                  media: {
-                      mimeType: 'image/png',
-                      body: thumbnailStream
-                  }
-              }, async function () {
-                  fs.unlinkSync(thumbnailPath);
+                const thumbnailResponse = await youtube.thumbnails.set({
+                    videoID,
+                    media: {
+                        mimeType: 'image/png',
+                        body: thumbnailStream
+                    }
+                }, async function () {
+                    fs.unlinkSync(thumbnailPath);
 
-                  const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1, $2, $3) RETURNING *';
-                  const values = ["whyelab", video.id, video.snippet.title];
-                  const result = await pool.query(queryText, values);
+                    const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1, $2, $3) RETURNING *';
+                    const values = ["whyelab", video.id, video.snippet.title];
+                    const result = await pool.query(queryText, values);
 
-                  res.json({
-                      videoUrl: `https://www.youtube.com/watch?v=${videoID}`,
-                      title: video.snippet.title,
-                      description: video.snippet.description,
-                      thumbnail: video.snippet.thumbnails.default.url,
-                      publishedAt: video.snippet.publishedAt,
-                      database_status: result
-                  });
-              });
-          }
-      });
-  } catch (err) {
-      console.log(err);
-      res.json({ success: false, message: "Failed to upload!"});
-      next(err);
-  }
+                    res.json({
+                        videoUrl: `https://www.youtube.com/watch?v=${videoID}`,
+                        title: video.snippet.title,
+                        description: video.snippet.description,
+                        thumbnail: video.snippet.thumbnails.default.url,
+                        publishedAt: video.snippet.publishedAt,
+                        database_status: result
+                    });
+                });
+            }
+        });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, message: "Failed to upload!"});
+        next(err);
+    }
   */
 };
 
