@@ -50,11 +50,11 @@ CREATE TABLE IF NOT EXISTS GitHubRepoList (
 );
 
 /* 
-    We did not restrict filenames to be unique since we are going to 
-    categorize these files in a custom file table which we could have
-    several folders and each of these folder could have the files with 
-    the same name!
-*/ 
+ We did not restrict filenames to be unique since we are going to 
+ categorize these files in a custom file table which we could have
+ several folders and each of these folder could have the files with 
+ the same name!
+ */
 CREATE TABLE IF NOT EXISTS GitHubFiles (
     id BIGSERIAL,
     username VARCHAR(255) REFERENCES Users(username),
@@ -68,18 +68,18 @@ CREATE TABLE IF NOT EXISTS GitHubFiles (
 ) PARTITION BY LIST (username);
 
 /*
-    This table tracks the latest usable file ID, repo ID and credential ID 
-    the user could upload the next file using...
-
-    Each user should only have 1 GitHubFID per account they own!
-
-    To decide what the next file should be uploaded to and what it should 
-    be named, do note that we should consider which account to upload the 
-    file to depends all the accounts storage, we could take the minimum 
-    storage account for instance
-
-    gh_file_uid should only be incremented upon uploading new files
-*/
+ This table tracks the latest usable file ID, repo ID and credential ID 
+ the user could upload the next file using...
+ 
+ Each user should only have 1 GitHubFID per account they own!
+ 
+ To decide what the next file should be uploaded to and what it should 
+ be named, do note that we should consider which account to upload the 
+ file to depends all the accounts storage, we could take the minimum 
+ storage account for instance
+ 
+ gh_file_uid should only be incremented upon uploading new files
+ */
 CREATE TABLE IF NOT EXISTS GitHubFID (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) REFERENCES Users(username),
@@ -89,9 +89,9 @@ CREATE TABLE IF NOT EXISTS GitHubFID (
 );
 
 /* 
-    One account will have a total storage and its latest "working" repo's
-    storage to in it
-*/
+ One account will have a total storage and its latest "working" repo's
+ storage to in it
+ */
 CREATE TABLE IF NOT EXISTS GitHubAccountStorage (
     id SERIAL PRIMARY KEY,
     gh_account_id SERIAL REFERENCES GitHubCredential(id),

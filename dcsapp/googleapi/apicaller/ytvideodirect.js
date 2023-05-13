@@ -24,21 +24,6 @@ async function getPlaylistItems(youtube, playlistId, nextPageToken, maxVideoPerP
     return response.data;
 }
 
-async function getChannelVideoByToken(res, youtube, playlistId, maxVideoPerPage, pageToken) {
-    let videos = [];
-
-    const response = await getPlaylistItems(youtube, playlistId, pageToken, maxVideoPerPage);
-
-    videosArrayDataPopulator(videos, response);
-
-    const data = {
-        video: videos,
-        pageToken: response.nextPageToken
-    };
-
-    res.json(data);
-}
-
 async function getChannelAllVideos(res, youtube, playlistId, maxVideoPerPage) {
     let videos = [];
 
@@ -56,10 +41,13 @@ async function getChannelAllVideos(res, youtube, playlistId, maxVideoPerPage) {
         }
     }
 
-    res.json(videos);
+    res.json({
+        success: true,
+        results: videos
+    });
 }
 
-exports.listVideoPaginated = async (req, res) => {
+exports.listVideo = async (req, res) => {
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
@@ -88,17 +76,15 @@ exports.listVideoPaginated = async (req, res) => {
                 return;
             }
 
-            console.log(req.body);
-
             const playlistId = response.data.items[0].contentDetails.relatedPlaylists.uploads;
 
-            if (req.body.pageToken != null) {
-                getChannelVideoByToken(res, youtube, playlistId, req.body.maxVideo, req.body.pageToken);
-            } else {
-                getChannelAllVideos(res, youtube, playlistId, 50);
-            }
+            getChannelAllVideos(res, youtube, playlistId, 50);
         });
     } catch (err) {
+        res.json({
+            success: false,
+            message: "Unable to get videos!"
+        });
         console.log(err);
     }
 }
