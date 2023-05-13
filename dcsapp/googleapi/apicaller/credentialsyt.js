@@ -13,16 +13,17 @@ const { google } = require('googleapis');
 * token
 */
 
-function getDecodedJWTInfo(decoded, authHeader, res) {
+function getDecodedJWTInfo(authHeader, res) {
     try {
-        decoded = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET, {
+        let decoded = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET, {
             algorithms: ["HS256"],
         });
+
+        return decoded;
     } catch (err) {
         // console.error(err);
         res.status(401).json({ success: false, message: "Invalid token" });
     }
-    return decoded;
 }
 
 function getAuthURLWithYTScope(oauth2Client) {
@@ -34,21 +35,20 @@ function getAuthURLWithYTScope(oauth2Client) {
 
 function getOauth2Client(req) {
     return new OAuth2Client(
-        req.body.client_id,
-        req.body.client_secret,
-        req.body.redirect_uri);
+        req.body.yt_client_id,
+        req.body.yt_client_secret,
+        req.body.yt_redirect_uri);
 }
 
 // Kick start to obtain the kick start access token
-exports.kickStartCredentials = async (req, res, pool) => {
+exports.kickStartCredentialsYT = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
-    let decoded;
 
     if (!authHeader) {
         return res.status(401).json({ success: false, message: "Authorization header missing" });
     }
 
-    decoded = getDecodedJWTInfo(decoded, authHeader, res);
+    let decoded = getDecodedJWTInfo(authHeader, res);
 
     const credentials = req.body;
 
@@ -66,17 +66,16 @@ exports.kickStartCredentials = async (req, res, pool) => {
 };
 
 // Add new credentials
-exports.createCredentials = async (req, res, pool) => {
+exports.createCredentialsYT = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
-    let decoded;
 
     if (!authHeader) {
         return res.status(401).json({ success: false, message: "Authorization header missing" });
     }
 
-    decoded = getDecodedJWTInfo(decoded, authHeader, res);
+    let decoded = getDecodedJWTInfo(authHeader, res);
 
-    const urlAccessTokenCode = req.body.access_token_kickstart;
+    const urlAccessTokenCode = req.body.yt_access_token_kickstart;
 
     // Initialize the OAuth2Client
     const oauth2Client = getOauth2Client(req);
@@ -90,10 +89,10 @@ exports.createCredentials = async (req, res, pool) => {
 
         const credentialData = 
         {
-            client_id: req.body.client_id,
-            client_secret: req.body.client_secret,
-            redirect_uris: req.body.redirect_uri,
-            refresh_token: refreshToken
+            yt_client_id: req.body.yt_client_id,
+            yt_client_secret: req.body.yt_client_secret,
+            yt_redirect_uris: req.body.yt_redirect_uri,
+            yt_refresh_token: refreshToken
         };
         const credentialJSONB = JSON.stringify(credentialData);
 
@@ -148,15 +147,85 @@ exports.createCredentials = async (req, res, pool) => {
     }
 };
 
-exports.deleteCredentials = async (req, res, pool) => {
+exports.getCredentials = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
         return res.status(401).json({ success: false, message: "Authorization header missing" });
     }
 
+    let decoded = getDecodedJWTInfo(authHeader, res);
+
     try {
-        const deleteQueryText = `DELETE FROM GoogleCredential WHERE id = $1`;
+        const selectQueryText = `SELECT id, email, data FROM GoogleCredential WHERE username = $1`;
+        const usernameValue = [decoded.username];
+        const selectQueryCredential = await pool.query(selectQueryText, usernameValue);
+
+        res.json(
+            {
+                success: true, 
+                results: selectQueryCredential.rows
+            }
+        );
+    } catch (error) {
+        // console.error('Failed to exchange authorization code for tokens:', error);
+        res.json(
+            {
+                success: false, 
+                message: "Failed to delete credential!"
+            }
+        );
+    }
+};
+
+exports.deleteCredentialsYTMulDel = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ success: false, message: "Authorization header missing" });
+    }
+
+    let decoded = getDecodedJWTInfo(authHeader, res);
+
+    try {
+        const deleteQueryText = `
+            DELETE FROM GoogleCredential 
+            WHERE id = ANY($1::int[]) 
+                AND username = '${decoded.username}'`;
+        const deleteValues = [req.body.id];
+        const deleteQueryCredential = await pool.query(deleteQueryText, deleteValues);
+
+        res.json(
+            {
+                success: true, 
+                message: "Successfully deleted selected credential!"
+            }
+        );
+    } catch (error) {
+        console.error('Failed to exchange authorization code for tokens:', error);
+        res.json(
+            {
+                success: false, 
+                message: "Failed to delete credential!"
+            }
+        );
+    }
+};
+
+exports.deleteCredentialsYT = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ success: false, message: "Authorization header missing" });
+    }
+
+    let decoded = getDecodedJWTInfo(authHeader, res);
+
+    try {
+        const deleteQueryText = `
+            DELETE FROM GoogleCredential 
+            WHERE id = $1 
+                AND username = '${decoded.username}'`;
         const deleteValue = [req.params.id];
         const deleteQueryCredential = await pool.query(deleteQueryText, deleteValue);
 

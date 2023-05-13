@@ -1,22 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const myCredentials = require('../apicaller/credentials');
+const myCredentials = require('../apicaller/credentialsyt');
 
 
 module.exports = (pool) => {
+    // Get my credential
+    router.get('/credentialsyt', (req, res) => {
+        myCredentials.getCredentials(req, res, pool);
+    });
+
     // Kick start to obtain the refresh token
-    router.post('/credkickstart', (req, res) => {
-        myCredentials.kickStartCredentials(req, res, pool);
+    router.post('/credkickstartyt', (req, res) => {
+        myCredentials.kickStartCredentialsYT(req, res, pool);
     });
 
     // Upload new Google Credentials for user
-    router.post('/credentials', (req, res) => {
-        myCredentials.createCredentials(req, res, pool);
+    router.post('/credentialsyt', (req, res) => {
+        myCredentials.createCredentialsYT(req, res, pool);
     });
 
-    // Delete Google Credentials for user
-    router.delete('/credentials/:id', (req, res) => {
-        myCredentials.deleteCredentials(req, res, pool);
+    // Delete Google Credential for user
+    router.delete('/credentialsyt/:id', (req, res) => {
+        myCredentials.deleteCredentialsYT(req, res, pool);
+    });
+
+    // Delete Multiple Google Credentials for user
+    router.post('/credentialsyt/muldel', (req, res) => {
+        myCredentials.deleteCredentialsYTMulDel(req, res, pool);
     });
 
     return router;

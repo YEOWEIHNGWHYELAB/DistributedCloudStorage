@@ -130,7 +130,13 @@ exports.editVideoMeta = async (req, res, pool) => {
     }
 };
 
-// Delete a selected video
+
+// Soft Delete selected video
+
+
+
+// HARD DELETE a selected video
+// WARNING: THERES NO TURNING BACK!
 exports.deleteVideo = async (req, res, pool) => {
     try {
         // Set up OAuth2 client
