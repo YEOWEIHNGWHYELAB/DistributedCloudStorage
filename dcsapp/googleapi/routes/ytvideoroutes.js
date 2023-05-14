@@ -14,7 +14,7 @@ module.exports = (pool, mongoYTTrackCollection) => {
         myVideosController.uploadVideo(req, res, pool, mongoYTTrackCollection);
     });
 
-    router.post('/youtube/videopag', (req, res) => {
+    router.post('/youtube/videospag', (req, res) => {
         myVideosController.getVideosPag(req, res, pool);
     });
 

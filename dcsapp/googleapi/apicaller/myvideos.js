@@ -250,7 +250,27 @@ exports.getVideosPag = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
+    // Decoding the JWT
+    let decoded = decodeAuthToken(dcsAuthToken, res);
 
+    const page = parseInt(req.body.page) || 1;
+    const limit = parseInt(req.body.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    // Obtain video credential ID
+    const videoPaginatedQuery = `
+        SELECT video_id, title
+        FROM YouTubeVideos
+        WHERE username = $1 AND is_deleted = false
+        LIMIT $2 OFFSET $3
+    `;
+
+    try {
+        const videoPagResult = await pool.query(videoPaginatedQuery, [decoded.username, limit, offset]);
+        res.json({ success: true, message: "Videos obtained successfully", results: videoPagResult.rows});
+    } catch (error) {
+        res.json({ success: false, message: "Failed to get videos" });
+    }
 };
 
 // Edit video meta data
@@ -325,7 +345,7 @@ exports.deleteVideoSoft = async (req, res, pool) => {
         const deleteVideo = await pool.query(updateQueryVideo, [req.body.video_id]);
         res.json({ success: true, message: "Soft deleted!" });
     } catch(error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: "Soft deletion failed" });
     }
 };
