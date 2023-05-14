@@ -278,16 +278,63 @@ exports.editVideoMeta = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
+    // Decoding the JWT
+    let decoded = decodeAuthToken(dcsAuthToken, res);
+
+    // Obtain video credential ID
+    const videoCredID = `
+        SELECT google_account_id
+        FROM YouTubeVideos
+        WHERE username = $1 AND video_id = $2
+    `;
+    const videoIDQuery = await pool.query(videoCredID, [decoded.username, req.body.video_id]);
+    const videoGoogleCredID = videoIDQuery.rows[0].google_account_id;
+
+    // Obtaining all the available credentials from the account
+    const selectQueryCredential = `
+        SELECT id, email, data
+        FROM GoogleCredential
+        WHERE username = $1
+    `;
+    const queryCredential = await pool.query(selectQueryCredential, [decoded.username]);
+
+    let credentialData;
+
+    for (let currCred of queryCredential.rows) {
+        if (videoGoogleCredID == currCred.id) {
+            credentialData = currCred.data;
+            break;
+        }
+    }
+
+    // Obtain temporary access token
+    const oauth2ClientAccessTokenGetter = setUpOAuth2ClientAccessToken(credentialData.yt_client_id, credentialData.yt_client_secret, credentialData.yt_redirect_uris);
+
+    // Set the refresh token on the OAuth2Client
+    oauth2ClientAccessTokenGetter.setCredentials({
+        refresh_token: credentialData.yt_refresh_token,
+    });
+
+    const tempAccess = await refreshAccessToken(oauth2ClientAccessTokenGetter);
+    const tempAccessToken = tempAccess.access_token;
+
+    const updateQueryVideo = `
+        UPDATE YouTubeVideos
+        SET title = $2
+        WHERE username = '${decoded.username}'
+            AND video_id = $1
+    `;
+
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
-            process.env.GOOGLE_OA2_CLIENT_SECRET,
-            process.env.GOOGLE_OA2_CLIENT_ID,
-            process.env.GOOGLE_OA2_REDIRECT_URI
+            credentialData.yt_client_secret,
+            credentialData.yt_client_id, 
+            credentialData.yt_redirect_uris
         );
 
         oauth2Client.setCredentials({
-            access_token: process.env.GOOGLE_OA2_ACCESS_TOKEN
+            access_token: tempAccessToken
         });
 
         // Set up YouTube API client
@@ -306,21 +353,19 @@ exports.editVideoMeta = async (req, res, pool) => {
                     categoryId: 28
                 }
             }
-        }, function (err, data) {
+        }, async function (err, data) {
             if (err) {
-                res.json('Error updating video metadata: ' + err);
+                console.log(err);
+                res.json({ success: false, message: "Error updating video metadata" });
             } else {
-                res.json('Video metadata updated: ' + data);
+                const updatedVideo = await pool.query(updateQueryVideo, [req.body.video_id, req.body.title]);
+                res.json({ success: true, message: "Successfully updated video metadata" });
             }
         });
     } catch (err) {
-        // console.log(err);
-        res.json(
-            {
-                success: false,
-                message: "Failed to update!"
-            }
-        );
+        console.log(err);
+        // next(err);
+        res.json({ success: false, message: "Error updating video metadata" });
     }
 };
 
