@@ -61,13 +61,13 @@ function setUpYTAPIClient(oauth2Client) {
     });
 }
 
-async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool) {
+async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, username, account_id) {
     return await youtube.videos.insert({
         part: 'snippet,status',
         requestBody: {
             snippet: {
                 title: req.headers.title,
-                description: req.headers.description
+                description: req.body.description
             },
             status: {
                 privacyStatus: req.headers.privacy_status
@@ -78,14 +78,15 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
         }
     }, async function (err, data) {
         if (err) {
-            res.json('Error uploading video: ' + err);
+            // console.log(err);
+            res.json({ success: false, message: "Failed to upload!" });
         } else {
             // Clean up the uploaded file
             fs.unlinkSync(videoPath);
 
             // Upload thumbnails
             const video = data.data;
-            const videoID = data.data.id;
+            const videoID = video.id;
 
             const thumbnailResponse = await youtube.thumbnails.set({
                 videoID,
@@ -96,17 +97,15 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
             }, async function () {
                 fs.unlinkSync(thumbnailPath);
 
-                const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1, $2, $3) RETURNING *';
-                const values = ["whyelab", video.id, video.snippet.title];
+                const queryText = 'INSERT INTO YouTubeVideos (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *';
+                const values = [username, videoID, video.snippet.title, account_id];
                 const result = await pool.query(queryText, values);
 
                 res.json({
-                    videoUrl: `https://www.youtube.com/watch?v=${videoID}`,
-                    title: video.snippet.title,
-                    description: video.snippet.description,
-                    thumbnail: video.snippet.thumbnails.default.url,
-                    publishedAt: video.snippet.publishedAt,
-                    database_status: result
+                    success: true,
+                    message: "Video uploaded successfully",
+                    results: `https://www.youtube.com/watch?v=${videoID}`,
+                    title: video.snippet.title
                 });
             });
         }
@@ -219,18 +218,6 @@ exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
         refresh_token: credentialInfoUsed.yt_refresh_token,
     });
 
-    // Refresh the access token
-    // oauth2ClientAccessTokenGetter.refreshAccessToken((err, tokens) => {
-    //     if (err) {
-    //         res.json({ success: false, message: "Failed to get token!" });
-    //         // console.error('Failed to refresh access token:', err);
-    //         return;
-    //     }
-
-    //     // Extract the new access token
-    //     tempAccessToken = tokens.access_token;
-    // });
-
     const tempAccess = await refreshAccessToken(oauth2ClientAccessTokenGetter);
     const tempAccessToken = tempAccess.access_token;
 
@@ -248,17 +235,10 @@ exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
         const videoStream = fs.createReadStream(videoPath);
         const thumbnailStream = fs.createReadStream(thumbnailPath);
 
-        const videoNameActual = path.basename(videoName, path.extname(videoName));
-        const thumbnailNameActual = path.basename(thumbnailName, path.extname(thumbnailName));
+        // const videoNameActual = path.basename(videoName, path.extname(videoName));
+        // const thumbnailNameActual = path.basename(thumbnailName, path.extname(thumbnailName));
 
-        /*
-        console.log(req.body.description);
-        console.log(videoName);
-        console.log(thumbnailName);
-        console.log(tempAccessToken);
-        */
-
-        const response = await uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool);
+        const response = await uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, decoded.username, credentialIDUsed);
     } catch (err) {
         // console.log(err);
         // next(err);
