@@ -249,6 +249,8 @@ exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
 exports.getVideosPag = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
+
+
 };
 
 // Edit video meta data
@@ -308,8 +310,22 @@ exports.deleteVideoSoft = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
+    // Decoding the JWT
+    let decoded = decodeAuthToken(dcsAuthToken, res);
 
-}
+    // Obtaining all the available credentials from the account
+    const deleteQueryCredential = `
+        DELETE FROM YouTubeVideos 
+        WHERE video_id = $1 
+            AND username = '${decoded.username}'`;
+
+    try {
+        const deleteVideo = await pool.query(deleteQueryCredential, [decoded.username]);
+        res.json({ success: true, message: "Soft deleted!" });
+    } catch(error) {
+        res.json({ success: false, message: "Soft deletion failed" });
+    }
+};
 
 
 // HARD DELETE a selected video
@@ -318,16 +334,65 @@ exports.deleteVideoHard = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
+    // Decoding the JWT
+    let decoded = decodeAuthToken(dcsAuthToken, res);
+
+    // Obtain video credential ID
+    const videoCredID = `
+        SELECT google_account_id
+        FROM YouTubeVideos
+        WHERE username = $1 AND video_id = $2
+    `;
+    const videoIDQuery = await pool.query(videoCredID, [decoded.username, req.params.id]);
+    const videoGoogleCredID = videoIDQuery.rows[0].google_account_id;
+
+    // Obtaining all the available credentials from the account
+    const selectQueryCredential = `
+        SELECT id, email, data
+        FROM GoogleCredential
+        WHERE username = $1
+    `;
+    const queryCredential = await pool.query(selectQueryCredential, [decoded.username]);
+
+    let credentialData;
+
+    for (let currCred of queryCredential.rows) {
+        if (videoGoogleCredID == currCred.id) {
+            credentialData = currCred.data;
+            break;
+        }
+    }
+
+    console.log(credentialData);
+
+    // Obtain temporary access token
+    const oauth2ClientAccessTokenGetter = setUpOAuth2ClientAccessToken(credentialData.yt_client_id, credentialData.yt_client_secret, credentialData.yt_redirect_uris);
+
+    // Set the refresh token on the OAuth2Client
+    oauth2ClientAccessTokenGetter.setCredentials({
+        refresh_token: credentialData.yt_refresh_token,
+    });
+
+    const tempAccess = await refreshAccessToken(oauth2ClientAccessTokenGetter);
+    const tempAccessToken = tempAccess.access_token;
+
+    // Obtaining all the available credentials from the account
+    const deleteQueryCredential = `
+        DELETE FROM YouTubeVideos 
+        WHERE video_id = $1
+            AND username = '${decoded.username}'`;
+    const idToDelete = [req.params.id];
+
     try {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
-            process.env.GOOGLE_OA2_CLIENT_SECRET,
-            process.env.GOOGLE_OA2_CLIENT_ID,
-            process.env.GOOGLE_OA2_REDIRECT_URI
+            credentialData.yt_client_secret,
+            credentialData.yt_client_id, 
+            credentialData.yt_redirect_uris
         );
 
         oauth2Client.setCredentials({
-            access_token: process.env.GOOGLE_OA2_ACCESS_TOKEN
+            access_token: tempAccessToken
         });
 
         // Set up YouTube API client
@@ -337,12 +402,14 @@ exports.deleteVideoHard = async (req, res, pool) => {
         });
 
         youtube.videos.delete({
-            id: req.body.delete_id
-        }, function (err, data) {
+            id: req.params.id
+        }, async function (err, data) {
             if (err) {
-                res.json('Error deleting video: ' + err);
+                console.log(err);
+                res.json({ success: false, message: "Hard deletion failed!" });
             } else {
-                res.json('Video deleted: ' + data);
+                const deleteVideo = await pool.query(deleteQueryCredential, [req.params.id]); 
+                res.json({ success: true, message: "Hard deleted!" });
             }
         });
     } catch (err) {

@@ -22,11 +22,11 @@ module.exports = (pool, mongoYTTrackCollection) => {
         myVideosController.editVideoMeta(req, res, pool);
     });
 
-    router.delete('/youtube/:id', (req, res) => {
+    router.post('/youtube/muldel', (req, res) => {
         myVideosController.deleteVideoSoft(req, res, pool);
     });
 
-    router.delete('/youtube/hard/:id', (req, res) => {
+    router.delete('/youtube/:id', (req, res) => {
         myVideosController.deleteVideoHard(req, res, pool);
     });
 

@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS YouTubeVideos (
     username VARCHAR(255) REFERENCES Users(username),
     title VARCHAR(100) NOT NULL,
     google_account_id SERIAL REFERENCES GoogleCredential(id),
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

@@ -2,11 +2,18 @@
 
 Using services in the way that they they are not intended for. Platforms like Google and Meta provided social media broadcasting can be useful for us to make a distributed file system for us to use it as a general purpose storage device. Google Drive does provide storage for all file types but only provides 15 GB of free storage.
 
+## To-Do
+
+1) YouTubeAPI
+
+- Currently there is no category settings for video uploaded
+- No meta data other than video title (To be stored in MongoDB), we already have the collection which is called mongoYTMetaCollection on app.js
+
 ## WARNING
 
-There is a potential risk of losing your account if this application is used as it might violate the terms of use of these service provider as we are not using it for social media purposes but for our own archival purpose. 
+There is a potential risk of losing your account if this application is used as it might violate the terms of use of these service provider as we are not using it for social media purposes but for our own archival purpose.
 
-This is mainly a testing project for fun. Use it at your own risk! 
+This is mainly a testing project for fun. Use it at your own risk!
 
 ## Cloud File Types Storage Service Provider
 
