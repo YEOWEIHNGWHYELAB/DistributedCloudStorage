@@ -314,15 +314,18 @@ exports.deleteVideoSoft = async (req, res, pool) => {
     let decoded = decodeAuthToken(dcsAuthToken, res);
 
     // Obtaining all the available credentials from the account
-    const deleteQueryCredential = `
-        DELETE FROM YouTubeVideos 
-        WHERE video_id = $1 
-            AND username = '${decoded.username}'`;
+    const updateQueryVideo = `
+        UPDATE YouTubeVideos
+        SET is_deleted = true
+        WHERE username = '${decoded.username}'
+            AND video_id = ANY($1::VARCHAR[])
+    `;
 
     try {
-        const deleteVideo = await pool.query(deleteQueryCredential, [decoded.username]);
+        const deleteVideo = await pool.query(updateQueryVideo, [req.body.video_id]);
         res.json({ success: true, message: "Soft deleted!" });
     } catch(error) {
+        console.log(error);
         res.json({ success: false, message: "Soft deletion failed" });
     }
 };
@@ -362,8 +365,6 @@ exports.deleteVideoHard = async (req, res, pool) => {
             break;
         }
     }
-
-    console.log(credentialData);
 
     // Obtain temporary access token
     const oauth2ClientAccessTokenGetter = setUpOAuth2ClientAccessToken(credentialData.yt_client_id, credentialData.yt_client_secret, credentialData.yt_redirect_uris);
@@ -405,7 +406,7 @@ exports.deleteVideoHard = async (req, res, pool) => {
             id: req.params.id
         }, async function (err, data) {
             if (err) {
-                console.log(err);
+                // console.log(err);
                 res.json({ success: false, message: "Hard deletion failed!" });
             } else {
                 const deleteVideo = await pool.query(deleteQueryCredential, [req.params.id]); 
