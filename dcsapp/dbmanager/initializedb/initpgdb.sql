@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS GoogleCredential (
 
 CREATE TABLE IF NOT EXISTS YouTubeVideos (
     video_id VARCHAR(255) PRIMARY KEY,
+    username VARCHAR(255) REFERENCES Users(username),
     title VARCHAR(100) NOT NULL,
     google_account_id SERIAL REFERENCES GoogleCredential(id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()

@@ -1,6 +1,10 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
+const fs = require('fs');
+const path = require('path');
 const moment = require('moment');
+const { OAuth2Client } = require('google-auth-library');
+const { google } = require('googleapis');
+const OAuth2 = google.auth.OAuth2;
 
 
 // Check if the auth header exist from DCS
@@ -25,6 +29,17 @@ function decodeAuthToken(dcsAuthToken, res) {
     }
 }
 
+function setUpOAuth2ClientAccessToken(client_id, client_secret, redirect_url) {
+    // Initialize the OAuth2Client
+    const oauth2Client = new OAuth2Client(
+        client_id, // CLIENT_ID
+        client_secret, // CLIENT_SECRET
+        redirect_url // REDIRECT_URL
+    );
+
+    return oauth2Client;
+}
+
 function setUpOAuth2Client(clientSecret, clientID, redirectURI, accessToken) {
     const oauth2Client = new OAuth2(
         clientSecret,
@@ -46,6 +61,72 @@ function setUpYTAPIClient(oauth2Client) {
     });
 }
 
+async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool) {
+    return await youtube.videos.insert({
+        part: 'snippet,status',
+        requestBody: {
+            snippet: {
+                title: req.headers.title,
+                description: req.headers.description
+            },
+            status: {
+                privacyStatus: req.headers.privacy_status
+            }
+        },
+        media: {
+            body: videoStream
+        }
+    }, async function (err, data) {
+        if (err) {
+            res.json('Error uploading video: ' + err);
+        } else {
+            // Clean up the uploaded file
+            fs.unlinkSync(videoPath);
+
+            // Upload thumbnails
+            const video = data.data;
+            const videoID = data.data.id;
+
+            const thumbnailResponse = await youtube.thumbnails.set({
+                videoID,
+                media: {
+                    mimeType: 'image/png',
+                    body: thumbnailStream
+                }
+            }, async function () {
+                fs.unlinkSync(thumbnailPath);
+
+                const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1, $2, $3) RETURNING *';
+                const values = ["whyelab", video.id, video.snippet.title];
+                const result = await pool.query(queryText, values);
+
+                res.json({
+                    videoUrl: `https://www.youtube.com/watch?v=${videoID}`,
+                    title: video.snippet.title,
+                    description: video.snippet.description,
+                    thumbnail: video.snippet.thumbnails.default.url,
+                    publishedAt: video.snippet.publishedAt,
+                    database_status: result
+                });
+            });
+        }
+    });
+}
+
+// Wrap the refreshAccessToken function in a promise
+function refreshAccessToken(oauth2ClientAccessTokenGetter) {
+    return new Promise((resolve, reject) => {
+        oauth2ClientAccessTokenGetter.refreshAccessToken((err, token) => {
+            if (err) {
+                // reject(err);
+                res.json({ success: false, message: "Failed to get token!" });
+            } else {
+                resolve(token);
+            }
+        });
+    });
+}
+
 // Upload new video
 exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
     const authHeader = req.headers.authorization;
@@ -62,7 +143,7 @@ exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
 
     // Obtaining all the available credentials from the account
     const selectQueryCredential = `
-        SELECT id
+        SELECT id, email, data
         FROM GoogleCredential
         WHERE username = $1
     `;
@@ -71,40 +152,92 @@ exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
     // Credential ID that will be used
     let credentialIDUsed;
 
-    const existingCurrentYTLog = await mongoYTTrackCollection.findOne({ _id: keyStatLog });
+    let existingCurrentYTLog = await mongoYTTrackCollection.findOne({ _id: keyStatLog });
     if (existingCurrentYTLog != null) {
         // Update the existing document, note that there could be new 
-        // credentials added
+        // credentials added, but we will keep it simple and use that 
+        // tomorrow instead
+        let minDailyUpload = Number.MAX_VALUE;
+        let minCred;
 
+        for (let currCred of existingCurrentYTLog.yt_log) {
+            if (minDailyUpload > currCred.count) {
+                minDailyUpload = currCred.count;
+                credentialIDUsed = currCred.id;
+                minCred = currCred;
+            }
+        }
+
+        minCred.count++;
+
+        const queryID = { _id: keyStatLog };
+        const updateQuery = { $set: { yt_log: existingCurrentYTLog.yt_log } };
+
+        const result = await mongoYTTrackCollection.updateOne(queryID, updateQuery);
     } else {
         // Creating the new logging document to insert to the mongoDB 
         let valueStatLog = queryCredential.rows;
         let hasRan = false;
+        let newStatLog = [];
 
         for (let currCred of valueStatLog) {
             // We will just pick the first entry if no uploads have been 
             // performed today
             if (!hasRan) {
                 credentialIDUsed = currCred.id;
-                currCred["count"] = 1;
+                newStatLog.push({ id: credentialIDUsed, count: 1 });
                 hasRan = true;
+                continue;
             }
 
-            currCred["count"] = 0;
+            newStatLog.push({ id: currCred.id, count: 0 });
         }
 
         const ytUploadStatLogDoc = {
             _id: keyStatLog,
-            yt_log: valueStatLog
+            yt_log: newStatLog
         };
+
         mongoYTTrackCollection.insertOne(ytUploadStatLogDoc);
     }
 
+    let emailToUsed;
+    let credentialInfoUsed;
+
+    for (let currCreden of queryCredential.rows) {
+        if (currCreden.id == credentialIDUsed) {
+            emailToUsed = currCreden.email;
+            credentialInfoUsed = currCreden.data;
+        }
+    }
+
+    // Obtain temporary access token
+    const oauth2ClientAccessTokenGetter = setUpOAuth2ClientAccessToken(credentialInfoUsed.yt_client_id, credentialInfoUsed.yt_client_secret, credentialInfoUsed.yt_redirect_uris);
+
+    // Set the refresh token on the OAuth2Client
+    oauth2ClientAccessTokenGetter.setCredentials({
+        refresh_token: credentialInfoUsed.yt_refresh_token,
+    });
+
+    // Refresh the access token
+    // oauth2ClientAccessTokenGetter.refreshAccessToken((err, tokens) => {
+    //     if (err) {
+    //         res.json({ success: false, message: "Failed to get token!" });
+    //         // console.error('Failed to refresh access token:', err);
+    //         return;
+    //     }
+
+    //     // Extract the new access token
+    //     tempAccessToken = tokens.access_token;
+    // });
+
+    const tempAccess = await refreshAccessToken(oauth2ClientAccessTokenGetter);
+    const tempAccessToken = tempAccess.access_token;
+
     // Perform actual upload
-    /*
     try {
         // Set up OAuth2 client
-        const oauth2Client = setUpOAuth2Client();
+        const oauth2Client = setUpOAuth2Client(credentialInfoUsed.yt_client_id, credentialInfoUsed.yt_client_secret, credentialInfoUsed.yt_redirect_uris, tempAccessToken);
 
         // Set up YouTube API client
         const youtube = setUpYTAPIClient(oauth2Client);
@@ -115,61 +248,22 @@ exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
         const videoStream = fs.createReadStream(videoPath);
         const thumbnailStream = fs.createReadStream(thumbnailPath);
 
-        const response = await youtube.videos.insert({
-            part: 'snippet,status',
-            requestBody: {
-                snippet: {
-                    title: req.headers.title,
-                    description: req.headers.description
-                },
-                status: {
-                    privacyStatus: req.headers.privacy_status
-                }
-            },
-            media: {
-                body: videoStream
-            }
-        }, async function (err, data) {
-            if (err) {
-                res.json('Error uploading video: ' + err);
-            } else {
-                // Clean up the uploaded file
-                fs.unlinkSync(videoPath);
+        const videoNameActual = path.basename(videoName, path.extname(videoName));
+        const thumbnailNameActual = path.basename(thumbnailName, path.extname(thumbnailName));
 
-                // Upload thumbnails
-                const video = data.data;
-                const videoID = data.data.id;
+        /*
+        console.log(req.body.description);
+        console.log(videoName);
+        console.log(thumbnailName);
+        console.log(tempAccessToken);
+        */
 
-                const thumbnailResponse = await youtube.thumbnails.set({
-                    videoID,
-                    media: {
-                        mimeType: 'image/png',
-                        body: thumbnailStream
-                    }
-                }, async function () {
-                    fs.unlinkSync(thumbnailPath);
-
-                    const queryText = 'INSERT INTO YouTubeVideo (username, video_id, video_title) VALUES ($1, $2, $3) RETURNING *';
-                    const values = ["whyelab", video.id, video.snippet.title];
-                    const result = await pool.query(queryText, values);
-
-                    res.json({
-                        videoUrl: `https://www.youtube.com/watch?v=${videoID}`,
-                        title: video.snippet.title,
-                        description: video.snippet.description,
-                        thumbnail: video.snippet.thumbnails.default.url,
-                        publishedAt: video.snippet.publishedAt,
-                        database_status: result
-                    });
-                });
-            }
-        });
+        const response = await uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool);
     } catch (err) {
-        console.log(err);
-        res.json({ success: false, message: "Failed to upload!"});
-        next(err);
+        // console.log(err);
+        // next(err);
+        res.json({ success: false, message: "Failed to upload!" });
     }
-  */
 };
 
 exports.getVideosPag = async (req, res, pool) => {

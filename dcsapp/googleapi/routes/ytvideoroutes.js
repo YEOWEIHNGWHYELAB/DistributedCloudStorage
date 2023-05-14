@@ -6,6 +6,7 @@ const tempstorage = multer({ dest: '../../tempstorage/' });
 
 
 module.exports = (pool, mongoYTTrackCollection) => {
+    // Upload new video
     router.post('/youtube', tempstorage.fields([
         { name: 'video', maxCount: 1 },
         { name: 'thumbnail', maxCount: 1 }
