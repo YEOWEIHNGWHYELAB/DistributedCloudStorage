@@ -25,12 +25,12 @@ CREATE TABLE IF NOT EXISTS GoogleCredential (
 );
 
 CREATE TABLE IF NOT EXISTS YouTubeVideos (
-    video_id VARCHAR(255) PRIMARY KEY,
+    video_id VARCHAR(255),
     username VARCHAR(255) REFERENCES Users(username),
     title VARCHAR(100) NOT NULL,
     google_account_id SERIAL REFERENCES GoogleCredential(id),
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (video_id, username)
 ) PARTITION BY LIST (username);
 
