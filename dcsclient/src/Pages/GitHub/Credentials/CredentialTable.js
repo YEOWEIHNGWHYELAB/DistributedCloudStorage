@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import RequestResource from "../../../Hooks/RequestResource";
+import RequestResource from "../../../Hooks/RequestResourceGeneric";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboard } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -15,7 +15,7 @@ import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as Yup from "yup";
-import { credTableStyle } from "./CredentialTableStyle";
+import { credTableStyle } from "./TableStyle";
 
 
 function CredentialsTable() {

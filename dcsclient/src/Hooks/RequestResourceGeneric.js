@@ -6,6 +6,11 @@ import HTTPAPIError from "../Errors/HTTPAPIError";
 import { LoadingOverlayResourceContext } from "../Contexts/LoadingOverlayResource";
 import SetHeaderToken from "../Contexts/SetHeaderToken";
 
+
+/**
+ * This Request Resource is only good for a route that utilizes all the POST, GET, UPDATE, 
+ * DELETE without additional complex operations.
+ */
 export default function RequestResource({ endpoint, resourceLabel }) {
     const [resourceList, setResourceList] = useState({
         results: []
