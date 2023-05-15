@@ -42,9 +42,9 @@ exports.register = async (req, res, pool) => {
     } catch (err) {
         // console.error(err);
         if (err.code === '23505' && err.constraint === 'unique_username') {
-            res.status(401).json({ message: 'Username already taken!' });
+            res.status(401).json({ success: false, message: 'Username already taken!' });
         } else {
-            res.status(500).json({ message: 'Server error' });
+            res.status(500).json({ success: false, message: 'Server error' });
         }
     }
 };
@@ -54,7 +54,7 @@ exports.login = async (req, res, pool) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-        return res.status(400).json({ message: 'Username and password are required' });
+        return res.status(400).json({ success: false, message: 'Username and password are required' });
     }
 
     try {
@@ -63,21 +63,21 @@ exports.login = async (req, res, pool) => {
         const user = queryResult.rows[0];
 
         if (!user) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            return res.status(401).json({ success: false, message: 'Invalid username or password' });
         }
 
         // Check if password is correct
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordMatch) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            return res.status(401).json({ success: false, message: 'Invalid username or password' });
         }
 
         // Sign JWT token
         jwtManager.generateToken(pool, user, res, false);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 };
 
@@ -98,16 +98,16 @@ exports.getUsername = async (req, res, pool) => {
         const count = await jwtManager.isBlacklistedToken(decoded.jti, pool);
 
         if (count > 0) {
-            res.status(401).json({ message: 'Banned token!' });
+            res.status(401).json({ success: false, message: 'Banned token!' });
             return;
         }
 
         res.json({ username: decoded.username, email: queryResult.rows[0].email });
     } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
-            res.status(401).json({ message: 'Please login again' });
+            res.status(401).json({ success: false, message: 'Please login again' });
         } else {
-            res.status(401).json({ message: 'Invalid token' });
+            res.status(401).json({ success: false, message: 'Invalid token' });
         }
     }
 }
@@ -117,11 +117,11 @@ exports.changePassword = async (req, res, pool) => {
     const { old_password, new_password } = req.body;
 
     if (!old_password || !new_password) {
-        return res.status(401).json({ message: 'Old password and new password are required' });
+        return res.status(401).json({ success: false, message: 'Old password and new password are required' });
     }
 
     if (old_password == new_password) {
-        return res.status(401).json({ message: 'Bruh same old and new password!' });
+        return res.status(401).json({ success: false, message: 'Bruh same old and new password!' });
     }
 
     const authHeader = req.headers.authorization;
@@ -129,7 +129,7 @@ exports.changePassword = async (req, res, pool) => {
     if (!authHeader) {
         return res
             .status(401)
-            .json({ message: "Authorization header missing" });
+            .json({ success: false, message: "Authorization header missing" });
     }
 
     try {
@@ -140,14 +140,14 @@ exports.changePassword = async (req, res, pool) => {
         const user = queryResult.rows[0];
 
         if (!user) {
-            return res.status(401).json({ message: 'Invalid username!' });
+            return res.status(401).json({ success: false, message: 'Invalid username!' });
         }
 
         // Check if password is correct
         const oldPasswordMatch = await bcrypt.compare(old_password, user.password);
 
         if (!oldPasswordMatch) {
-            return res.status(401).json({ message: 'Invalid old password!' });
+            return res.status(401).json({ success: false, message: 'Invalid old password!' });
         }
 
         // Hash password
@@ -159,14 +159,14 @@ exports.changePassword = async (req, res, pool) => {
             WHERE username = $1`, [decoded.username, hashedPassword]);
 
         // Sign JWT token
-        res.json({ message: "Password changed successfully" });
+        res.json({ success: true, message: "Password changed successfully" });
     } catch (err) {
         // console.error(err);
         
         if (err instanceof jwt.TokenExpiredError) {
-            res.status(401).json({ message: 'Please login again' });
+            res.status(401).json({ success: false, message: 'Please login again' });
         } else {
-            res.status(500).json({ message: 'Password change error!' });
+            res.status(500).json({ success: false, message: 'Password change error!' });
         }
     }
 };
@@ -176,7 +176,7 @@ exports.isAuthenticated = async (req, res, next, pool) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).json({ message: 'Authorization header missing' });
+        return res.status(401).json({ success: false, message: 'Authorization header missing' });
     }
 
     const token = authHeader.split(' ')[1];
@@ -184,7 +184,7 @@ exports.isAuthenticated = async (req, res, next, pool) => {
     const countBlackListedToken = await jwtManager.isBlacklistedToken(jwtManager.jwtOptions(), pool);
 
     if (countBlackListedToken > 0) {
-        res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ success: false, message: 'Invalid token' });
     } else {
         jwtManager.verifyJWT(token, res, next, pool);
     }

@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS YouTubeVideos (
     google_account_id SERIAL REFERENCES GoogleCredential(id),
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
+    PRIMARY KEY (video_id, username)
+) PARTITION BY LIST (username);
 
 /* GitHub Tables */
 CREATE TABLE IF NOT EXISTS GitHubCredential (

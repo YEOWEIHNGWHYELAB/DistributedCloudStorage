@@ -97,7 +97,7 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
             }, async function () {
                 fs.unlinkSync(thumbnailPath);
 
-                const queryText = 'INSERT INTO YouTubeVideos (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *';
+                const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
                 const values = [username, videoID, video.snippet.title, account_id];
                 const result = await pool.query(queryText, values);
 
@@ -260,7 +260,7 @@ exports.getVideosPag = async (req, res, pool) => {
     // Obtain video credential ID
     const videoPaginatedQuery = `
         SELECT video_id, title
-        FROM YouTubeVideos
+        FROM YouTubeVideos_${decoded.username}
         WHERE username = $1 AND is_deleted = false
         LIMIT $2 OFFSET $3
     `;
@@ -284,7 +284,7 @@ exports.editVideoMeta = async (req, res, pool) => {
     // Obtain video credential ID
     const videoCredID = `
         SELECT google_account_id
-        FROM YouTubeVideos
+        FROM YouTubeVideos_${decoded.username}
         WHERE username = $1 AND video_id = $2
     `;
     const videoIDQuery = await pool.query(videoCredID, [decoded.username, req.body.video_id]);
@@ -319,7 +319,7 @@ exports.editVideoMeta = async (req, res, pool) => {
     const tempAccessToken = tempAccess.access_token;
 
     const updateQueryVideo = `
-        UPDATE YouTubeVideos
+        UPDATE YouTubeVideos_${decoded.username}
         SET title = $2
         WHERE username = '${decoded.username}'
             AND video_id = $1
@@ -380,7 +380,7 @@ exports.deleteVideoSoft = async (req, res, pool) => {
 
     // Obtaining all the available credentials from the account
     const updateQueryVideo = `
-        UPDATE YouTubeVideos
+        UPDATE YouTubeVideos_${decoded.username}
         SET is_deleted = true
         WHERE username = '${decoded.username}'
             AND video_id = ANY($1::VARCHAR[])
@@ -408,7 +408,7 @@ exports.deleteVideoHard = async (req, res, pool) => {
     // Obtain video credential ID
     const videoCredID = `
         SELECT google_account_id
-        FROM YouTubeVideos
+        FROM YouTubeVideos_${decoded.username}
         WHERE username = $1 AND video_id = $2
     `;
     const videoIDQuery = await pool.query(videoCredID, [decoded.username, req.params.id]);
@@ -444,7 +444,7 @@ exports.deleteVideoHard = async (req, res, pool) => {
 
     // Obtaining all the available credentials from the account
     const deleteQueryCredential = `
-        DELETE FROM YouTubeVideos 
+        DELETE FROM YouTubeVideos_${decoded.username}
         WHERE video_id = $1
             AND username = '${decoded.username}'`;
     const idToDelete = [req.params.id];
