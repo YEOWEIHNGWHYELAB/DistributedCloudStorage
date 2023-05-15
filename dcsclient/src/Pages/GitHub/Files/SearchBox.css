@@ -1,0 +1,25 @@
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    padding: 8px;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    margin: 2px;
+    width: 50%;
+    box-sizing: "border-box";
+    color: rgb(0, 132, 255);
+    background: transparent;
+}
+
+.search-icon {
+    cursor: pointer;
+    font-size: 24px; 
+}
+
+.search-icon:hover,
+.search-icon:active {
+    color: blue;
+}

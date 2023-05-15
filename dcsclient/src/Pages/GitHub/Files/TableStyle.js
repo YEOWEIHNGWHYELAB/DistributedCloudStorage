@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 
-export function credTableStyle() {
+export function fileTableStyle() {
     const StyledTable = styled.table`
         width: 100%;
         border-collapse: collapse;

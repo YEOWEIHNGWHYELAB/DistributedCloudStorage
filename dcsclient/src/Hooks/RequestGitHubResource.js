@@ -47,10 +47,23 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError)
     }, [endpoint, handleRequestResourceError, setLoading]);
 
+    const getFilesPaginated = useCallback((values, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/${endpoint}/filespag`, values, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+                enqueueSnackbar(`${resourceLabel} obtained`);
+                if (successCallback) {
+                    successCallback();
+                }
+            }).catch(handleRequestResourceError);
+    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
     const addResource = useCallback((values, successCallback) => {
         setLoading(true);
 
-        axios.post(`/${endpoint}`, values, SetHeaderToken())
+        axios.post(`/${endpoint}/files`, values, SetHeaderToken())
             .then(() => {
                 setLoading(false);
                 enqueueSnackbar(`${resourceLabel} added`);
@@ -63,13 +76,8 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     const updateResource = useCallback((values) => {
         setLoading(true);
 
-        axios.patch(`/${endpoint}`, values, SetHeaderToken())
+        axios.patch(`/${endpoint}/files`, values, SetHeaderToken())
             .then((res) => {
-                /**
-                 * Replacing the task to be updated inside the list with the 
-                 * data obtained from the API, so the list will be displayed 
-                 * with the updated task
-                 */
                 const updatedResourceID = values.id;
                 const newResourceList = {
                     results: resourceList.results.map((r) => {
@@ -89,7 +97,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     const deleteResource = useCallback((id) => {
         setLoading(true);
-        axios.delete(`/${endpoint}/${id}`, SetHeaderToken())
+        axios.delete(`/${endpoint}/files/${id}`, SetHeaderToken())
             .then(() => {
                 setLoading(false);
                 enqueueSnackbar(`${resourceLabel} deleted`);
