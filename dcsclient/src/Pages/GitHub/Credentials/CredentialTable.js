@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import RequestResource from "../../Hooks/RequestResource";
-import styled from "styled-components";
+import RequestResource from "../../../Hooks/RequestResource";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboard } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -10,78 +9,34 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
-    TextField
+    TextField,
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as Yup from "yup";
+import { credTableStyle } from "./CredentialTableStyle";
 
-const StyledTable = styled.table`
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 24px;
-`;
-
-const StyledHeaderRow = styled.tr`
-    height: 40px;
-    font-weight: bold;
-    font-size: 14px;
-    color: red;
-`;
-
-const StyledHeaderCell = styled.th`
-    padding: 8px;
-    text-align: left;
-    cursor: pointer;
-    border: 2px solid #ddd;
-
-    &:hover {
-        background-color: #ddd;
-    }
-
-    &.sortable {
-        position: relative;
-
-        &:after {
-            content: "";
-            display: inline-block;
-            margin-left: 6px;
-            width: 0;
-            height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 6px solid #aaa;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            right: 8px;
-        }
-
-        &.asc:after {
-            border-top: none;
-            border-bottom: 6px solid #aaa;
-        }
-
-        &.desc:after {
-            border-top: 6px solid #aaa;
-            border-bottom: none;
-        }
-    }
-`;
-
-const StyledRow = styled.tr`
-    height: 48px;
-`;
-
-const StyledCell = styled.td`
-    border: 2px solid #ddd;
-    padding: 8px;
-    font-size: 14px;
-`;
 
 function CredentialsTable() {
-    const { addResource, getResourceList, resourceList, updateResource, deleteResource, deleteSelectedResource } = RequestResource({
+    const {
+        StyledTable,
+        StyledHeaderRow,
+        StyledHeaderCell,
+        StyledRow,
+        StyledCell,
+    } = credTableStyle();
+
+    console.log(StyledTable);
+
+    const {
+        addResource,
+        getResourceList,
+        resourceList,
+        updateResource,
+        deleteResource,
+        deleteSelectedResource,
+    } = RequestResource({
         endpoint: "github/credentials",
         resourceLabel: "GitHub Credentials",
     });
@@ -118,13 +73,13 @@ function CredentialsTable() {
 
     const handleDeleteSelected = () => {
         deleteSelectedResource(selectedElements);
-    }
+    };
 
     const handleOpenEdit = (editID, credToEdit) => {
         setIDEdit(editID);
         setCredToEdit(credToEdit);
         setOpenD(true);
-    }
+    };
 
     const handleClose = () => {
         setOpenD(false);
@@ -142,7 +97,7 @@ function CredentialsTable() {
         values["id"] = idEdit;
         updateResource(values);
         handleClose();
-    }
+    };
 
     const [sortField, setSortField] = useState("github_username");
     const [sortDirection, setSortDirection] = useState("asc");
@@ -184,48 +139,44 @@ function CredentialsTable() {
             credential.github_username
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase()) ||
-            credential.email
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
+            credential.email.toLowerCase().includes(searchTerm.toLowerCase())
         );
     });
 
     const validationSchema = Yup.object().shape({
-        github_username: Yup.string()
-            .required("Username is required"),
+        github_username: Yup.string().required("Username is required"),
         email: Yup.string()
             .email("Invalid email address")
             .required("Email is required"),
-        access_token: Yup.string()
-            .required("Personal Access Token is required"),
+        access_token: Yup.string().required(
+            "Personal Access Token is required"
+        ),
     });
 
     return (
         <div>
-            <Dialog open={openD} onClose={handleClose} >
+            <Dialog open={openD} onClose={handleClose}>
                 <DialogTitle>
                     {idEdit ? "Edit Credential" : "Add New Credential"}
                 </DialogTitle>
 
                 <Formik
-                    initialValues={
-                        { 
-                            github_username: idEdit ? credToEdit.github_username : "", 
-                            email: idEdit ? credToEdit.email : "",
-                            access_token: idEdit ? credToEdit.access_token : "", 
-                        }
-                    }
-
+                    initialValues={{
+                        github_username: idEdit
+                            ? credToEdit.github_username
+                            : "",
+                        email: idEdit ? credToEdit.email : "",
+                        access_token: idEdit ? credToEdit.access_token : "",
+                    }}
                     onSubmit={(values, { resetForm }) => {
                         if (idEdit) {
                             handleUpdateSubmit(values);
                         } else {
                             handleSubmit(values);
                         }
-                        
+
                         resetForm();
                     }}
-
                     validationSchema={validationSchema}
                 >
                     {({ values, errors, touched, handleChange }) => (
@@ -238,7 +189,10 @@ function CredentialsTable() {
                                     fullWidth
                                     margin="normal"
                                     value={values.github_username}
-                                    error={errors.github_username && touched.github_username}
+                                    error={
+                                        errors.github_username &&
+                                        touched.github_username
+                                    }
                                     helperText={
                                         touched.username && errors.username
                                     }
@@ -262,13 +216,22 @@ function CredentialsTable() {
                                     fullWidth
                                     margin="normal"
                                     value={values.access_token}
-                                    error={errors.access_token && touched.access_token}
-                                    helperText={touched.access_token && errors.access_token}
+                                    error={
+                                        errors.access_token &&
+                                        touched.access_token
+                                    }
+                                    helperText={
+                                        touched.access_token &&
+                                        errors.access_token
+                                    }
                                     onChange={handleChange}
                                 />
                             </DialogContent>
                             <DialogActions>
-                                <MUIButton onClick={handleClose} color="primary">
+                                <MUIButton
+                                    onClick={handleClose}
+                                    color="primary"
+                                >
                                     Cancel
                                 </MUIButton>
                                 <MUIButton
@@ -300,8 +263,8 @@ function CredentialsTable() {
             </Dialog>
 
             <h2 style={{ textAlign: "left" }}>My GitHub Credentials</h2>
-            
-            <MUIButton 
+
+            <MUIButton
                 onClick={handleOpen}
                 style={{
                     border: "2px solid #ff7bff",
@@ -311,13 +274,13 @@ function CredentialsTable() {
                     width: "20%",
                     boxSizing: "border-box",
                     color: "#ff0",
-                    backgroundColor: "black"
+                    backgroundColor: "black",
                 }}
             >
                 ADD NEW CREDENTIAL
             </MUIButton>
 
-            <MUIButton 
+            <MUIButton
                 onClick={handleDeleteSelected}
                 style={{
                     border: "2px solid #ff0000",
@@ -327,14 +290,14 @@ function CredentialsTable() {
                     width: "30%",
                     boxSizing: "border-box",
                     color: "#ff0",
-                    backgroundColor: "black"
+                    backgroundColor: "black",
                 }}
             >
                 Delete Selected Credentials
             </MUIButton>
 
-            <br/>
-            <br/>
+            <br />
+            <br />
 
             <input
                 type="text"
@@ -355,9 +318,7 @@ function CredentialsTable() {
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
-                        <StyledHeaderCell>
-                            Select
-                        </StyledHeaderCell>
+                        <StyledHeaderCell>Select</StyledHeaderCell>
 
                         <StyledHeaderCell
                             className={
@@ -382,9 +343,7 @@ function CredentialsTable() {
                             Email
                         </StyledHeaderCell>
 
-                        <StyledHeaderCell>
-                            Access Token 📋
-                        </StyledHeaderCell>
+                        <StyledHeaderCell>Access Token 📋</StyledHeaderCell>
 
                         <StyledHeaderCell>Actions</StyledHeaderCell>
                     </StyledHeaderRow>
@@ -398,20 +357,25 @@ function CredentialsTable() {
                                     onChange={(event) => {
                                         const isChecked = event.target.checked;
 
-                                        setSelectedElements((prevSelectedElements) => {
-                                            if (isChecked) {
-                                                return [
-                                                    ...prevSelectedElements,
-                                                    credential.id,
-                                                ];
-                                            } else {
-                                                return prevSelectedElements.filter(
-                                                    (id) => id !== credential.id
-                                                );
+                                        setSelectedElements(
+                                            (prevSelectedElements) => {
+                                                if (isChecked) {
+                                                    return [
+                                                        ...prevSelectedElements,
+                                                        credential.id,
+                                                    ];
+                                                } else {
+                                                    return prevSelectedElements.filter(
+                                                        (id) =>
+                                                            id !== credential.id
+                                                    );
+                                                }
                                             }
-                                        });
+                                        );
                                     }}
-                                    checked={selectedElements.includes(credential.id)}
+                                    checked={selectedElements.includes(
+                                        credential.id
+                                    )}
                                 />
                             </StyledCell>
                             <StyledCell>
@@ -437,9 +401,11 @@ function CredentialsTable() {
                                     onClick={() =>
                                         handleOpenEdit(credential.id, {
                                             id: credential.id,
-                                            github_username: credential.github_username, 
-                                            email: credential.email, 
-                                            access_token: credential.access_token
+                                            github_username:
+                                                credential.github_username,
+                                            email: credential.email,
+                                            access_token:
+                                                credential.access_token,
                                         })
                                     }
                                 >

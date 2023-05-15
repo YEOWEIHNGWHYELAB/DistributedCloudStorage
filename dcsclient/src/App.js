@@ -13,10 +13,10 @@ import RequireAuth from './Contexts/RequireAuth';
 import RequireNotAuth from './Contexts/RequireNotAuth';
 import BaseLayout from './BaseLayout';
 import PingStats from "./Pages/Dashboard/PingStats";
-import VideoListAll from "./Pages/YouTube/VideoListAll";
-import VideoListPaginated from "./Pages/YouTube/VideoListPaginated";
-import CredentialsTable from "./Pages/GitHub/CredentialTable";
-import FileTable from "./Pages/GitHub/FileTable";
+import VideoTable from "./Pages/Google/YouTube/VideosTable";
+import CredentialsTableYT from "./Pages/Google/Credentials/CredentialTable";
+import CredentialsTableGH from "./Pages/GitHub/Credentials/CredentialTable";
+import FileTable from "./Pages/GitHub/Files/FileTable";
 
 
 export default function App() {
@@ -33,10 +33,10 @@ export default function App() {
                 <Route element={<RequireAuth />}>
                   <Route element={<BaseLayout />}>
                     <Route path="/dashboard/pingstats" element={<PingStats />}/>
-                    <Route path="/github/credential" element={<CredentialsTable />}/>
+                    <Route path="/github/credential" element={<CredentialsTableGH />}/>
                     <Route path="/github/files" element={<FileTable />}/>
-                    <Route path="/youtube/listall" element={<VideoListAll />}/>
-                    <Route path="/youtube/listpg" element={<VideoListPaginated />}/>
+                    <Route path="/google/credential" element={<CredentialsTableYT />}/>
+                    <Route path="/google/videos" element={<VideoTable />}/>
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >

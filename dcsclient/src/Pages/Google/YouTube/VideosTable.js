@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import RequestResource from '../../Hooks/RequestResource';
+import RequestResource from '../../../Hooks/RequestResource';
 
 
 function VideoListAll() {

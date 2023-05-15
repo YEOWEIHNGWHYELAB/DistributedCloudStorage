@@ -15,10 +15,7 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Collapse from "@mui/material/Collapse";
-import ListIcon from "@mui/icons-material/List";
-import AddIcon from '@mui/icons-material/Add';
-import EqualizerIcon from '@mui/icons-material/Equalizer';
-import ViewListIcon from '@mui/icons-material/ViewList';
+import GoogleIcon from '@mui/icons-material/Google';
 import KeyIcon from '@mui/icons-material/Key';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
@@ -47,19 +44,17 @@ const listItems = [
         icon: <GitHubIcon />,
         children: [
             { name: "Credentials Table", icon: <KeyIcon />, to: "/github/credential" },
-            { name: "Repositories Table", icon: <ViewListIcon />, to: "/github/repo" },
             { name: "My Files", icon: <ArticleIcon />, to: "/github/files" },
         ],
     },
     {
         key: "youtube",
-        to: "/youtube",
-        name: "YouTube",
-        icon: <YouTubeIcon />,
+        to: "/google",
+        name: "Google",
+        icon: <GoogleIcon />,
         children: [
-            { name: "Upload Video", icon: <AddIcon />, to: "/youtube/upload" },
-            { name: "List All Videos", icon: <ListIcon />, to: "/youtube/listall" },
-            { name: "List Videos Paginated", icon: <ListIcon />, to: "/youtube/listpg" },
+            { name: "Credentials Table", icon: <KeyIcon />, to: "/google/credential" },
+            { name: "My Videos", icon: <YouTubeIcon />, to: "/google/videos" },
         ],
     }
 ];
