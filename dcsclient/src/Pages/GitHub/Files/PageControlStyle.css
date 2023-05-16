@@ -1,0 +1,23 @@
+.gotopage-input {
+    padding: 8px;
+    border: 2px solid #7b00ff;
+    border-radius: 4px;
+    margin: 2px;
+    box-sizing: "border-box";
+    color: rgb(255, 0, 0);
+    background: transparent;
+    height: 40px;
+}
+
+.gotopage-icon {
+    cursor: pointer;
+    font-size: 24px;
+}
+.gotopage-icon:hover,
+.gotopage-icon:active {
+    color: red;
+}
+
+.gotopage-button {
+    height: 40px;
+}

@@ -10,15 +10,22 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControl,
     IconButton,
+    InputLabel,
+    MenuItem,
+    Select as SelectMUI,
     TextField,
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { FaArrowRight } from "react-icons/fa";
 import * as Yup from "yup";
-import "./SearchBox.css";
+import "./SearchStyle.css";
+import "./PageControlStyle.css";
 import { fileTableStyle } from "./TableStyle";
+import { Height } from "@mui/icons-material";
 
 function FileTable() {
     const {
@@ -28,6 +35,12 @@ function FileTable() {
         StyledRow,
         StyledCell,
     } = fileTableStyle();
+
+    const FormContainer = styled(FormControl)`
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    `;
 
     const {
         resourceList,
@@ -70,10 +83,7 @@ function FileTable() {
 
         let startPage = Math.max(filePage - sideButtonsCount, 1);
 
-        const endPage = Math.min(
-            startPage + maxPageButtonCount - 1,
-            pageMax
-        );
+        const endPage = Math.min(startPage + maxPageButtonCount - 1, pageMax);
 
         if (endPage - startPage + 1 < maxPageButtonCount) {
             startPage = Math.max(endPage - maxPageButtonCount + 1, 1);
@@ -81,13 +91,20 @@ function FileTable() {
 
         for (let i = startPage; i <= endPage; i++) {
             pageButtons.push(
-                <button
+                <MUIButton
+                    style={{
+                        border: "2px solid #555",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        boxSizing: "border-box",
+                    }}
                     key={i}
                     onClick={() => handlePageChange(i)}
                     disabled={filePage === i}
                 >
                     {i}
-                </button>
+                </MUIButton>
             );
         }
 
@@ -162,34 +179,49 @@ function FileTable() {
             </div>
 
             <br />
-            
-            <div>
-                <label>
-                    Limit:
-                    <select value={filePageLimit} onChange={handleLimitChange}>
-                        <option value={1}>1</option>
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                        <option value={50}>50</option>
-                        <option value={100}>100</option>
-                        <option value={1000}>1000</option>
-                    </select>
-                </label>
-                
+
+            <FormContainer>
+                <SelectMUI
+                    value={filePageLimit}
+                    margin="normal"
+                    onChange={handleLimitChange}
+                    style={{
+                        height: '40px'
+                    }}
+                >
+                    <MenuItem value={1}>1</MenuItem>
+                    <MenuItem value={5}>5</MenuItem>
+                    <MenuItem value={10}>10</MenuItem>
+                    <MenuItem value={50}>50</MenuItem>
+                    <MenuItem value={100}>100</MenuItem>
+                    <MenuItem value={1000}>1000</MenuItem>
+                </SelectMUI>
+
                 <form onSubmit={handleGoToPage}>
-                    <label>
-                        Go to page:
-                        <input
-                            type="number"
-                            name="pageNumberGoTo"
-                            min={1}
-                            max={pageMax}
-                            required
-                        />
-                    </label>
-                    <button type="submit">Go</button>
+                    <input
+                        placeholder="Page"
+                        type="number"
+                        className="gotopage-input"
+                        name="pageNumberGoTo"
+                        min={1}
+                        max={pageMax}
+                        required
+                    ></input>
+                    <MUIButton
+                        style={{
+                            border: "2px solid #007b00",
+                            margin: "2px",
+                            borderRadius: "4px",
+                            padding: "8px",
+                            boxSizing: "border-box"
+                        }}
+                        className="gotopage-button"
+                        type="submit"
+                    >
+                        Go to Page
+                    </MUIButton>
                 </form>
-            </div>
+            </FormContainer>
 
             <StyledTable>
                 <thead>
@@ -231,20 +263,40 @@ function FileTable() {
                 }
             </StyledTable>
 
+            <br />
+
             <div>
-                <button
+                <MUIButton
+                    style={{
+                        border: "2px solid #555",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "20%",
+                        boxSizing: "border-box",
+                    }}
                     onClick={() => handlePageChange(filePage - 1)}
                     disabled={filePage === 1}
                 >
-                    Previous
-                </button>
+                    Previous Page
+                </MUIButton>
+
                 {getPageButtons()}
-                <button
+
+                <MUIButton
+                    style={{
+                        border: "2px solid #555",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "20%",
+                        boxSizing: "border-box",
+                    }}
                     onClick={() => handlePageChange(filePage + 1)}
                     disabled={filePage === pageMax}
                 >
-                    Next
-                </button>
+                    Next Page
+                </MUIButton>
             </div>
         </div>
     );
