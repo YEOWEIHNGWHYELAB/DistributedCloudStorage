@@ -32,11 +32,11 @@ export default function App() {
               <Routes>
                 <Route element={<RequireAuth />}>
                   <Route element={<BaseLayout />}>
-                    <Route path="/dashboard/pingstats" element={<PingStats />}/>
-                    <Route path="/github/credential" element={<CredentialsTableGH />}/>
-                    <Route path="/github/files" element={<FileTable />}/>
-                    <Route path="/google/credential" element={<CredentialsTableYT />}/>
-                    <Route path="/google/videos" element={<VideoTable />}/>
+                    <Route path="/dashboard/pingstats" element={<PingStats />} />
+                    <Route path="/github/credential" element={<CredentialsTableGH />} />
+                    <Route path="/github/files" element={<FileTable />} />
+                    <Route path="/google/credential" element={<CredentialsTableYT />} />
+                    <Route path="/google/videos" element={<VideoTable />} />
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >
