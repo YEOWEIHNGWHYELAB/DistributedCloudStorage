@@ -165,7 +165,7 @@ function FileTable() {
         setSearchText(event.target.value);
     };
 
-    
+
     const handleExtensionChange = (event) => {
         setExtensionText(event.target.value);
     };
@@ -175,9 +175,54 @@ function FileTable() {
         setSearchTextPerm(searchText);
     };
 
+    const [selectedFile, setSelectedFile] = useState(null);
+
+    // Handling of file uploads
+    const handleDrop = (event) => {
+        event.preventDefault();
+        const file = event.dataTransfer.files[0];
+        setSelectedFile(file);
+    };
+
+    const handleFileSelect = (event) => {
+        const file = event.target.files[0];
+        setSelectedFile(file);
+    };
+
+    const handleFileUpload = () => {
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append('File', selectedFile);
+
+            // TODO: Perform API call to post formData to the backend
+            console.log(selectedFile);
+
+            // Reset selected file state after upload
+            setSelectedFile(null);
+        }
+    };
+
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>My GitHub Files</h2>
+
+            <div>
+                <div
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                    style={{ border: '1px solid #ccc', padding: '10px' }}
+                >
+                    {selectedFile ? (
+                        <div>
+                            <p>Selected file: {selectedFile.name}</p>
+                            <button onClick={handleFileUpload}>Upload</button>
+                        </div>
+                    ) : (
+                        <p>Drag and drop a file here or click to select a file.</p>
+                    )}
+                </div>
+                <input type="file" onChange={handleFileSelect} />
+            </div>
 
             <div className="search-container">
                 <input
