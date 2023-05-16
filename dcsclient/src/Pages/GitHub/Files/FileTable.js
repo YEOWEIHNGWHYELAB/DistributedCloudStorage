@@ -43,7 +43,7 @@ function FileTable() {
     });
 
     const [filePage, setPage] = useState(1);
-    const [filePageLimit, setPageLimit] = useState(10);
+    const [filePageLimit, setPageLimit] = useState(100);
     const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
@@ -64,12 +64,15 @@ function FileTable() {
     const getPageButtons = () => {
         const pageButtons = [];
         const maxVisibleButtons = 5;
-        const maxPageButtonCount = Math.min(totalPages, maxVisibleButtons);
+
+        const maxPageButtonCount = Math.min(pageMax, maxVisibleButtons);
         const sideButtonsCount = Math.floor((maxPageButtonCount - 1) / 2);
+
         let startPage = Math.max(filePage - sideButtonsCount, 1);
+
         const endPage = Math.min(
             startPage + maxPageButtonCount - 1,
-            totalPages
+            pageMax
         );
 
         if (endPage - startPage + 1 < maxPageButtonCount) {
@@ -159,15 +162,34 @@ function FileTable() {
             </div>
 
             <br />
-
-            <label>
-                Limit:
-                <select value={filePageLimit} onChange={handleLimitChange}>
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                </select>
-            </label>
+            
+            <div>
+                <label>
+                    Limit:
+                    <select value={filePageLimit} onChange={handleLimitChange}>
+                        <option value={1}>1</option>
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                        <option value={1000}>1000</option>
+                    </select>
+                </label>
+                
+                <form onSubmit={handleGoToPage}>
+                    <label>
+                        Go to page:
+                        <input
+                            type="number"
+                            name="pageNumberGoTo"
+                            min={1}
+                            max={pageMax}
+                            required
+                        />
+                    </label>
+                    <button type="submit">Go</button>
+                </form>
+            </div>
 
             <StyledTable>
                 <thead>
@@ -224,20 +246,6 @@ function FileTable() {
                     Next
                 </button>
             </div>
-
-            <form onSubmit={handleGoToPage}>
-                <label>
-                    Go to page:
-                    <input
-                        type="number"
-                        name="pageNumberGoTo"
-                        min={1}
-                        max={pageMax}
-                        required
-                    />
-                </label>
-                <button type="submit">Go</button>
-            </form>
         </div>
     );
 }
