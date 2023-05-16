@@ -12,7 +12,26 @@ module.exports = (pool) => {
      */
     // Create new files for user
     router.post('/files', uploadsTempStorage.single('File'), (req, res) => {
-        myFilesController.createNewFile(req, res, pool);
+        myFilesController.createNewFile(null, req, res, pool);
+    });
+
+    // Create multiple new files for user
+    router.post('/files/mul', uploadsTempStorage.array('File'), async (req, res) => {
+        try {
+            const files = req.files;
+
+            for (const file of files) {
+                await myFilesController.createNewFile(file, req, res, pool);
+            }
+
+            res.json({
+                success: true,
+                message: `Successfully uploaded all files!`
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('Error uploading files.');
+        }
     });
 
     // Get all user's available files

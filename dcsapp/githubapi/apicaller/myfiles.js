@@ -113,7 +113,7 @@ function extractIndex(str) {
  * Insert into the file table with the original file name and the name 
  * on github.
  */
-exports.createNewFile = async (req, res, pool) => {
+exports.createNewFile = async (file, req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
     const hardRepoLimitSize = 51200; // In kB
@@ -195,7 +195,18 @@ exports.createNewFile = async (req, res, pool) => {
     optimalFileName = queryOptimalFileName.rows[0].gh_file_uid;
 
     // Upload to chosen GitHub optimal account
-    const { originalname, filename, path } = req.file;
+    let originalname, filename, path;
+
+    if (file != null) {
+        originalname = file.originalname;
+        filename = file.filename;
+        path = file.path;
+    } else {
+        originalname = req.file.originalname;
+        filename = req.file.path;
+        path = req.file.path;
+    }
+    
     const octokit = new Octokit({
         auth: optimalGitHubCredAccessToken
     });
@@ -274,13 +285,15 @@ exports.createNewFile = async (req, res, pool) => {
 
         const recordFile = await recordFilePg(pool, username, originalname, optimalGitHubAccount, resultingRepoID, optimalFileName);
 
-        res.json({
-            success: true,
-            message: `Successfully uploaded file!`
-        });
+        if (file == null) {
+            res.json({
+                success: true,
+                message: `Successfully uploaded file!`
+            });
+        }
     } catch (error) {
         res.status(401).json({ success: false, message: "File upload failed!" });
-        // console.log(error);
+        console.log(error);
     }
 };
 

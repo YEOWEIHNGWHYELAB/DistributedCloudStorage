@@ -262,41 +262,6 @@ function CredentialsTable() {
 
             <h2 style={{ textAlign: "left" }}>My GitHub Credentials</h2>
 
-            <MUIButton
-                onClick={handleOpen}
-                style={{
-                    border: "2px solid #ff7bff",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "20%",
-                    boxSizing: "border-box",
-                    color: "#00f",
-                    backgroundColor: "transparent",
-                }}
-            >
-                ADD NEW CREDENTIAL
-            </MUIButton>
-
-            <MUIButton
-                onClick={handleDeleteSelected}
-                style={{
-                    border: "2px solid #ff0000",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "30%",
-                    boxSizing: "border-box",
-                    color: "#00f",
-                    backgroundColor: "transparent",
-                }}
-            >
-                Delete Selected Credentials
-            </MUIButton>
-
-            <br />
-            <br />
-
             <input
                 type="text"
                 placeholder="Search by Username or Email"
@@ -312,6 +277,37 @@ function CredentialsTable() {
                 value={searchTerm}
                 onChange={handleSearch}
             />
+
+            <br/>
+            <br/>
+
+            <MUIButton
+                onClick={handleOpen}
+                style={{
+                    border: "2px solid #ff7bff",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "20%",
+                    boxSizing: "border-box",
+                }}
+            >
+                ADD NEW CREDENTIAL
+            </MUIButton>
+
+            <MUIButton
+                onClick={handleDeleteSelected}
+                style={{
+                    border: "2px solid #ff0000",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "30%",
+                    boxSizing: "border-box",
+                }}
+            >
+                Delete Selected Credentials
+            </MUIButton>
 
             <StyledTable>
                 <thead>

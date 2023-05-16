@@ -21,6 +21,7 @@ import moment from 'moment';
 import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 import "./SearchStyle.css";
 import "./PageControlStyle.css";
@@ -249,7 +250,7 @@ function FileTable() {
                     margin: "2px",
                     borderRadius: "4px",
                     padding: "8px",
-                    width: "20%",
+                    width: "10%",
                     boxSizing: "border-box",
                 }}
             >
@@ -262,9 +263,8 @@ function FileTable() {
                     margin: "2px",
                     borderRadius: "4px",
                     padding: "8px",
-                    width: "30%",
+                    width: "20%",
                     boxSizing: "border-box",
-                    background: "transparent",
                 }}
             >
                 DELETE SELECTED FILE
@@ -326,6 +326,10 @@ function FileTable() {
                                 </StyledCell>
 
                                 <StyledCell>
+                                    <IconButton>
+                                        <DownloadIcon />
+                                    </IconButton>
+
                                     <IconButton>
                                         <EditIcon />
                                     </IconButton>
