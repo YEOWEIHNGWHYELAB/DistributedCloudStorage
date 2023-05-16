@@ -107,7 +107,7 @@ exports.getFilesPag = async (req, res, pool) => {
         const tablePartitionName = `GitHubFiles_${decoded.username}`;
 
         const queryPaginatedFiles = `
-            SELECT id, gh_account_id, gh_repo_id, gh_filename, filename
+            SELECT id, gh_account_id, filename, created_at
             FROM GitHubFiles
             WHERE username = $1 AND is_deleted = false
             LIMIT $2 OFFSET $3`;

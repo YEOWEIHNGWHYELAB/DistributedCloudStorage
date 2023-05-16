@@ -17,15 +17,14 @@ import {
     Select as SelectMUI,
     TextField,
 } from "@mui/material";
+import moment from 'moment';
 import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { FaArrowRight } from "react-icons/fa";
 import * as Yup from "yup";
 import "./SearchStyle.css";
 import "./PageControlStyle.css";
 import { fileTableStyle } from "./TableStyle";
-import { Height } from "@mui/icons-material";
 
 
 function FileTable() {
@@ -132,9 +131,33 @@ function FileTable() {
         }
     };
 
+    const [sortField, setSortField] = useState("filename");
+    const [sortDirection, setSortDirection] = useState("asc");
+
+    const handleSort = (field) => {
+        if (field === sortField) {
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        } else {
+            setSortField(field);
+        }
+    };
+
+    resourceList.results.sort((a, b) => {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+
+        if (aValue < bValue) {
+            return sortDirection === "asc" ? -1 : 1;
+        } else if (aValue > bValue) {
+            return sortDirection === "asc" ? 1 : -1;
+        } else {
+            return 0;
+        }
+    });
+
     const [searchText, setSearchText] = useState("");
 
-    const handleChange = (event) => {
+    const handleSearchChange = (event) => {
         setSearchText(event.target.value);
     };
 
@@ -181,7 +204,7 @@ function FileTable() {
                     className="search-input"
                     placeholder="Search by Filename"
                     value={searchText}
-                    onChange={handleChange}
+                    onChange={handleSearchChange}
                 />
                 <AiOutlineSearch
                     onClick={handleSearch}
@@ -228,21 +251,6 @@ function FileTable() {
                         onClick={handleGoToPage}
                         className="gotopage-icon"
                     />
-
-                    {/* <MUIButton
-                        style={{
-                            border: "1px solid #007b00",
-                            margin: "2px",
-                            borderRadius: "4px",
-                            padding: "8px",
-                            boxSizing: "border-box",
-                            verticalAlign: "middle",
-                            boxSizing: "border-box"
-                        }}
-                        type="submit"
-                    >
-                        Go to Page
-                    </MUIButton> */}
                 </form>
             </FormContainer>
 
@@ -257,7 +265,30 @@ function FileTable() {
                             Select
                         </StyledHeaderCell>
 
-                        <StyledHeaderCell>Filename</StyledHeaderCell>
+                        <StyledHeaderCell
+                            className={
+                                sortField === "filename"
+                                    ? `sortable ${sortDirection}`
+                                    : "sortable"
+                            }
+                            onClick={() => handleSort("filename")}
+                            style={{ sortField }}
+                        >
+                            Filename
+                        </StyledHeaderCell>
+                            
+
+                        <StyledHeaderCell
+                            className={
+                                sortField === "created_at"
+                                    ? `sortable ${sortDirection}`
+                                    : "sortable"
+                            }
+                            onClick={() => handleSort("created_at")}
+                            style={{ sortField }}
+                        >
+                            Date Created
+                        </StyledHeaderCell>
 
                         <StyledHeaderCell>Actions</StyledHeaderCell>
                     </StyledHeaderRow>
@@ -269,7 +300,14 @@ function FileTable() {
                                 <StyledCell>
                                     <input type="checkbox" />
                                 </StyledCell>
-                                <StyledCell>{files.filename}</StyledCell>
+
+                                <StyledCell>
+                                    {files.filename}
+                                </StyledCell>
+
+                                <StyledCell>
+                                    {moment(files.created_at).format('hh:mm A DD-MMM-YYYY')}
+                                </StyledCell>
 
                                 <StyledCell>
                                     <IconButton>
