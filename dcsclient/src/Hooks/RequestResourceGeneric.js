@@ -49,7 +49,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                         results: res.data
                     });
                 }
-            }).catch(handleRequestResourceError)
+            }).catch(handleRequestResourceError);
     }, [endpoint, handleRequestResourceError, setLoading]);
 
     const addResource = useCallback((values, successCallback) => {

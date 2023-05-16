@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import RequestResource from "../../../Hooks/RequestResourceGeneric";
+import RequestGitHubResource from "../../../Hooks/RequestGitHubResource";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -32,15 +32,20 @@ function FileTable() {
 
     const {
         addResource,
-        getResourceList,
+        getAllFiles,
         resourceList,
         updateResource,
         deleteResource,
         deleteSelectedResource,
-    } = RequestResource({
-        endpoint: "github",
+    } = RequestGitHubResource({
+        endpoint: "github/files",
         resourceLabel: "Files",
     });
+
+    // {page: 1, limit: 10}
+    useEffect(() => {
+        getAllFiles();
+    }, [getAllFiles]);
 
     const handleChange = (event) => {
         setSearchText(event.target.value);
@@ -102,26 +107,47 @@ function FileTable() {
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
-                        <StyledHeaderCell>Select</StyledHeaderCell>
-
                         <StyledHeaderCell
+                            style={{
+                                width: "10%"
+                            }}
                         >
-                            Username
+                            Select
                         </StyledHeaderCell>
 
-                        <StyledHeaderCell
-                        >
-                            Email
+                        <StyledHeaderCell>
+                            Filename
                         </StyledHeaderCell>
 
-                        <StyledHeaderCell>Access Token 📋</StyledHeaderCell>
-
-                        <StyledHeaderCell>Actions</StyledHeaderCell>
+                        <StyledHeaderCell>
+                            Actions
+                        </StyledHeaderCell>
                     </StyledHeaderRow>
                 </thead>
-                <tbody>
+                {<tbody>
+                    {resourceList.results.map((files) => (
+                        <StyledRow key={files.id}>
+                            <StyledCell>
+                                <input
+                                    type="checkbox"
+                                />
+                            </StyledCell>
+                            <StyledCell>
+                                {files.filename}
+                            </StyledCell>
 
-                </tbody>
+                            <StyledCell>
+                                <IconButton>
+                                    <EditIcon />
+                                </IconButton>
+
+                                <IconButton>
+                                    <DeleteIcon />
+                                </IconButton>
+                            </StyledCell>
+                        </StyledRow>
+                    ))}
+                </tbody>}
             </StyledTable>
         </div>
     );

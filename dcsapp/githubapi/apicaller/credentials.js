@@ -177,7 +177,7 @@ exports.deleteMultipleCredetials = async (req, res, pool) => {
             message: `Deleted ${queryResult.rowCount} rows`,
         });
     } catch (err) {
-        console.error(err);
-        res.json({ success: false, message: err.message });
+        // console.error(err);
+        res.status(403).json({ success: false, message: "Failed to delete!" });
     }
 };

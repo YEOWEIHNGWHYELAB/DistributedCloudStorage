@@ -27,8 +27,6 @@ function CredentialsTable() {
         StyledCell,
     } = credTableStyle();
 
-    console.log(StyledTable);
-
     const {
         addResource,
         getResourceList,

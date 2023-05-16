@@ -30,21 +30,20 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     }, [enqueueSnackbar, setError, setLoading]);
 
     // Callback lets us recreate function when dependencies created 
-    const getResourceList = useCallback(({ query = "" } = {}) => {
+    const getAllFiles = useCallback(() => {
         setLoading(true);
 
-        axios.get(`/${endpoint}/${query}`, SetHeaderToken())
+        
+        axios.get(`/${endpoint}`, SetHeaderToken())
             .then((res) => {
                 setLoading(false);
 
-                if (res.data.results) {
-                    setResourceList(res.data);
-                } else {
+                if (res.data) {
                     setResourceList({
                         results: res.data
                     });
                 }
-            }).catch(handleRequestResourceError)
+            }).catch(handleRequestResourceError);
     }, [endpoint, handleRequestResourceError, setLoading]);
 
     const getFilesPaginated = useCallback((values, successCallback) => {
@@ -54,6 +53,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             .then(() => {
                 setLoading(false);
                 enqueueSnackbar(`${resourceLabel} obtained`);
+
                 if (successCallback) {
                     successCallback();
                 }
@@ -116,7 +116,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     return {
         addResource,
         resourceList,
-        getResourceList,
+        getAllFiles,
         addResource,
         updateResource,
         deleteResource,
