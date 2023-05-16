@@ -175,30 +175,42 @@ function FileTable() {
         setSearchTextPerm(searchText);
     };
 
-    const [selectedFile, setSelectedFile] = useState(null);
-
     // Handling of file uploads
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isDraggingOver, setIsDraggingOver] = useState(false);
+
     const handleDrop = (event) => {
         event.preventDefault();
-        const file = event.dataTransfer.files[0];
-        setSelectedFile(file);
+        setIsDraggingOver(false);
+        const files = Array.from(event.dataTransfer.files);
+        setSelectedFiles(files);
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault();
+        setIsDraggingOver(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsDraggingOver(false);
     };
 
     const handleFileSelect = (event) => {
-        const file = event.target.files[0];
-        setSelectedFile(file);
+        const files = Array.from(event.target.files);
+        setSelectedFiles(files);
     };
 
     const handleFileUpload = () => {
-        if (selectedFile) {
+        if (selectedFiles.length > 0) {
             const formData = new FormData();
-            formData.append('File', selectedFile);
+            selectedFiles.forEach((file, index) => {
+                formData.append(`File${index}`, file);
+            });
 
             // TODO: Perform API call to post formData to the backend
-            console.log(selectedFile);
 
-            // Reset selected file state after upload
-            setSelectedFile(null);
+            // Reset selected files state after upload
+            setSelectedFiles([]);
         }
     };
 
@@ -206,23 +218,31 @@ function FileTable() {
         <div>
             <h2 style={{ textAlign: "left" }}>My GitHub Files</h2>
 
-            <div>
-                <div
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={handleDrop}
-                    style={{ border: '1px solid #ccc', padding: '10px' }}
-                >
-                    {selectedFile ? (
-                        <div>
-                            <p>Selected file: {selectedFile.name}</p>
-                            <button onClick={handleFileUpload}>Upload</button>
-                        </div>
-                    ) : (
-                        <p>Drag and drop a file here or click to select a file.</p>
-                    )}
-                </div>
-                <input type="file" onChange={handleFileSelect} />
+            <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                style={{
+                    border: isDraggingOver ? '2px dashed' : '1px solid',
+                    padding: '10px',
+                    marginBottom: '10px',
+                    display: isDraggingOver || selectedFiles.length > 0 ? 'block' : 'none',
+                }}
+            >
+                <p>Drop files here</p>
             </div>
+            <input type="file" multiple onChange={handleFileSelect} />
+            {selectedFiles.length > 0 && (
+                <div>
+                    <p>Selected files:</p>
+                    <ul>
+                        {selectedFiles.map((file, index) => (
+                            <li key={index}>{file.name}</li>
+                        ))}
+                    </ul>
+                    <button onClick={handleFileUpload}>Upload</button>
+                </div>
+            )}
 
             <div className="search-container">
                 <input
