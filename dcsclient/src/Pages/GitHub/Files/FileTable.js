@@ -209,12 +209,18 @@ function FileTable() {
                 formData.append(`File`, file);
             });
 
+            console.log(selectedFiles);
+
             // TODO: Perform API call to post formData to the backend
 
             // Reset selected files state after upload
             setSelectedFiles([]);
         }
     };
+
+    const handleFileUploadCancel = () => {
+        setSelectedFiles([]);
+    }
 
     useEffect(() => {
         const handleDocumentDragOver = (event) => {
@@ -308,7 +314,7 @@ function FileTable() {
 
             <div>
                 <input
-                    style={{ 
+                    style={{
                         display: 'none',
                     }}
                     id="file-upload"
@@ -318,7 +324,7 @@ function FileTable() {
                 />
                 <label htmlFor="file-upload">
                     <MUIButton
-                        variant="contained" 
+                        variant="contained"
                         component="span"
                         style={{
                             border: "2px solid #0000ff",
@@ -353,10 +359,39 @@ function FileTable() {
                         <p>Selected files to upload:</p>
                         <ul>
                             {selectedFiles.map((file, index) => (
-                                <li key={index}>{file.name}</li>
+                                <li key={index}>
+                                    {file.name}
+                                </li>
                             ))}
                         </ul>
-                        <button onClick={handleFileUpload}>Upload</button>
+
+                        <MUIButton
+                            style={{
+                                border: "2px solid grey",
+                                margin: "2px",
+                                borderRadius: "4px",
+                                padding: "8px",
+                                width: "15%",
+                                boxSizing: "border-box",
+                            }}
+                            onClick={handleFileUpload}
+                        >
+                            UPLOAD FILES
+                        </MUIButton>
+
+                        <MUIButton
+                            style={{
+                                border: "2px solid grey",
+                                margin: "2px",
+                                borderRadius: "4px",
+                                padding: "8px",
+                                width: "15%",
+                                boxSizing: "border-box",
+                            }}
+                            onClick={handleFileUploadCancel}
+                        >
+                            CANCEL
+                        </MUIButton>
                     </div>
                 )}
 
