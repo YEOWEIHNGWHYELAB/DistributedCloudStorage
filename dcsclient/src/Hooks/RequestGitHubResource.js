@@ -34,7 +34,6 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     const getAllFiles = useCallback(() => {
         setLoading(true);
 
-        
         axios.get(`/${endpoint}`, SetHeaderToken())
             .then((res) => {
                 setLoading(false);

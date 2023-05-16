@@ -271,8 +271,8 @@ function CredentialsTable() {
                     padding: "8px",
                     width: "20%",
                     boxSizing: "border-box",
-                    color: "#ff0",
-                    backgroundColor: "black",
+                    color: "#00f",
+                    backgroundColor: "transparent",
                 }}
             >
                 ADD NEW CREDENTIAL
@@ -287,8 +287,8 @@ function CredentialsTable() {
                     padding: "8px",
                     width: "30%",
                     boxSizing: "border-box",
-                    color: "#ff0",
-                    backgroundColor: "black",
+                    color: "#00f",
+                    backgroundColor: "transparent",
                 }}
             >
                 Delete Selected Credentials

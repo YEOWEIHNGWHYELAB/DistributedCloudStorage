@@ -40,6 +40,7 @@ function FileTable() {
         display: flex;
         flex-direction: row;
         align-items: center;
+        justify-content: flex-start;
     `;
 
     const {
@@ -59,9 +60,14 @@ function FileTable() {
     const [filePageLimit, setPageLimit] = useState(100);
     const [totalPages, setTotalPages] = useState(0);
 
+    const [searchText, setSearchText] = useState("");
+    const [extensionText, setExtensionText] = useState("");
+    const [searchTextPerm, setSearchTextPerm] = useState("");
+    const [extensionTextPerm, setExtensionTextPerm] = useState("");
+
     useEffect(() => {
-        getFilesPaginated({ page: filePage, limit: filePageLimit });
-    }, [filePage, filePageLimit]);
+        getFilesPaginated({ page: filePage, limit: filePageLimit, search: searchTextPerm.toLocaleLowerCase(), extension: extensionTextPerm.toLocaleLowerCase() });
+    }, [filePage, filePageLimit, searchTextPerm, extensionTextPerm]);
 
     const handlePageChange = (pageNumber) => {
         setPage(pageNumber);
@@ -155,14 +161,20 @@ function FileTable() {
         }
     });
 
-    const [searchText, setSearchText] = useState("");
-
     const handleSearchChange = (event) => {
         setSearchText(event.target.value);
     };
 
     const handleSearch = () => {
-        // Perform search
+        setSearchTextPerm(searchText);
+    };
+
+    const handleExtensionChange = (event) => {
+        setExtensionText(event.target.value);
+    };
+
+    const handleExtension = () => {
+        setExtensionTextPerm(extensionText);
     };
 
     return (
@@ -208,6 +220,18 @@ function FileTable() {
                 />
                 <AiOutlineSearch
                     onClick={handleSearch}
+                    className="search-icon"
+                />
+
+                <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search by Extension"
+                    value={extensionText}
+                    onChange={handleExtensionChange}
+                />
+                <AiOutlineSearch
+                    onClick={handleExtension}
                     className="search-icon"
                 />
             </div>
