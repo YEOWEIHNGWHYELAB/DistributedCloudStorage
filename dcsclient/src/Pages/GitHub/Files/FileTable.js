@@ -26,6 +26,7 @@ import * as Yup from "yup";
 import "./SearchStyle.css";
 import "./PageControlStyle.css";
 import { fileTableStyle } from "./TableStyle";
+import { red } from "@mui/material/colors";
 
 
 function FileTable() {
@@ -203,8 +204,9 @@ function FileTable() {
     const handleFileUpload = () => {
         if (selectedFiles.length > 0) {
             const formData = new FormData();
+
             selectedFiles.forEach((file, index) => {
-                formData.append(`File${index}`, file);
+                formData.append(`File`, file);
             });
 
             // TODO: Perform API call to post formData to the backend
@@ -238,36 +240,6 @@ function FileTable() {
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>My GitHub Files</h2>
-
-            <div>
-                <input type="file" multiple onChange={handleFileSelect} />
-                {selectedFiles.length > 0 && (
-                    <div>
-                        <p>Selected files:</p>
-                        <ul>
-                            {selectedFiles.map((file, index) => (
-                                <li key={index}>{file.name}</li>
-                            ))}
-                        </ul>
-                        <button onClick={handleFileUpload}>Upload</button>
-                    </div>
-                )}
-                {isDraggingOver && (
-                    <div
-                        style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            zIndex: 9999,
-                        }}
-                    >
-                        <p style={{ color: '#fff', textAlign: 'center', marginTop: '40vh' }}>Drop files here</p>
-                    </div>
-                )}
-            </div>
 
             <div className="search-container">
                 <input
@@ -334,31 +306,76 @@ function FileTable() {
                 </form>
             </FormContainer>
 
-            <MUIButton
-                style={{
-                    border: "2px solid #007b00",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "10%",
-                    boxSizing: "border-box",
-                }}
-            >
-                ADD NEW FILE
-            </MUIButton>
+            <div>
+                <input
+                    style={{ 
+                        display: 'none',
+                    }}
+                    id="file-upload"
+                    multiple
+                    type="file"
+                    onChange={handleFileSelect}
+                />
+                <label htmlFor="file-upload">
+                    <MUIButton
+                        variant="contained" 
+                        component="span"
+                        style={{
+                            border: "2px solid #0000ff",
+                            margin: "2px",
+                            borderRadius: "4px",
+                            padding: "8px",
+                            width: "20%",
+                            boxSizing: "border-box",
+                            color: "green",
+                            background: "transparent"
+                        }}
+                    >
+                        Select Files For Upload
+                    </MUIButton>
+                </label>
 
-            <MUIButton
-                style={{
-                    border: "2px solid #ff0000",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "20%",
-                    boxSizing: "border-box",
-                }}
-            >
-                DELETE SELECTED FILE
-            </MUIButton>
+                <MUIButton
+                    style={{
+                        border: "2px solid #ff0000",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "20%",
+                        boxSizing: "border-box",
+                    }}
+                >
+                    DELETE SELECTED FILE
+                </MUIButton>
+
+                {selectedFiles.length > 0 && (
+                    <div>
+                        <p>Selected files to upload:</p>
+                        <ul>
+                            {selectedFiles.map((file, index) => (
+                                <li key={index}>{file.name}</li>
+                            ))}
+                        </ul>
+                        <button onClick={handleFileUpload}>Upload</button>
+                    </div>
+                )}
+
+                {isDraggingOver && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            border: "2px solid #ff0000",
+                            zIndex: 9999,
+                        }}
+                    >
+                    </div>
+                )}
+            </div>
 
             <StyledTable>
                 <thead>
