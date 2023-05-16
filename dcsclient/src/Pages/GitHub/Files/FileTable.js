@@ -166,6 +166,20 @@ function FileTable() {
                     </tbody>
                 }
             </StyledTable>
+
+            <div>
+                {Array.from({ length: pageMax }, (_, i) => i + 1).map(
+                    (pageNumber) => (
+                        <button
+                            key={pageNumber}
+                            onClick={() => handlePageChange(pageNumber)}
+                            disabled={filePage === pageNumber}
+                        >
+                            {pageNumber}
+                        </button>
+                    )
+                )}
+            </div>
         </div>
     );
 }
