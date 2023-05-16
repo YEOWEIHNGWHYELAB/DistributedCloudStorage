@@ -3,7 +3,7 @@ import RequestGitHubResource from "../../../Hooks/RequestGitHubResource";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClipboard } from "@fortawesome/free-solid-svg-icons";
+import { faClipboard, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import {
     Button as MUIButton,
     Dialog,
@@ -26,6 +26,7 @@ import "./SearchStyle.css";
 import "./PageControlStyle.css";
 import { fileTableStyle } from "./TableStyle";
 import { Height } from "@mui/icons-material";
+
 
 function FileTable() {
     const {
@@ -111,13 +112,23 @@ function FileTable() {
         return pageButtons;
     };
 
-    const handleGoToPage = (event) => {
-        event.preventDefault();
+    const [pageSelected, goToPageSelected] = useState(filePage);
 
-        const pageNumber = parseInt(event.target.pageNumberGoTo.value);
+    const handleChangeNavPage = (event) => {
+        goToPageSelected(event.target.value);
+    };
 
-        if (pageNumber >= 1 && pageNumber <= pageMax) {
-            setPage(pageNumber);
+    const handleGoToPage = () => {
+        if (pageSelected === filePage) {
+            alert("Already on the page!");
+        } else if (pageSelected >= 1 && pageSelected <= pageMax) {
+            setPage(pageSelected);
+        } else {
+            if (pageMax === 1) {
+                alert("There is only 1 page!");
+                return;
+            }
+            alert(`Page number must be between 1 and ${pageMax}!`);
         }
     };
 
@@ -186,40 +197,52 @@ function FileTable() {
                     margin="normal"
                     onChange={handleLimitChange}
                     style={{
-                        height: '40px'
+                        height: '40px',
+                        verticalAlign: 'middle'
                     }}
                 >
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={5}>5</MenuItem>
-                    <MenuItem value={10}>10</MenuItem>
-                    <MenuItem value={50}>50</MenuItem>
-                    <MenuItem value={100}>100</MenuItem>
-                    <MenuItem value={1000}>1000</MenuItem>
+                    <MenuItem value={1}>1 in Page</MenuItem>
+                    <MenuItem value={5}>5 in Page</MenuItem>
+                    <MenuItem value={10}>10 in Page</MenuItem>
+                    <MenuItem value={50}>50 in Page</MenuItem>
+                    <MenuItem value={100}>100 in Page</MenuItem>
+                    <MenuItem value={1000}>1000 in Page</MenuItem>
                 </SelectMUI>
 
-                <form onSubmit={handleGoToPage}>
+                <form>
                     <input
                         placeholder="Page"
                         type="number"
                         className="gotopage-input"
-                        name="pageNumberGoTo"
+                        defaultValue={filePage}
+                        onChange={handleChangeNavPage}
+                        value={pageSelected}
                         min={1}
                         max={pageMax}
                         required
-                    ></input>
-                    <MUIButton
+                    >
+                    </input>
+                    
+                    <FontAwesomeIcon 
+                        icon={faArrowRight}
+                        onClick={handleGoToPage}
+                        className="gotopage-icon"
+                    />
+
+                    {/* <MUIButton
                         style={{
-                            border: "2px solid #007b00",
+                            border: "1px solid #007b00",
                             margin: "2px",
                             borderRadius: "4px",
                             padding: "8px",
+                            boxSizing: "border-box",
+                            verticalAlign: "middle",
                             boxSizing: "border-box"
                         }}
-                        className="gotopage-button"
                         type="submit"
                     >
                         Go to Page
-                    </MUIButton>
+                    </MUIButton> */}
                 </form>
             </FormContainer>
 
