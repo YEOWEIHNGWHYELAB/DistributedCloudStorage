@@ -61,11 +61,51 @@ function FileTable() {
         setPage(1);
     };
 
-    const handleChange = (event) => {
-        setSearchText(event.target.value);
+    const getPageButtons = () => {
+        const pageButtons = [];
+        const maxVisibleButtons = 5;
+        const maxPageButtonCount = Math.min(totalPages, maxVisibleButtons);
+        const sideButtonsCount = Math.floor((maxPageButtonCount - 1) / 2);
+        let startPage = Math.max(filePage - sideButtonsCount, 1);
+        const endPage = Math.min(
+            startPage + maxPageButtonCount - 1,
+            totalPages
+        );
+
+        if (endPage - startPage + 1 < maxPageButtonCount) {
+            startPage = Math.max(endPage - maxPageButtonCount + 1, 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pageButtons.push(
+                <button
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    disabled={filePage === i}
+                >
+                    {i}
+                </button>
+            );
+        }
+
+        return pageButtons;
+    };
+
+    const handleGoToPage = (event) => {
+        event.preventDefault();
+
+        const pageNumber = parseInt(event.target.pageNumberGoTo.value);
+
+        if (pageNumber >= 1 && pageNumber <= pageMax) {
+            setPage(pageNumber);
+        }
     };
 
     const [searchText, setSearchText] = useState("");
+
+    const handleChange = (event) => {
+        setSearchText(event.target.value);
+    };
 
     const handleSearch = () => {
         // Perform search
@@ -118,6 +158,8 @@ function FileTable() {
                 />
             </div>
 
+            <br />
+
             <label>
                 Limit:
                 <select value={filePageLimit} onChange={handleLimitChange}>
@@ -168,18 +210,34 @@ function FileTable() {
             </StyledTable>
 
             <div>
-                {Array.from({ length: pageMax }, (_, i) => i + 1).map(
-                    (pageNumber) => (
-                        <button
-                            key={pageNumber}
-                            onClick={() => handlePageChange(pageNumber)}
-                            disabled={filePage === pageNumber}
-                        >
-                            {pageNumber}
-                        </button>
-                    )
-                )}
+                <button
+                    onClick={() => handlePageChange(filePage - 1)}
+                    disabled={filePage === 1}
+                >
+                    Previous
+                </button>
+                {getPageButtons()}
+                <button
+                    onClick={() => handlePageChange(filePage + 1)}
+                    disabled={filePage === pageMax}
+                >
+                    Next
+                </button>
             </div>
+
+            <form onSubmit={handleGoToPage}>
+                <label>
+                    Go to page:
+                    <input
+                        type="number"
+                        name="pageNumberGoTo"
+                        min={1}
+                        max={pageMax}
+                        required
+                    />
+                </label>
+                <button type="submit">Go</button>
+            </form>
         </div>
     );
 }
