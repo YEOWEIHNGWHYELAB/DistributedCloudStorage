@@ -116,7 +116,17 @@ exports.getFilesPag = async (req, res, pool) => {
             [decoded.username, limit, offset]
         );
 
-        res.json({ success: true, results: queryResult.rows});
+        const queryPageCount = `
+            SELECT COUNT(id) AS num_files
+            FROM GitHubFiles
+            WHERE username = $1 AND is_deleted = false
+        `;
+
+        const queryPageCountResult = await pool.query(queryPageCount,
+            [decoded.username]
+        );
+
+        res.json({ success: true, results: queryResult.rows, maxpage: Math.ceil(queryPageCountResult.rows[0].num_files / limit)});
     } catch (err) {
         console.error(err);
         res.status(401).json({ success: false, message: "Unable to retrieve files" });

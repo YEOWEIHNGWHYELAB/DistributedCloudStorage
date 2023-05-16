@@ -10,6 +10,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     const [resourceList, setResourceList] = useState({
         results: []
     });
+    const [pageMax, setPageMax] = useState(0);
     const [error, setError] = useState(null);
 
     const loadingOverlay = useContext(LoadingOverlayResourceContext);
@@ -37,6 +38,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         axios.get(`/${endpoint}`, SetHeaderToken())
             .then((res) => {
                 setLoading(false);
+                enqueueSnackbar(`All ${resourceLabel} listed!`);
 
                 if (res.data) {
                     setResourceList({
@@ -46,21 +48,27 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError);
     }, [endpoint, handleRequestResourceError, setLoading]);
 
-    const getFilesPaginated = useCallback((values, successCallback) => {
+    const getFilesPaginated = useCallback((values) => {
         setLoading(true);
 
-        axios.post(`/${endpoint}/filespag`, values, SetHeaderToken())
-            .then(() => {
+        axios.post(`/${endpoint}pag`, values, SetHeaderToken())
+            .then((res) => {
                 setLoading(false);
                 enqueueSnackbar(`${resourceLabel} obtained`);
 
-                if (successCallback) {
-                    successCallback();
+                if (res.data.results) {
+                    setResourceList({
+                        results: res.data.results
+                    });
+                }
+
+                if (res.data.maxpage) {
+                    setPageMax(res.data.maxpage);
                 }
             }).catch(handleRequestResourceError);
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
-    const addResource = useCallback((values, successCallback) => {
+    const addFiles = useCallback((values, successCallback) => {
         setLoading(true);
 
         axios.post(`/${endpoint}/files`, values, SetHeaderToken())
@@ -73,7 +81,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError);
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
-    const updateResource = useCallback((values) => {
+    const updateFile = useCallback((values) => {
         setLoading(true);
 
         axios.patch(`/${endpoint}/files`, values, SetHeaderToken())
@@ -95,7 +103,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError)
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading, resourceList]);
 
-    const deleteResource = useCallback((id) => {
+    const deleteFile = useCallback((id) => {
         setLoading(true);
         axios.delete(`/${endpoint}/files/${id}`, SetHeaderToken())
             .then(() => {
@@ -114,12 +122,13 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
     return {
-        addResource,
         resourceList,
+        pageMax,
+        addFiles,
         getAllFiles,
-        addResource,
-        updateResource,
-        deleteResource,
+        getFilesPaginated,
+        updateFile,
+        deleteFile,
         error
     }
 }

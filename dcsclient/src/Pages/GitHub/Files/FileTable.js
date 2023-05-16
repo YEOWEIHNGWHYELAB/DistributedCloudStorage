@@ -18,8 +18,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as Yup from "yup";
 import "./SearchBox.css";
-import { fileTableStyle } from "./TableStyle" 
-
+import { fileTableStyle } from "./TableStyle";
 
 function FileTable() {
     const {
@@ -31,21 +30,36 @@ function FileTable() {
     } = fileTableStyle();
 
     const {
-        addResource,
-        getAllFiles,
         resourceList,
-        updateResource,
-        deleteResource,
-        deleteSelectedResource,
+        pageMax,
+        addFiles,
+        getAllFiles,
+        getFilesPaginated,
+        updateFile,
+        deleteFile,
     } = RequestGitHubResource({
         endpoint: "github/files",
         resourceLabel: "Files",
     });
 
-    // {page: 1, limit: 10}
+    const [filePage, setPage] = useState(1);
+    const [filePageLimit, setPageLimit] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
+
     useEffect(() => {
-        getAllFiles();
-    }, [getAllFiles]);
+        getFilesPaginated({ page: filePage, limit: filePageLimit });
+    }, [filePage, filePageLimit]);
+
+    const handlePageChange = (pageNumber) => {
+        setPage(pageNumber);
+    };
+
+    const handleLimitChange = (event) => {
+        setPageLimit(parseInt(event.target.value));
+
+        // Reset page to 1 when the limit changes
+        setPage(1);
+    };
 
     const handleChange = (event) => {
         setSearchText(event.target.value);
@@ -104,50 +118,53 @@ function FileTable() {
                 />
             </div>
 
+            <label>
+                Limit:
+                <select value={filePageLimit} onChange={handleLimitChange}>
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                </select>
+            </label>
+
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
                         <StyledHeaderCell
                             style={{
-                                width: "10%"
+                                width: "10%",
                             }}
                         >
                             Select
                         </StyledHeaderCell>
 
-                        <StyledHeaderCell>
-                            Filename
-                        </StyledHeaderCell>
+                        <StyledHeaderCell>Filename</StyledHeaderCell>
 
-                        <StyledHeaderCell>
-                            Actions
-                        </StyledHeaderCell>
+                        <StyledHeaderCell>Actions</StyledHeaderCell>
                     </StyledHeaderRow>
                 </thead>
-                {<tbody>
-                    {resourceList.results.map((files) => (
-                        <StyledRow key={files.id}>
-                            <StyledCell>
-                                <input
-                                    type="checkbox"
-                                />
-                            </StyledCell>
-                            <StyledCell>
-                                {files.filename}
-                            </StyledCell>
+                {
+                    <tbody>
+                        {resourceList.results.map((files) => (
+                            <StyledRow key={files.id}>
+                                <StyledCell>
+                                    <input type="checkbox" />
+                                </StyledCell>
+                                <StyledCell>{files.filename}</StyledCell>
 
-                            <StyledCell>
-                                <IconButton>
-                                    <EditIcon />
-                                </IconButton>
+                                <StyledCell>
+                                    <IconButton>
+                                        <EditIcon />
+                                    </IconButton>
 
-                                <IconButton>
-                                    <DeleteIcon />
-                                </IconButton>
-                            </StyledCell>
-                        </StyledRow>
-                    ))}
-                </tbody>}
+                                    <IconButton>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </StyledCell>
+                            </StyledRow>
+                        ))}
+                    </tbody>
+                }
             </StyledTable>
         </div>
     );
