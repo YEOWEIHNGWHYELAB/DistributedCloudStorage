@@ -132,7 +132,7 @@ exports.getFilesPag = async (req, res, pool) => {
 
         if (req.body.extension && req.body.extension.trim() !== "") {
             const normalizedExtension = req.body.extension.startsWith('.') ? req.body.extension : `.${req.body.extension}`;
-            queryPaginatedFiles += `AND substring(filename from '\\.[^.]*$') ILIKE '${normalizedExtension.trim()}' `;
+            queryPaginatedFiles += `AND substring(filename from '\\.[^.]*$') ILIKE '${normalizedExtension.trim()}%' `;
         }
 
         queryPaginatedFiles += `LIMIT $2 OFFSET $3`;

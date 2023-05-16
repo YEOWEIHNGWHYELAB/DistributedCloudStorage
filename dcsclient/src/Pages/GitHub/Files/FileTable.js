@@ -40,7 +40,7 @@ function FileTable() {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: flex-end;
     `;
 
     const {
@@ -58,7 +58,6 @@ function FileTable() {
 
     const [filePage, setPage] = useState(1);
     const [filePageLimit, setPageLimit] = useState(100);
-    const [totalPages, setTotalPages] = useState(0);
 
     const [searchText, setSearchText] = useState("");
     const [extensionText, setExtensionText] = useState("");
@@ -165,50 +164,19 @@ function FileTable() {
         setSearchText(event.target.value);
     };
 
-    const handleSearch = () => {
-        setSearchTextPerm(searchText);
-    };
-
+    
     const handleExtensionChange = (event) => {
         setExtensionText(event.target.value);
     };
 
-    const handleExtension = () => {
+    const handleSearch = () => {
         setExtensionTextPerm(extensionText);
+        setSearchTextPerm(searchText);
     };
 
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>My GitHub Files</h2>
-            <MUIButton
-                style={{
-                    border: "2px solid #007b00",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "20%",
-                    boxSizing: "border-box",
-                }}
-            >
-                ADD NEW FILE
-            </MUIButton>
-
-            <MUIButton
-                style={{
-                    border: "2px solid #ff0000",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "30%",
-                    boxSizing: "border-box",
-                    background: "transparent",
-                }}
-            >
-                DELETE SELECTED FILE
-            </MUIButton>
-
-            <br />
-            <br />
 
             <div className="search-container">
                 <input
@@ -218,10 +186,6 @@ function FileTable() {
                     value={searchText}
                     onChange={handleSearchChange}
                 />
-                <AiOutlineSearch
-                    onClick={handleSearch}
-                    className="search-icon"
-                />
 
                 <input
                     type="text"
@@ -230,8 +194,9 @@ function FileTable() {
                     value={extensionText}
                     onChange={handleExtensionChange}
                 />
+
                 <AiOutlineSearch
-                    onClick={handleExtension}
+                    onClick={handleSearch}
                     className="search-icon"
                 />
             </div>
@@ -269,14 +234,41 @@ function FileTable() {
                         required
                     >
                     </input>
-                    
-                    <FontAwesomeIcon 
+
+                    <FontAwesomeIcon
                         icon={faArrowRight}
                         onClick={handleGoToPage}
                         className="gotopage-icon"
                     />
                 </form>
             </FormContainer>
+
+            <MUIButton
+                style={{
+                    border: "2px solid #007b00",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "20%",
+                    boxSizing: "border-box",
+                }}
+            >
+                ADD NEW FILE
+            </MUIButton>
+
+            <MUIButton
+                style={{
+                    border: "2px solid #ff0000",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "30%",
+                    boxSizing: "border-box",
+                    background: "transparent",
+                }}
+            >
+                DELETE SELECTED FILE
+            </MUIButton>
 
             <StyledTable>
                 <thead>
@@ -300,7 +292,7 @@ function FileTable() {
                         >
                             Filename
                         </StyledHeaderCell>
-                            
+
 
                         <StyledHeaderCell
                             className={
@@ -357,13 +349,13 @@ function FileTable() {
                         margin: "2px",
                         borderRadius: "4px",
                         padding: "8px",
-                        width: "20%",
+                        width: "5%",
                         boxSizing: "border-box",
                     }}
                     onClick={() => handlePageChange(filePage - 1)}
                     disabled={filePage === 1}
                 >
-                    Previous Page
+                    &lt;
                 </MUIButton>
 
                 {getPageButtons()}
@@ -374,13 +366,13 @@ function FileTable() {
                         margin: "2px",
                         borderRadius: "4px",
                         padding: "8px",
-                        width: "20%",
+                        width: "5%",
                         boxSizing: "border-box",
                     }}
                     onClick={() => handlePageChange(filePage + 1)}
                     disabled={filePage === pageMax}
                 >
-                    Next Page
+                    &gt;
                 </MUIButton>
             </div>
         </div>
