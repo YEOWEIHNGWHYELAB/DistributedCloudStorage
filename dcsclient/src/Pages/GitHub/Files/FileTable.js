@@ -17,6 +17,7 @@ import {
     Select as SelectMUI,
     TextField,
 } from "@mui/material";
+import { useSnackbar } from "notistack";
 import moment from "moment";
 import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
@@ -29,6 +30,8 @@ import { fileTableStyle } from "./TableStyle";
 import { red } from "@mui/material/colors";
 
 function FileTable() {
+    const { enqueueSnackbar } = useSnackbar();
+
     const {
         StyledTable,
         StyledHeaderRow,
@@ -283,15 +286,23 @@ function FileTable() {
     const handleDownload = (id) => {
         downloadFiles({ id: [id] }, (data) => {
             const { download_url, filename } = data;
-            console.log(filename[0])
-            const link = document.createElement('a');
-            link.href = download_url[0];
-            link.setAttribute('download', filename[0]);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+
+            fetch(download_url)
+                .then((response) => response.blob())
+                .then((blob) => {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = blobUrl;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(blobUrl);
+                })
+                .catch((error) => {
+                    // console.error("Error downloading file:", error);
+                    enqueueSnackbar(`Error downloading file!`);
+                });
         });
-    }
+    };
 
     return (
         <div>
@@ -525,9 +536,7 @@ function FileTable() {
 
                                 <StyledCell>
                                     <IconButton
-                                        onClick={() =>
-                                            handleDownload(files.id)
-                                        }
+                                        onClick={() => handleDownload(files.id)}
                                     >
                                         <DownloadIcon />
                                     </IconButton>
