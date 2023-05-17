@@ -29,7 +29,7 @@ import { fileTableStyle } from "../../../Windows/TableStyle";
 import { deleteDialogPrompt } from "../../../Windows/DialogBox";
 
 
-function DeletedFileTable() {
+function MainLanding() {
     const { enqueueSnackbar } = useSnackbar();
 
     return (
@@ -39,4 +39,4 @@ function DeletedFileTable() {
     );
 }
 
-export default DeletedFileTable;
+export default MainLanding;

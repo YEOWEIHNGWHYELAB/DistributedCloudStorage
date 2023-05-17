@@ -1,30 +1,42 @@
-import { useEffect, useState } from 'react';
-import RequestResource from '../../../Hooks/RequestResourceGeneric';
+import React, { useEffect, useState } from "react";
+import RequestGitHubResource from "../../../Hooks/RequestGitHubResource";
+import { AiOutlineSearch } from "react-icons/ai";
+import styled from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import {
+    Button as MUIButton,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Select as SelectMUI,
+    TextField,
+} from "@mui/material";
+import { useSnackbar } from "notistack";
+import moment from "moment";
+import { Formik, Form, Field } from "formik";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadIcon from "@mui/icons-material/Download";
+import * as Yup from "yup";
+
+import { fileTableStyle } from "../../../Windows/TableStyle";
+import { deleteDialogPrompt } from "../../../Windows/DialogBox";
 
 
-function VideoListAll() {
-    const { getResourceList, resourceList, deleteResource } = RequestResource({ endpoint: "youtube", resourceLabel: "YouTube Videos" });
-
-    useEffect(() => {
-        getResourceList();
-    }, [getResourceList]);
+function VideosTable() {
+    const { enqueueSnackbar } = useSnackbar();
 
     return (
         <div>
-            {resourceList.results.map((video) => (
-                <div key={video.videoId} style={{ border: "1px solid", margin: "10px", padding: "10px" }}>
-                    <iframe
-                        title={video.title}
-                        width="300"
-                        height="200"
-                        src={`https://www.youtube.com/embed/${video.videoId}`}
-                        allowFullScreen="true"
-                    ></iframe>
-                    <h3>{video.title}</h3>
-                </div>
-            ))}
+
         </div>
     );
 }
 
-export default VideoListAll;
+export default VideosTable;
