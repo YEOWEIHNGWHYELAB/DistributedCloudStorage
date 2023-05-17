@@ -48,7 +48,8 @@ function FileTable() {
     const {
         resourceList,
         pageMax,
-        addFiles,
+        addFile,
+        addMulFiles,
         getAllFiles,
         getFilesPaginated,
         updateFile,
@@ -204,17 +205,28 @@ function FileTable() {
     const handleFileUpload = () => {
         if (selectedFiles.length > 0) {
             const formData = new FormData();
+            
+            if (selectedFiles.length === 1) {
+                formData.append(`File`, selectedFiles[0]);
+                
+                addFile(formData, () => {
+                    // Reset selected files state after upload
+                    setSelectedFiles([]);
 
-            selectedFiles.forEach((file, index) => {
-                formData.append(`File`, file);
-            });
+                    window.location.reload();
+                });
+            } else {
+                selectedFiles.forEach((file, index) => {
+                    formData.append(`File`, file);
+                });
+    
+                // Perform API call to post formData to the backend
+                addMulFiles(formData, () => {
+                    setSelectedFiles([]);
 
-            console.log(selectedFiles);
-
-            // TODO: Perform API call to post formData to the backend
-
-            // Reset selected files state after upload
-            setSelectedFiles([]);
+                    window.location.reload();
+                });
+            }
         }
     };
 
@@ -331,7 +343,7 @@ function FileTable() {
                             margin: "2px",
                             borderRadius: "4px",
                             padding: "8px",
-                            width: "20%",
+                            width: "25%",
                             boxSizing: "border-box",
                             color: "green",
                             background: "transparent"

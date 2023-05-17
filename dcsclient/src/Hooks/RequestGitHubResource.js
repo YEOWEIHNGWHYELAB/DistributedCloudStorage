@@ -67,17 +67,33 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError);
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
-    const addFiles = useCallback((values, successCallback) => {
+    const addFile = useCallback((singleForm, successCallback) => {
         setLoading(true);
 
-        axios.post(`/${endpoint}/files`, values, SetHeaderToken())
+        axios.post(`/${endpoint}`, singleForm, SetHeaderToken())
             .then(() => {
                 setLoading(false);
-                enqueueSnackbar(`${resourceLabel} added`);
+                enqueueSnackbar(`${resourceLabel} uploaded`);
                 if (successCallback) {
                     successCallback();
                 }
             }).catch(handleRequestResourceError);
+    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
+    const addMulFiles = useCallback((formData, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/${endpoint}/mul`, formData, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+                enqueueSnackbar(`All selected ${resourceLabel} uploaded!`);
+
+                // If there is a call back defined, call it...
+                if (successCallback) {
+                    successCallback();
+                }
+            }).catch(handleRequestResourceError);
+
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
     const updateFile = useCallback((values) => {
@@ -123,7 +139,8 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     return {
         resourceList,
         pageMax,
-        addFiles,
+        addFile,
+        addMulFiles,
         getAllFiles,
         getFilesPaginated,
         updateFile,
