@@ -17,7 +17,7 @@ import {
     Select as SelectMUI,
     TextField,
 } from "@mui/material";
-import moment from 'moment';
+import moment from "moment";
 import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -27,7 +27,6 @@ import "./SearchStyle.css";
 import "./PageControlStyle.css";
 import { fileTableStyle } from "./TableStyle";
 import { red } from "@mui/material/colors";
-
 
 function FileTable() {
     const {
@@ -68,7 +67,12 @@ function FileTable() {
     const [extensionTextPerm, setExtensionTextPerm] = useState("");
 
     useEffect(() => {
-        getFilesPaginated({ page: filePage, limit: filePageLimit, search: searchTextPerm.toLocaleLowerCase(), extension: extensionTextPerm.toLocaleLowerCase() });
+        getFilesPaginated({
+            page: filePage,
+            limit: filePageLimit,
+            search: searchTextPerm.toLocaleLowerCase(),
+            extension: extensionTextPerm.toLocaleLowerCase(),
+        });
     }, [filePage, filePageLimit, searchTextPerm, extensionTextPerm]);
 
     const handlePageChange = (pageNumber) => {
@@ -167,7 +171,6 @@ function FileTable() {
         setSearchText(event.target.value);
     };
 
-
     const handleExtensionChange = (event) => {
         setExtensionText(event.target.value);
     };
@@ -205,10 +208,10 @@ function FileTable() {
     const handleFileUpload = () => {
         if (selectedFiles.length > 0) {
             const formData = new FormData();
-            
+
             if (selectedFiles.length === 1) {
                 formData.append(`File`, selectedFiles[0]);
-                
+
                 addFile(formData, () => {
                     // Reset selected files state after upload
                     setSelectedFiles([]);
@@ -219,7 +222,7 @@ function FileTable() {
                 selectedFiles.forEach((file, index) => {
                     formData.append(`File`, file);
                 });
-    
+
                 // Perform API call to post formData to the backend
                 addMulFiles(formData, () => {
                     setSelectedFiles([]);
@@ -232,7 +235,7 @@ function FileTable() {
 
     const handleFileUploadCancel = () => {
         setSelectedFiles([]);
-    }
+    };
 
     useEffect(() => {
         const handleDocumentDragOver = (event) => {
@@ -246,14 +249,35 @@ function FileTable() {
             setSelectedFiles(files);
         };
 
-        document.addEventListener('dragover', handleDocumentDragOver);
-        document.addEventListener('drop', handleDocumentDrop);
+        document.addEventListener("dragover", handleDocumentDragOver);
+        document.addEventListener("drop", handleDocumentDrop);
 
         return () => {
-            document.removeEventListener('dragover', handleDocumentDragOver);
-            document.removeEventListener('drop', handleDocumentDrop);
+            document.removeEventListener("dragover", handleDocumentDragOver);
+            document.removeEventListener("drop", handleDocumentDrop);
         };
     }, []);
+
+    // Deletion
+    const [deleteDialog, setOpenDeleteDiaglog] = useState(false);
+    const [idDelete, setIDDelete] = useState(null);
+
+    const handleOpenDeleteDialog = (id) => {
+        setIDDelete(id);
+        setOpenDeleteDiaglog(true);
+    };
+
+    const handleDeleteCloseDialog = () => {
+        setOpenDeleteDiaglog(false);
+        setIDDelete(null);
+    };
+
+    const handleDeleteID = () => {
+        deleteFile(idDelete);
+        setOpenDeleteDiaglog(false);
+        setIDDelete(null);
+    };
+
 
     return (
         <div>
@@ -290,8 +314,8 @@ function FileTable() {
                     margin="normal"
                     onChange={handleLimitChange}
                     style={{
-                        height: '40px',
-                        verticalAlign: 'middle'
+                        height: "40px",
+                        verticalAlign: "middle",
                     }}
                 >
                     <MenuItem value={1}>1 in Page</MenuItem>
@@ -313,8 +337,7 @@ function FileTable() {
                         min={1}
                         max={pageMax}
                         required
-                    >
-                    </input>
+                    ></input>
 
                     <FontAwesomeIcon
                         icon={faArrowRight}
@@ -324,10 +347,21 @@ function FileTable() {
                 </form>
             </FormContainer>
 
+            <Dialog open={deleteDialog} onClose={handleDeleteCloseDialog}>
+                <DialogTitle>
+                    Are you sure you want to delete this file?
+                </DialogTitle>
+
+                <DialogActions>
+                    <MUIButton onClick={handleDeleteID}>YES!</MUIButton>
+                    <MUIButton onClick={handleDeleteCloseDialog}>NO!</MUIButton>
+                </DialogActions>
+            </Dialog>
+
             <div>
                 <input
                     style={{
-                        display: 'none',
+                        display: "none",
                     }}
                     id="file-upload"
                     multiple
@@ -346,7 +380,7 @@ function FileTable() {
                             width: "25%",
                             boxSizing: "border-box",
                             color: "green",
-                            background: "transparent"
+                            background: "transparent",
                         }}
                     >
                         Select Files For Upload
@@ -371,9 +405,7 @@ function FileTable() {
                         <p>Selected files to upload:</p>
                         <ul>
                             {selectedFiles.map((file, index) => (
-                                <li key={index}>
-                                    {file.name}
-                                </li>
+                                <li key={index}>{file.name}</li>
                             ))}
                         </ul>
 
@@ -410,17 +442,16 @@ function FileTable() {
                 {isDraggingOver && (
                     <div
                         style={{
-                            position: 'fixed',
+                            position: "fixed",
                             top: 0,
                             left: 0,
-                            width: '100%',
-                            height: '100%',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            width: "100%",
+                            height: "100%",
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
                             border: "2px solid #ff0000",
                             zIndex: 9999,
                         }}
-                    >
-                    </div>
+                    ></div>
                 )}
             </div>
 
@@ -447,7 +478,6 @@ function FileTable() {
                             Filename
                         </StyledHeaderCell>
 
-
                         <StyledHeaderCell
                             className={
                                 sortField === "created_at"
@@ -471,12 +501,12 @@ function FileTable() {
                                     <input type="checkbox" />
                                 </StyledCell>
 
-                                <StyledCell>
-                                    {files.filename}
-                                </StyledCell>
+                                <StyledCell>{files.filename}</StyledCell>
 
                                 <StyledCell>
-                                    {moment(files.created_at).format('hh:mm A DD-MMM-YYYY')}
+                                    {moment(files.created_at).format(
+                                        "hh:mm A DD-MMM-YYYY"
+                                    )}
                                 </StyledCell>
 
                                 <StyledCell>
@@ -488,7 +518,11 @@ function FileTable() {
                                         <EditIcon />
                                     </IconButton>
 
-                                    <IconButton>
+                                    <IconButton
+                                        onClick={() =>
+                                            handleOpenDeleteDialog(files.id)
+                                        }
+                                    >
                                         <DeleteIcon />
                                     </IconButton>
                                 </StyledCell>

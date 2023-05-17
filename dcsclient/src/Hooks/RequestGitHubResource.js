@@ -120,7 +120,8 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     const deleteFile = useCallback((id) => {
         setLoading(true);
-        axios.delete(`/${endpoint}/files/${id}`, SetHeaderToken())
+        
+        axios.delete(`/${endpoint}/${id}`, SetHeaderToken())
             .then(() => {
                 setLoading(false);
                 enqueueSnackbar(`${resourceLabel} deleted`);
