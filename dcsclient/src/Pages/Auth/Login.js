@@ -26,7 +26,7 @@ export default function Login() {
     };
 
     return (
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="sm">
             <Box
                 sx={{
                     marginTop: 8,
@@ -35,6 +35,10 @@ export default function Login() {
                     alignItems: 'center',
                 }}
             >
+                <Typography component="h1" variant="h4">
+                    Distributed Cloud Storage System
+                </Typography>
+                
                 <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
                     <LockOutlinedIcon />
                 </Avatar>

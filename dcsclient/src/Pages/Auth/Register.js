@@ -45,7 +45,7 @@ export default function Register() {
                 </Avatar>
 
                 <Typography component="h1" variant="h5">
-                    Sign up
+                    Register
                 </Typography>
                 
                 <Formik validationSchema={validationSchema} onSubmit={handleSubmit} validateOnBlur={false} initialValues={{

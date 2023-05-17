@@ -5,18 +5,27 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { Box } from "@mui/material";
 import { SnackbarProvider } from "notistack";
 
-import Login from "./Pages/Auth/Login";
-import Register from "./Pages/Auth/Register"
 import ThemeModeProvider from "./Contexts/ThemeModeProvider";
 import AuthContextProvider from './Contexts/AuthContextProvider';
 import RequireAuth from './Contexts/RequireAuth';
 import RequireNotAuth from './Contexts/RequireNotAuth';
 import BaseLayout from './BaseLayout';
+
+// Authentication Pages
+import Login from "./Pages/Auth/Login";
+import Register from "./Pages/Auth/Register";
+
+// Dashboard Pages
 import PingStats from "./Pages/Dashboard/PingStats";
-import VideoTable from "./Pages/Google/YouTube/VideosTable";
-import CredentialsTableYT from "./Pages/Google/Credentials/CredentialTable";
+
+// GitHub Pages
 import CredentialsTableGH from "./Pages/GitHub/Credentials/CredentialTable";
-import FileTable from "./Pages/GitHub/Files/FileTable";
+import FileTableGH from "./Pages/GitHub/Files/FileTable";
+import DeletedFileTableGH from "./Pages/GitHub/Files/DeletedFileTable";
+
+// Google Pages
+import VideoTableYT from "./Pages/Google/YouTube/VideosTable";
+import CredentialsTableYT from "./Pages/Google/Credentials/CredentialTable";
 
 
 export default function App() {
@@ -34,9 +43,10 @@ export default function App() {
                   <Route element={<BaseLayout />}>
                     <Route path="/dashboard/pingstats" element={<PingStats />} />
                     <Route path="/github/credential" element={<CredentialsTableGH />} />
-                    <Route path="/github/files" element={<FileTable />} />
+                    <Route path="/github/files" element={<FileTableGH />} />
+                    <Route path="/github/delfiles" element={<DeletedFileTableGH />} />
                     <Route path="/google/credential" element={<CredentialsTableYT />} />
-                    <Route path="/google/videos" element={<VideoTable />} />
+                    <Route path="/google/videos" element={<VideoTableYT />} />
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >
