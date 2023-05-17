@@ -547,9 +547,11 @@ function FileTable() {
                         width: "20%",
                         boxSizing: "border-box",
                     }}
-                    onClick={() =>
-                        setOpendeleteMulDialog(true)
-                    }
+                    onClick={() => {
+                        if (selectedElements.length !== 0) {
+                            setOpendeleteMulDialog(true)
+                        }
+                    }}
                 >
                     DELETE SELECTED FILE
                 </MUIButton>

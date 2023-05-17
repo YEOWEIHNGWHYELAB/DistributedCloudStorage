@@ -66,11 +66,18 @@ function CredentialsTable() {
     };
 
     const [openD, setOpenD] = useState(false);
-
     const handleOpen = () => setOpenD(true);
+
+    const [openMultiDialog, setOpenMultiDialog] = useState(false);
+    const handleOpenMultiDeleteDialog = () => setOpenMultiDialog(true);
+    const handleCloseMultiDeleteDialog = () => {
+        setOpenMultiDialog(false);
+    };
 
     const handleDeleteSelected = () => {
         deleteSelectedResource(selectedElements);
+        setSelectedElements([]);
+        handleCloseMultiDeleteDialog();
     };
 
     const handleOpenEdit = (editID, credToEdit) => {
@@ -260,6 +267,17 @@ function CredentialsTable() {
                 </DialogActions>
             </Dialog>
 
+            <Dialog open={openMultiDialog} onClose={handleCloseMultiDeleteDialog}>
+                <DialogTitle>
+                    Are you sure you want to delete selected Credentials?
+                </DialogTitle>
+                <DialogActions>
+                    <MUIButton onClick={handleDeleteSelected}>YES!</MUIButton>
+
+                    <MUIButton onClick={handleCloseMultiDeleteDialog}>NO!</MUIButton>
+                </DialogActions>
+            </Dialog>
+
             <h2 style={{ textAlign: "left" }}>My GitHub Credentials</h2>
 
             <input
@@ -296,7 +314,11 @@ function CredentialsTable() {
             </MUIButton>
 
             <MUIButton
-                onClick={handleDeleteSelected}
+                onClick={() => {
+                    if (selectedElements.length !== 0) {
+                        handleOpenMultiDeleteDialog()
+                    }
+                }}
                 style={{
                     border: "2px solid #ff0000",
                     margin: "2px",
