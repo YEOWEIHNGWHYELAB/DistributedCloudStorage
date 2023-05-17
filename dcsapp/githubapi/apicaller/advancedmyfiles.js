@@ -52,12 +52,12 @@ async function getMetaFileInfo(pool, req) {
         `
         SELECT gh_account_id, gh_repo_id, gh_filename, filename
         FROM GitHubFiles
-        WHERE id = $1
+        WHERE id = ANY($1::bigint[])
     `,
         [req.body.id]
     );
 
-    const metaFileInfo = getFileMetaInfo.rows[0];
+    const metaFileInfo = getFileMetaInfo.rows;
 
     return metaFileInfo;
 }
@@ -71,37 +71,47 @@ exports.getDownloadLink = async (req, res, pool) => {
     // We need credential ID, repo ID, filename and we are given file ID
     const metaFileInfo = await getMetaFileInfo(pool, req);
 
-    const { ghPAT, ghUsername } = await getGHUserCredentialInfo(
-        pool,
-        metaFileInfo
-    );
+    let downloadUrlArr = [];
+    let filenameArr = [];
 
-    const ghRepoName = await getRepoName(pool, metaFileInfo);
-
-    // Perform GitHub API to obtain the actual file
-    const octokit = new Octokit({
-        auth: ghPAT,
-    });
-
-    try {
-        const { data } = await getDownloadLink(
-            octokit,
-            ghUsername,
-            ghRepoName,
-            metaFileInfo.gh_filename
+    for (currMetaInfo of metaFileInfo) {
+        const { ghPAT, ghUsername } = await getGHUserCredentialInfo(
+            pool,
+            currMetaInfo
         );
-        res.json({
-            success: true,
-            message: data.download_url,
-            filename: metaFileInfo.filename,
+
+        const ghRepoName = await getRepoName(pool, currMetaInfo);
+
+        // Perform GitHub API to obtain the actual file
+        const octokit = new Octokit({
+            auth: ghPAT,
         });
-    } catch (error) {
-        res.json({
-            success: false,
-            message: "Unable to retrieve file!",
-        });
-        // console.log(error);
+
+        try {
+            const { data } = await getDownloadLink(
+                octokit,
+                ghUsername,
+                ghRepoName,
+                currMetaInfo.gh_filename
+            );
+
+            downloadUrlArr.push(data.download_url);
+            filenameArr.push(currMetaInfo.filename);
+        } catch (error) {
+            res.json({
+                success: false,
+                message: "Unable to retrieve file!",
+            });
+            // console.log(error);
+        }
     }
+
+    res.json({
+        success: true,
+        message: "Download link obtained!",
+        download_url: downloadUrlArr,
+        filename: filenameArr
+    });
 };
 
 exports.getFilesPag = async (req, res, pool) => {
@@ -131,7 +141,9 @@ exports.getFilesPag = async (req, res, pool) => {
         }
 
         if (req.body.extension && req.body.extension.trim() !== "") {
-            const normalizedExtension = req.body.extension.startsWith('.') ? req.body.extension : `.${req.body.extension}`;
+            const normalizedExtension = req.body.extension.startsWith(".")
+                ? req.body.extension
+                : `.${req.body.extension}`;
             queryPaginatedFiles += `AND substring(filename from '\\.[^.]*$') ILIKE '${normalizedExtension.trim()}%' `;
         }
 
@@ -140,7 +152,7 @@ exports.getFilesPag = async (req, res, pool) => {
         const queryResult = await pool.query(queryPaginatedFiles, [
             decoded.username,
             limit,
-            offset
+            offset,
         ]);
 
         const queryPageCount = `
