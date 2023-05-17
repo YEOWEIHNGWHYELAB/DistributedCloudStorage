@@ -3,7 +3,7 @@ import RequestGitHubResource from "../../../Hooks/RequestGitHubResource";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClipboard, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import {
     Button as MUIButton,
     Dialog,
@@ -24,10 +24,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
+
 import "./SearchStyle.css";
 import "./PageControlStyle.css";
+
 import { fileTableStyle } from "./TableStyle";
-import { red } from "@mui/material/colors";
+import { deleteDialogPrompt } from "./DialogBox";
+
 
 function FileTable() {
     const { enqueueSnackbar } = useSnackbar();
@@ -295,6 +298,7 @@ function FileTable() {
     const handleDeleteMul = () => {
         deleteMulFiles(selectedElements);
         setOpendeleteMulDialog(false);
+        setSelectedElements([]);
     };
 
     // Performing download single file
@@ -504,27 +508,20 @@ function FileTable() {
                 </form>
             </FormContainer>
 
-            <Dialog open={deleteDialog} onClose={handleDeleteCloseDialog}>
-                <DialogTitle>
-                    Are you sure you want to delete this file?
-                </DialogTitle>
+            {
+                deleteDialogPrompt(deleteDialog, 
+                    handleDeleteCloseDialog, 
+                    handleDeleteID, 
+                    "Are you sure you want to delete this file?")
+            }
 
-                <DialogActions>
-                    <MUIButton onClick={handleDeleteID}>YES!</MUIButton>
-                    <MUIButton onClick={handleDeleteCloseDialog}>NO!</MUIButton>
-                </DialogActions>
-            </Dialog>
-
-            <Dialog open={deleteMulDialog} onClose={handleDeleteCloseMulDialog}>
-                <DialogTitle>
-                    Are you sure you want to delete the selected files?
-                </DialogTitle>
-
-                <DialogActions>
-                    <MUIButton onClick={handleDeleteMul}>YES!</MUIButton>
-                    <MUIButton onClick={handleDeleteCloseMulDialog}>NO!</MUIButton>
-                </DialogActions>
-            </Dialog>
+            {
+                deleteDialogPrompt(
+                    deleteMulDialog, 
+                    handleDeleteCloseMulDialog, 
+                    handleDeleteMul, 
+                    "Are you sure you want to delete the selected files?")
+            }
 
             <div>
                 <input
