@@ -96,6 +96,21 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
+    const downloadFiles = useCallback((fileIDs, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/github/getfiles`, fileIDs, SetHeaderToken())
+            .then((res) => {
+                setLoading(false);
+                enqueueSnackbar(`Selected ${resourceLabel} downloaded!`);
+
+                if (successCallback) {
+                    successCallback(res.data);
+                }
+            }).catch(handleRequestResourceError);
+
+    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
     const updateFile = useCallback((values) => {
         setLoading(true);
 
@@ -120,7 +135,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     const deleteFile = useCallback((id) => {
         setLoading(true);
-        
+
         axios.delete(`/${endpoint}/${id}`, SetHeaderToken())
             .then(() => {
                 setLoading(false);
@@ -142,6 +157,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         pageMax,
         addFile,
         addMulFiles,
+        downloadFiles,
         getAllFiles,
         getFilesPaginated,
         updateFile,

@@ -49,6 +49,7 @@ function FileTable() {
         pageMax,
         addFile,
         addMulFiles,
+        downloadFiles,
         getAllFiles,
         getFilesPaginated,
         updateFile,
@@ -278,6 +279,19 @@ function FileTable() {
         setIDDelete(null);
     };
 
+    // Performing download single file
+    const handleDownload = (id) => {
+        downloadFiles({ id: [id] }, (data) => {
+            const { download_url, filename } = data;
+            console.log(filename[0])
+            const link = document.createElement('a');
+            link.href = download_url[0];
+            link.setAttribute('download', filename[0]);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
 
     return (
         <div>
@@ -510,7 +524,11 @@ function FileTable() {
                                 </StyledCell>
 
                                 <StyledCell>
-                                    <IconButton>
+                                    <IconButton
+                                        onClick={() =>
+                                            handleDownload(files.id)
+                                        }
+                                    >
                                         <DownloadIcon />
                                     </IconButton>
 
