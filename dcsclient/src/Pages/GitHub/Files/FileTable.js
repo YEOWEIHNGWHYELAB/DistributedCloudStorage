@@ -57,10 +57,14 @@ function FileTable() {
         getFilesPaginated,
         updateFile,
         deleteFile,
+        deleteMulFiles,
     } = RequestGitHubResource({
         endpoint: "github/files",
         resourceLabel: "Files",
     });
+
+    // Multi-Select
+    const [selectedElements, setSelectedElements] = useState([]);
 
     const [filePage, setPage] = useState(1);
     const [filePageLimit, setPageLimit] = useState(100);
@@ -192,22 +196,6 @@ function FileTable() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
 
-    const handleDrop = (event) => {
-        event.preventDefault();
-        setIsDraggingOver(false);
-        const files = Array.from(event.dataTransfer.files);
-        setSelectedFiles(files);
-    };
-
-    const handleDragOver = (event) => {
-        event.preventDefault();
-        setIsDraggingOver(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsDraggingOver(false);
-    };
-
     const handleFileSelect = (event) => {
         const files = Array.from(event.target.files);
         setSelectedFiles(files);
@@ -266,7 +254,7 @@ function FileTable() {
         };
     }, []);
 
-    // Deletion
+    // Single Deletion
     const [deleteDialog, setOpenDeleteDiaglog] = useState(false);
     const [idDelete, setIDDelete] = useState(null);
 
@@ -284,6 +272,18 @@ function FileTable() {
         deleteFile(idDelete);
         setOpenDeleteDiaglog(false);
         setIDDelete(null);
+    };
+
+    // Multiple deletion
+    const [deleteMulDialog, setOpendeleteMulDialog] = useState(false);
+
+    const handleDeleteCloseMulDialog = () => {
+        setOpendeleteMulDialog(false);
+    };
+
+    const handleDeleteMul = () => {
+        deleteMulFiles(selectedElements);
+        setOpendeleteMulDialog(false);
     };
 
     // Performing download single file
@@ -330,10 +330,10 @@ function FileTable() {
 
     return (
         <div>
-            <Dialog 
-                open={openEditDialog} 
+            <Dialog
+                open={openEditDialog}
                 onClose={handleEditClose}
-                fullWidth 
+                fullWidth
             >
                 <DialogTitle>
                     Rename selected file
@@ -360,7 +360,6 @@ function FileTable() {
                                     as={TextField}
                                     label="New Filename"
                                     fullWidth
-                                    margin="normal"
                                     value={values.new_filename}
                                     error={
                                         errors.new_filename &&
@@ -387,7 +386,7 @@ function FileTable() {
                                     color="primary"
                                     disabled={
                                         values.new_filename ==
-                                            originalFileName ||
+                                        originalFileName ||
                                         values.new_filename == ""
                                     }
                                 >
@@ -429,7 +428,6 @@ function FileTable() {
             <FormContainer>
                 <SelectMUI
                     value={filePageLimit}
-                    margin="normal"
                     onChange={handleLimitChange}
                     style={{
                         height: "40px",
@@ -476,6 +474,17 @@ function FileTable() {
                 </DialogActions>
             </Dialog>
 
+            <Dialog open={deleteMulDialog} onClose={handleDeleteCloseMulDialog}>
+                <DialogTitle>
+                    Are you sure you want to delete the selected files?
+                </DialogTitle>
+
+                <DialogActions>
+                    <MUIButton onClick={handleDeleteMul}>YES!</MUIButton>
+                    <MUIButton onClick={handleDeleteCloseMulDialog}>NO!</MUIButton>
+                </DialogActions>
+            </Dialog>
+
             <div>
                 <input
                     style={{
@@ -501,9 +510,22 @@ function FileTable() {
                             background: "transparent",
                         }}
                     >
-                        Select Files For Upload
+                        SELECT FILES FOR UPLOAD
                     </MUIButton>
                 </label>
+
+                <MUIButton
+                    style={{
+                        border: "2px solid #00ff00",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "20%",
+                        boxSizing: "border-box",
+                    }}
+                >
+                    DOWNLOAD SELECTED FILES
+                </MUIButton>
 
                 <MUIButton
                     style={{
@@ -514,6 +536,9 @@ function FileTable() {
                         width: "20%",
                         boxSizing: "border-box",
                     }}
+                    onClick={() =>
+                        setOpendeleteMulDialog(true)
+                    }
                 >
                     DELETE SELECTED FILE
                 </MUIButton>
@@ -616,7 +641,31 @@ function FileTable() {
                         {resourceList.results.map((files) => (
                             <StyledRow key={files.id}>
                                 <StyledCell>
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        onChange={(event) => {
+                                            const isChecked = event.target.checked;
+
+                                            setSelectedElements(
+                                                (prevSelectedElements) => {
+                                                    if (isChecked) {
+                                                        return [
+                                                            ...prevSelectedElements,
+                                                            files.id,
+                                                        ];
+                                                    } else {
+                                                        return prevSelectedElements.filter(
+                                                            (id) =>
+                                                                id !== files.id
+                                                        );
+                                                    }
+                                                }
+                                            );
+                                        }}
+                                        checked={selectedElements.includes(
+                                            files.id
+                                        )}
+                                    />
                                 </StyledCell>
 
                                 <StyledCell>{files.filename}</StyledCell>

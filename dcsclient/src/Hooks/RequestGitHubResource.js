@@ -153,6 +153,22 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             .catch(handleRequestResourceError);
     }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
+    const deleteMulFiles = useCallback((selectedIDs) => {
+        setLoading(true);
+        
+        axios.post(`/${endpoint}/muldel`, { id: selectedIDs }, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+                enqueueSnackbar(`Selected ${resourceLabel} deleted!`);
+
+                const newResourceList = {
+                    results: deleteSelectedResultID(resourceList.results, selectedIDs)
+                };
+
+                setResourceList(newResourceList);
+            }).catch(handleRequestResourceError);
+    }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
     return {
         resourceList,
         pageMax,
@@ -163,6 +179,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         getFilesPaginated,
         updateFile,
         deleteFile,
+        deleteMulFiles,
         error
     }
 }
