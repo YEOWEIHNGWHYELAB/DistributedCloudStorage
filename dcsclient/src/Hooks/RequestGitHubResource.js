@@ -114,13 +114,14 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     const updateFile = useCallback((values) => {
         setLoading(true);
 
-        axios.patch(`/${endpoint}/files`, values, SetHeaderToken())
+        axios.patch(`/${endpoint}`, values, SetHeaderToken())
             .then((res) => {
                 const updatedResourceID = values.id;
+
                 const newResourceList = {
                     results: resourceList.results.map((r) => {
                         if (r.id === updatedResourceID) {
-                            return values;
+                            r.filename = values.new_filename;
                         }
 
                         return r;
@@ -129,7 +130,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
                 setResourceList(newResourceList);
                 setLoading(false);
-                enqueueSnackbar(`${resourceLabel} updated`);
+                enqueueSnackbar(`${resourceLabel}name updated`);
             }).catch(handleRequestResourceError)
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading, resourceList]);
 

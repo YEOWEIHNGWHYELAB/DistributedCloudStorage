@@ -70,6 +70,10 @@ function FileTable() {
     const [searchTextPerm, setSearchTextPerm] = useState("");
     const [extensionTextPerm, setExtensionTextPerm] = useState("");
 
+    const FileNamevalidationSchema = Yup.object().shape({
+        new_filename: Yup.string().required("Filename is required!"),
+    });
+
     useEffect(() => {
         getFilesPaginated({
             page: filePage,
@@ -304,8 +308,97 @@ function FileTable() {
         });
     };
 
+    // Renaming
+    const [idEdit, setIDEdit] = useState(null);
+    const [originalFileName, setOriginalFileName] = useState(null);
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const handleOpenEditDialog = (id, originalFileName) => {
+        setIDEdit(id);
+        setOriginalFileName(originalFileName);
+        setOpenEditDialog(true);
+    };
+    const handleEditClose = () => {
+        setOpenEditDialog(false);
+        setIDEdit(null);
+        setOriginalFileName(null);
+    };
+    const handleUpdateFileSubmit = (values) => {
+        values["id"] = idEdit;
+        updateFile(values);
+        handleEditClose();
+    };
+
     return (
         <div>
+            <Dialog 
+                open={openEditDialog} 
+                onClose={handleEditClose}
+                fullWidth 
+            >
+                <DialogTitle>
+                    Rename selected file
+                </DialogTitle>
+
+                <Formik
+                    initialValues={{
+                        new_filename: originalFileName ? originalFileName : "",
+                    }}
+                    onSubmit={(values, { resetForm }) => {
+                        if (idEdit) {
+                            handleUpdateFileSubmit(values);
+                        }
+
+                        resetForm();
+                    }}
+                    validationSchema={FileNamevalidationSchema}
+                >
+                    {({ values, errors, touched, handleChange }) => (
+                        <Form>
+                            <DialogContent>
+                                <Field
+                                    name="new_filename"
+                                    as={TextField}
+                                    label="New Filename"
+                                    fullWidth
+                                    margin="normal"
+                                    value={values.new_filename}
+                                    error={
+                                        errors.new_filename &&
+                                        touched.new_filename
+                                    }
+                                    helperText={
+                                        touched.new_filename &&
+                                        errors.new_filename
+                                    }
+                                    onChange={handleChange}
+                                />
+                            </DialogContent>
+
+                            <DialogActions>
+                                <MUIButton
+                                    onClick={handleEditClose}
+                                    color="primary"
+                                >
+                                    Cancel
+                                </MUIButton>
+
+                                <MUIButton
+                                    type="submit"
+                                    color="primary"
+                                    disabled={
+                                        values.new_filename ==
+                                            originalFileName ||
+                                        values.new_filename == ""
+                                    }
+                                >
+                                    Rename
+                                </MUIButton>
+                            </DialogActions>
+                        </Form>
+                    )}
+                </Formik>
+            </Dialog>
+
             <h2 style={{ textAlign: "left" }}>My GitHub Files</h2>
 
             <div className="search-container">
@@ -541,7 +634,14 @@ function FileTable() {
                                         <DownloadIcon />
                                     </IconButton>
 
-                                    <IconButton>
+                                    <IconButton
+                                        onClick={() =>
+                                            handleOpenEditDialog(
+                                                files.id,
+                                                files.filename
+                                            )
+                                        }
+                                    >
                                         <EditIcon />
                                     </IconButton>
 
