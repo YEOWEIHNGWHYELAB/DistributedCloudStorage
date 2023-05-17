@@ -73,7 +73,7 @@ function FileTable() {
             const allIds = resourceList.results.map((row) => row.id);
             setSelectedElements(allIds);
         }
-        
+
         setSelectAll(!selectAll);
     };
 
@@ -319,6 +319,36 @@ function FileTable() {
         });
     };
 
+    // Performing multiple download
+    const handleMulDownload = () => {
+        downloadFiles({ id: selectedElements }, (data) => {
+            if (data.download_url.length !== data.filename.length) {
+                enqueueSnackbar(`Error downloading files!`);
+                return;
+            }
+
+            const downloadPromises = data.download_url.map(
+                async (url, index) => {
+                    const response = await fetch(url);
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = data.filename[index];
+                    a.click();
+                    URL.revokeObjectURL(blobUrl);
+                });
+
+            Promise.all(downloadPromises)
+                .then(() => {
+                    enqueueSnackbar(`Download success!`);
+                })
+                .catch(error => {
+                    enqueueSnackbar(`Download failed!`);
+                });
+        });
+    };
+
     // Renaming
     const [idEdit, setIDEdit] = useState(null);
     const [originalFileName, setOriginalFileName] = useState(null);
@@ -533,6 +563,11 @@ function FileTable() {
                         padding: "8px",
                         width: "20%",
                         boxSizing: "border-box",
+                    }}
+                    onClick={() => {
+                        if (selectedElements.length !== 0) {
+                            handleMulDownload()
+                        }
                     }}
                 >
                     DOWNLOAD SELECTED FILES
