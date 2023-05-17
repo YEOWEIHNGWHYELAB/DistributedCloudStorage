@@ -64,7 +64,18 @@ function FileTable() {
     });
 
     // Multi-Select
+    const [selectAll, setSelectAll] = useState(false);
     const [selectedElements, setSelectedElements] = useState([]);
+    const handleSelectAll = () => {
+        if (selectAll) {
+            setSelectedElements([]);
+        } else {
+            const allIds = resourceList.results.map((row) => row.id);
+            setSelectedElements(allIds);
+        }
+        
+        setSelectAll(!selectAll);
+    };
 
     const [filePage, setPage] = useState(1);
     const [filePageLimit, setPageLimit] = useState(100);
@@ -605,6 +616,9 @@ function FileTable() {
                             style={{
                                 width: "10%",
                             }}
+                            onClick={
+                                () => handleSelectAll()
+                            }
                         >
                             Select
                         </StyledHeaderCell>
@@ -643,25 +657,27 @@ function FileTable() {
                                 <StyledCell>
                                     <input
                                         type="checkbox"
-                                        onChange={(event) => {
-                                            const isChecked = event.target.checked;
+                                        className="selection-checkbox"
+                                        onChange={
+                                            (event) => {
+                                                const isChecked = event.target.checked;
 
-                                            setSelectedElements(
-                                                (prevSelectedElements) => {
-                                                    if (isChecked) {
-                                                        return [
-                                                            ...prevSelectedElements,
-                                                            files.id,
-                                                        ];
-                                                    } else {
-                                                        return prevSelectedElements.filter(
-                                                            (id) =>
-                                                                id !== files.id
-                                                        );
+                                                setSelectedElements(
+                                                    (prevSelectedElements) => {
+                                                        if (isChecked) {
+                                                            return [
+                                                                ...prevSelectedElements,
+                                                                files.id,
+                                                            ];
+                                                        } else {
+                                                            return prevSelectedElements.filter(
+                                                                (id) =>
+                                                                    id !== files.id
+                                                            );
+                                                        }
                                                     }
-                                                }
-                                            );
-                                        }}
+                                                );
+                                            }}
                                         checked={selectedElements.includes(
                                             files.id
                                         )}
