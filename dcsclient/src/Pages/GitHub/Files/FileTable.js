@@ -28,8 +28,8 @@ import * as Yup from "yup";
 import "./SearchStyle.css";
 import "./PageControlStyle.css";
 
-import { fileTableStyle } from "./TableStyle";
-import { deleteDialogPrompt } from "./DialogBox";
+import { fileTableStyle } from "../../../Windows/TableStyle";
+import { deleteDialogPrompt } from "../../../Windows/DialogBox";
 
 
 function FileTable() {

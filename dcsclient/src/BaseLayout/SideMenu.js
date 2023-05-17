@@ -20,6 +20,8 @@ import KeyIcon from '@mui/icons-material/Key';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import ArticleIcon from '@mui/icons-material/Article';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+
 
 import { Box } from "@mui/system";
 import { GlobalStyles, useTheme } from "@mui/material";
@@ -45,6 +47,7 @@ const listItems = [
         children: [
             { name: "Credentials Table", icon: <KeyIcon />, to: "/github/credential" },
             { name: "My Files", icon: <ArticleIcon />, to: "/github/files" },
+            { name: "Recycle Bin", icon: <DeleteOutlineIcon />, to: "/github/delfiles" },
         ],
     },
     {

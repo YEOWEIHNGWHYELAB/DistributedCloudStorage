@@ -21,7 +21,7 @@ import PingStats from "./Pages/Dashboard/PingStats";
 // GitHub Pages
 import CredentialsTableGH from "./Pages/GitHub/Credentials/CredentialTable";
 import FileTableGH from "./Pages/GitHub/Files/FileTable";
-import DeletedFileTableGH from "./Pages/GitHub/Files/DeletedFileTable";
+import DeletedFileTableGH from "./Pages/GitHub/RecycleBin/DeletedFileTable";
 
 // Google Pages
 import VideoTableYT from "./Pages/Google/YouTube/VideosTable";
@@ -41,15 +41,29 @@ export default function App() {
               <Routes>
                 <Route element={<RequireAuth />}>
                   <Route element={<BaseLayout />}>
+                    {/**
+                     * Dashboard
+                     */}
                     <Route path="/dashboard/pingstats" element={<PingStats />} />
+
+                    {/**
+                     * GitHub Manager
+                     */}
                     <Route path="/github/credential" element={<CredentialsTableGH />} />
                     <Route path="/github/files" element={<FileTableGH />} />
                     <Route path="/github/delfiles" element={<DeletedFileTableGH />} />
+
+                    {/**
+                     * Google Manager
+                     */}
                     <Route path="/google/credential" element={<CredentialsTableYT />} />
                     <Route path="/google/videos" element={<VideoTableYT />} />
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >
+                  {/**
+                    * Authentication Manager
+                    */}
                   <Route path="/auth/login" element={<Login />} />
                   <Route path="/auth/register" element={<Register />} />
                 </Route>

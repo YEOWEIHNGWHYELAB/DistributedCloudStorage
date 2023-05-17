@@ -15,7 +15,10 @@ import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as Yup from "yup";
-import { credTableStyle } from "./TableStyle";
+
+import { fileTableStyle } from "../../../Windows/TableStyle";
+import { deleteDialogPrompt } from "../../../Windows/DialogBox";
+import "./SearchStyle.css";
 
 
 function CredentialsTable() {
@@ -25,7 +28,7 @@ function CredentialsTable() {
         StyledHeaderCell,
         StyledRow,
         StyledCell,
-    } = credTableStyle();
+    } = fileTableStyle();
 
     const {
         addResource,
@@ -256,42 +259,26 @@ function CredentialsTable() {
                 </Formik>
             </Dialog>
 
-            <Dialog open={open} onClose={handleDeleteClose}>
-                <DialogTitle>
-                    Are you sure you want to delete this Credential?
-                </DialogTitle>
-                <DialogActions>
-                    <MUIButton onClick={handleDelete}>YES!</MUIButton>
+            {
+                deleteDialogPrompt(open, 
+                    handleDeleteClose, 
+                    handleDelete, 
+                    "Are you sure you want to delete this Credential?")
+            }
 
-                    <MUIButton onClick={handleDeleteClose}>NO!</MUIButton>
-                </DialogActions>
-            </Dialog>
-
-            <Dialog open={openMultiDialog} onClose={handleCloseMultiDeleteDialog}>
-                <DialogTitle>
-                    Are you sure you want to delete selected Credentials?
-                </DialogTitle>
-                <DialogActions>
-                    <MUIButton onClick={handleDeleteSelected}>YES!</MUIButton>
-
-                    <MUIButton onClick={handleCloseMultiDeleteDialog}>NO!</MUIButton>
-                </DialogActions>
-            </Dialog>
+            {
+                deleteDialogPrompt(openMultiDialog, 
+                    handleCloseMultiDeleteDialog, 
+                    handleDeleteSelected, 
+                    "Are you sure you want to delete selected Credentials?")
+            }
 
             <h2 style={{ textAlign: "left" }}>My GitHub Credentials</h2>
 
             <input
                 type="text"
                 placeholder="Search by Username or Email"
-                style={{
-                    border: "2px solid #007bff",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "100%",
-                    boxSizing: "border-box",
-                    color: "#007bff",
-                    backgroundColor: "transparent",
-                }}
+                className="search-input-cred"
                 value={searchTerm}
                 onChange={handleSearch}
             />
