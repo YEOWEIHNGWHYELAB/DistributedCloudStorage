@@ -434,7 +434,6 @@ function FileTable() {
                         placeholder="Page"
                         type="number"
                         className="gotopage-input"
-                        defaultValue={filePage}
                         onChange={handleChangeNavPage}
                         value={pageSelected}
                         min={1}
