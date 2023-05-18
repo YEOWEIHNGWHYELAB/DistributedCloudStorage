@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import RequestGitHubResource from "../../../Hooks/RequestGitHubResource";
+import RequestGitHubResource from "../../../Hooks/RequestResource";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -98,6 +98,20 @@ function DeletedFileTable() {
     const [sortDirection, setSortDirection] = useState("asc");
 
     const handleSort = sortTableColumn(sortField, setSortDirection, sortDirection, setSortField);
+    sortResourceList(resourceList, sortField, sortDirection);
+
+    const handleSearchChange = (event) => {
+        setSearchText(event.target.value);
+    };
+
+    const handleExtensionChange = (event) => {
+        setExtensionText(event.target.value);
+    };
+
+    const handleSearch = () => {
+        setExtensionTextPerm(extensionText);
+        setSearchTextPerm(searchText);
+    };
 
     useEffect(() => {
         getFilesPaginated({
@@ -112,6 +126,29 @@ function DeletedFileTable() {
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>GitHub Recycle Bin</h2>
+
+            <div className="search-container">
+                <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search by Filename"
+                    value={searchText}
+                    onChange={handleSearchChange}
+                />
+
+                <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search by Extension"
+                    value={extensionText}
+                    onChange={handleExtensionChange}
+                />
+
+                <AiOutlineSearch
+                    onClick={handleSearch}
+                    className="search-icon"
+                />
+            </div>
 
             {pageLimitGoToControl(
                 FormContainer,
@@ -135,7 +172,7 @@ function DeletedFileTable() {
                     }}
                     onClick={() => {
                         if (selectedElements.length !== 0) {
-                            //setOpendeleteMulDialog(true);
+                            deleteMulFiles(selectedElements, false);
                         }
                     }}
                 >
@@ -179,7 +216,13 @@ function DeletedFileTable() {
                             Date Created
                         </StyledHeaderCell>
 
-                        <StyledHeaderCell>Actions</StyledHeaderCell>
+                        <StyledHeaderCell
+                            style={{
+                                width: "5%",
+                            }}
+                        >
+                            Actions
+                        </StyledHeaderCell>
                     </StyledHeaderRow>
                 </thead>
                 {
@@ -199,7 +242,7 @@ function DeletedFileTable() {
                                 <StyledCell>
                                     <IconButton
                                         onClick={() =>
-                                            console.log()
+                                            deleteMulFiles([files.id], false)
                                         }
                                     >
                                         <RestoreFromTrashIcon />

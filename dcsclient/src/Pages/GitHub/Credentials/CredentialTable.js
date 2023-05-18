@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import RequestResource from "../../../Hooks/RequestResourceGeneric";
+import RequestResource from "../../../Hooks/RequestResourceCredential";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboard } from "@fortawesome/free-solid-svg-icons";
 import {

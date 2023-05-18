@@ -190,6 +190,7 @@ exports.multipleDelete = async (req, res, pool) => {
     const token = myFilesFunc.checkAuthHeader(authHeader, res);
 
     const idArr = [req.body.id];
+    const isDeletion = req.body.is_deletion;
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, {
@@ -200,15 +201,17 @@ exports.multipleDelete = async (req, res, pool) => {
 
         const mulDelQuery = `
             UPDATE ${tablePartitionName}
-            SET is_deleted = true 
+            SET is_deleted = ${isDeletion} 
             WHERE username = '${decoded.username}' AND 
                 id = ANY($1::bigint[])`;
 
         const queryResult = await pool.query(mulDelQuery, idArr);
 
+        const messageDel = isDeletion ? "delete" : "restore"; 
+
         res.json({
             success: true,
-            message: `Successfully deleted file!`,
+            message: `Successfully ${messageDel} file!`
         });
     } catch (err) {
         // console.error(err);

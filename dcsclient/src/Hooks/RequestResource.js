@@ -153,13 +153,15 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             .catch(handleRequestResourceError);
     }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
-    const deleteMulFiles = useCallback((selectedIDs) => {
+    const deleteMulFiles = useCallback((selectedIDs, isDeletion) => {
         setLoading(true);
+
+        const messageStatus = isDeletion ? "deleted" : "restored";
         
-        axios.post(`/${endpoint}/muldel`, { id: selectedIDs }, SetHeaderToken())
+        axios.post(`/${endpoint}/muldel`, { id: selectedIDs, is_deletion: isDeletion}, SetHeaderToken())
             .then(() => {
                 setLoading(false);
-                enqueueSnackbar(`Selected ${resourceLabel} deleted!`);
+                enqueueSnackbar(`Selected ${resourceLabel} ${messageStatus}!`);
 
                 const newResourceList = {
                     results: deleteSelectedResultID(resourceList.results, selectedIDs)
