@@ -29,10 +29,9 @@ import "./SearchStyle.css";
 import "./PageControlStyle.css";
 
 import { fileTableStyle } from "../../../Windows/TableStyle";
-import { deleteDialogPrompt } from "../../../Windows/DialogBox";
+import { deleteDialogPrompt, renameDialog } from "../../../Windows/DialogBox";
 import { multiSelectDeleteUploadButtons } from "../../../Windows/MultiOpsButton";
-import { pageNavigator } from "../../../Windows/PageControl"
-
+import { pageNavigator } from "../../../Windows/PageControl";
 
 function FileTable() {
     const { enqueueSnackbar } = useSnackbar();
@@ -338,18 +337,19 @@ function FileTable() {
                     const response = await fetch(url);
                     const blob = await response.blob();
                     const blobUrl = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
+                    const a = document.createElement("a");
                     a.href = blobUrl;
                     a.download = data.filename[index];
                     a.click();
                     URL.revokeObjectURL(blobUrl);
-                });
+                }
+            );
 
             Promise.all(downloadPromises)
                 .then(() => {
                     enqueueSnackbar(`Download success!`);
                 })
-                .catch(error => {
+                .catch((error) => {
                     enqueueSnackbar(`Download failed!`);
                 });
         });
@@ -377,73 +377,14 @@ function FileTable() {
 
     return (
         <div>
-            <Dialog
-                open={openEditDialog}
-                onClose={handleEditClose}
-                fullWidth
-            >
-                <DialogTitle>
-                    Rename selected file
-                </DialogTitle>
-
-                <Formik
-                    initialValues={{
-                        new_filename: originalFileName ? originalFileName : "",
-                    }}
-                    onSubmit={(values, { resetForm }) => {
-                        if (idEdit) {
-                            handleUpdateFileSubmit(values);
-                        }
-
-                        resetForm();
-                    }}
-                    validationSchema={FileNamevalidationSchema}
-                >
-                    {({ values, errors, touched, handleChange }) => (
-                        <Form>
-                            <DialogContent>
-                                <Field
-                                    name="new_filename"
-                                    as={TextField}
-                                    label="New Filename"
-                                    fullWidth
-                                    value={values.new_filename}
-                                    error={
-                                        errors.new_filename &&
-                                        touched.new_filename
-                                    }
-                                    helperText={
-                                        touched.new_filename &&
-                                        errors.new_filename
-                                    }
-                                    onChange={handleChange}
-                                />
-                            </DialogContent>
-
-                            <DialogActions>
-                                <MUIButton
-                                    onClick={handleEditClose}
-                                    color="primary"
-                                >
-                                    Cancel
-                                </MUIButton>
-
-                                <MUIButton
-                                    type="submit"
-                                    color="primary"
-                                    disabled={
-                                        values.new_filename ==
-                                        originalFileName ||
-                                        values.new_filename == ""
-                                    }
-                                >
-                                    Rename
-                                </MUIButton>
-                            </DialogActions>
-                        </Form>
-                    )}
-                </Formik>
-            </Dialog>
+            {renameDialog(
+                openEditDialog,
+                handleEditClose,
+                originalFileName,
+                idEdit,
+                handleUpdateFileSubmit,
+                FileNamevalidationSchema
+            )}
 
             <h2 style={{ textAlign: "left" }}>My GitHub Files</h2>
 
@@ -510,22 +451,30 @@ function FileTable() {
                 </form>
             </FormContainer>
 
-            {
-                deleteDialogPrompt(deleteDialog, 
-                    handleDeleteCloseDialog, 
-                    handleDeleteID, 
-                    "Are you sure you want to delete this file?")
-            }
+            {deleteDialogPrompt(
+                deleteDialog,
+                handleDeleteCloseDialog,
+                handleDeleteID,
+                "Are you sure you want to delete this file?"
+            )}
 
-            {
-                deleteDialogPrompt(
-                    deleteMulDialog, 
-                    handleDeleteCloseMulDialog, 
-                    handleDeleteMul, 
-                    "Are you sure you want to delete the selected files?")
-            }
+            {deleteDialogPrompt(
+                deleteMulDialog,
+                handleDeleteCloseMulDialog,
+                handleDeleteMul,
+                "Are you sure you want to delete the selected files?"
+            )}
 
-            {multiSelectDeleteUploadButtons(handleFileSelect, selectedElements, handleMulDownload, setOpendeleteMulDialog, selectedFiles, handleFileUpload, handleFileUploadCancel, isDraggingOver)}
+            {multiSelectDeleteUploadButtons(
+                handleFileSelect,
+                selectedElements,
+                handleMulDownload,
+                setOpendeleteMulDialog,
+                selectedFiles,
+                handleFileUpload,
+                handleFileUploadCancel,
+                isDraggingOver
+            )}
 
             <StyledTable>
                 <thead>
@@ -534,9 +483,7 @@ function FileTable() {
                             style={{
                                 width: "10%",
                             }}
-                            onClick={
-                                () => handleSelectAll()
-                            }
+                            onClick={() => handleSelectAll()}
                         >
                             Select
                         </StyledHeaderCell>
@@ -576,26 +523,26 @@ function FileTable() {
                                     <input
                                         type="checkbox"
                                         className="selection-checkbox"
-                                        onChange={
-                                            (event) => {
-                                                const isChecked = event.target.checked;
+                                        onChange={(event) => {
+                                            const isChecked =
+                                                event.target.checked;
 
-                                                setSelectedElements(
-                                                    (prevSelectedElements) => {
-                                                        if (isChecked) {
-                                                            return [
-                                                                ...prevSelectedElements,
-                                                                files.id,
-                                                            ];
-                                                        } else {
-                                                            return prevSelectedElements.filter(
-                                                                (id) =>
-                                                                    id !== files.id
-                                                            );
-                                                        }
+                                            setSelectedElements(
+                                                (prevSelectedElements) => {
+                                                    if (isChecked) {
+                                                        return [
+                                                            ...prevSelectedElements,
+                                                            files.id,
+                                                        ];
+                                                    } else {
+                                                        return prevSelectedElements.filter(
+                                                            (id) =>
+                                                                id !== files.id
+                                                        );
                                                     }
-                                                );
-                                            }}
+                                                }
+                                            );
+                                        }}
                                         checked={selectedElements.includes(
                                             files.id
                                         )}
