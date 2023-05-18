@@ -18,8 +18,9 @@ import * as Yup from "yup";
 
 import { fileTableStyle } from "../../../Windows/TableStyle";
 import { deleteDialogPrompt } from "../../../Windows/DialogBox";
-import "./SearchStyle.css";
+import { addNewCredentialButton, deleteSelectedCredentialsButton } from "../../../Windows/MultiOpsButton";
 
+import "./SearchStyle.css";
 
 function CredentialsTable() {
     const {
@@ -259,19 +260,19 @@ function CredentialsTable() {
                 </Formik>
             </Dialog>
 
-            {
-                deleteDialogPrompt(open, 
-                    handleDeleteClose, 
-                    handleDelete, 
-                    "Are you sure you want to delete this Credential?")
-            }
+            {deleteDialogPrompt(
+                open,
+                handleDeleteClose,
+                handleDelete,
+                "Are you sure you want to delete this Credential?"
+            )}
 
-            {
-                deleteDialogPrompt(openMultiDialog, 
-                    handleCloseMultiDeleteDialog, 
-                    handleDeleteSelected, 
-                    "Are you sure you want to delete selected Credentials?")
-            }
+            {deleteDialogPrompt(
+                openMultiDialog,
+                handleCloseMultiDeleteDialog,
+                handleDeleteSelected,
+                "Are you sure you want to delete selected Credentials?"
+            )}
 
             <h2 style={{ textAlign: "left" }}>My GitHub Credentials</h2>
 
@@ -283,40 +284,12 @@ function CredentialsTable() {
                 onChange={handleSearch}
             />
 
-            <br/>
-            <br/>
+            <br />
+            <br />
 
-            <MUIButton
-                onClick={handleOpen}
-                style={{
-                    border: "2px solid #ff7bff",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "20%",
-                    boxSizing: "border-box",
-                }}
-            >
-                ADD NEW CREDENTIAL
-            </MUIButton>
+            {addNewCredentialButton(handleOpen)}
 
-            <MUIButton
-                onClick={() => {
-                    if (selectedElements.length !== 0) {
-                        handleOpenMultiDeleteDialog()
-                    }
-                }}
-                style={{
-                    border: "2px solid #ff0000",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
-                    width: "30%",
-                    boxSizing: "border-box",
-                }}
-            >
-                Delete Selected Credentials
-            </MUIButton>
+            {deleteSelectedCredentialsButton(selectedElements, handleOpenMultiDeleteDialog)}
 
             <StyledTable>
                 <thead>

@@ -5,7 +5,6 @@ import {
     DialogTitle,
 } from "@mui/material";
 
-
 export function multiSelectDeleteUploadButtons(
     handleFileSelect,
     selectedElements,
@@ -136,5 +135,48 @@ export function multiSelectDeleteUploadButtons(
                 ></div>
             )}
         </div>
+    );
+}
+
+export function deleteSelectedCredentialsButton(
+    selectedElements,
+    handleOpenMultiDeleteDialog
+) {
+    return (
+        <MUIButton
+            onClick={() => {
+                if (selectedElements.length !== 0) {
+                    handleOpenMultiDeleteDialog();
+                }
+            }}
+            style={{
+                border: "2px solid #ff0000",
+                margin: "2px",
+                borderRadius: "4px",
+                padding: "8px",
+                width: "30%",
+                boxSizing: "border-box",
+            }}
+        >
+            Delete Selected Credentials
+        </MUIButton>
+    );
+}
+
+export function addNewCredentialButton(handleOpen) {
+    return (
+        <MUIButton
+            onClick={handleOpen}
+            style={{
+                border: "2px solid #ff7bff",
+                margin: "2px",
+                borderRadius: "4px",
+                padding: "8px",
+                width: "20%",
+                boxSizing: "border-box",
+            }}
+        >
+            ADD NEW CREDENTIAL
+        </MUIButton>
     );
 }
