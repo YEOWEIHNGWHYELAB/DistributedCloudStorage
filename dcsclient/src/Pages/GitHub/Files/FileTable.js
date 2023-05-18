@@ -31,7 +31,10 @@ import "./PageControlStyle.css";
 import { fileTableStyle } from "../../../Windows/TableStyle";
 import { deleteDialogPrompt, renameDialog } from "../../../Windows/DialogBox";
 import { multiSelectDeleteUploadButtons } from "../../../Windows/MultiOpsButton";
-import { pageNavigator } from "../../../Windows/PageControl";
+import {
+    pageLimitGoToControl,
+    pageNavigator,
+} from "../../../Windows/PageControl";
 
 function FileTable() {
     const { enqueueSnackbar } = useSnackbar();
@@ -412,42 +415,15 @@ function FileTable() {
 
             <br />
 
-            <FormContainer>
-                <SelectMUI
-                    value={filePageLimit}
-                    onChange={handleLimitChange}
-                    style={{
-                        height: "40px",
-                        verticalAlign: "middle",
-                    }}
-                >
-                    <MenuItem value={1}>1 in Page</MenuItem>
-                    <MenuItem value={5}>5 in Page</MenuItem>
-                    <MenuItem value={10}>10 in Page</MenuItem>
-                    <MenuItem value={50}>50 in Page</MenuItem>
-                    <MenuItem value={100}>100 in Page</MenuItem>
-                    <MenuItem value={1000}>1000 in Page</MenuItem>
-                </SelectMUI>
-
-                <form>
-                    <input
-                        placeholder="Page"
-                        type="number"
-                        className="gotopage-input"
-                        onChange={handleChangeNavPage}
-                        value={pageSelected}
-                        min={1}
-                        max={pageMax}
-                        required
-                    ></input>
-
-                    <FontAwesomeIcon
-                        icon={faArrowRight}
-                        onClick={handleGoToPage}
-                        className="gotopage-icon"
-                    />
-                </form>
-            </FormContainer>
+            {pageLimitGoToControl(
+                FormContainer,
+                filePageLimit,
+                handleLimitChange,
+                handleChangeNavPage,
+                pageSelected,
+                pageMax,
+                handleGoToPage
+            )}
 
             {deleteDialogPrompt(
                 deleteDialog,
