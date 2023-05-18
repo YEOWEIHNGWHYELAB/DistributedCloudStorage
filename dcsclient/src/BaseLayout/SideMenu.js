@@ -58,6 +58,7 @@ const listItems = [
         children: [
             { name: "Credentials Table", icon: <KeyIcon />, to: "/google/credential" },
             { name: "My Videos", icon: <YouTubeIcon />, to: "/google/youtube" },
+            { name: "YouTube Recycle Bin", icon: <DeleteOutlineIcon />, to: "/google/ytdelfiles" },
         ],
     }
 ];

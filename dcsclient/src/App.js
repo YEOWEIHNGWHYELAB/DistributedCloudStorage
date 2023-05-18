@@ -28,6 +28,7 @@ import DeletedFileTableGH from "./Pages/GitHub/RecycleBin/DeletedFileTable";
 import MainLandingGG from "./Pages/Google/Main/MainLanding"
 import VideoTableYT from "./Pages/Google/YouTube/VideosTable";
 import CredentialsTableGG from "./Pages/Google/Credentials/CredentialTable";
+import YTDeletedFileTable from "./Pages/Google/RecycleBin/YTDeletedFileTable"
 
 
 export default function App() {
@@ -62,6 +63,7 @@ export default function App() {
                     <Route path="/google" element={<MainLandingGG />} />
                     <Route path="/google/credential" element={<CredentialsTableGG />} />
                     <Route path="/google/youtube" element={<VideoTableYT />} />
+                    <Route path="/google/ytdelfiles" element={<YTDeletedFileTable />} />
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >
