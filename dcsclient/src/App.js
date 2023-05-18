@@ -16,7 +16,9 @@ import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 
 // Dashboard Pages
-import PingStats from "./Pages/Dashboard/PingStats";
+import MainLandingDash from "./Pages/Dashboard/Main/MainLanding"
+import FileStat from "./Pages/Dashboard/FileStat/FileStat";
+import PingStats from "./Pages/Dashboard/PingStat/PingStat";
 
 // GitHub Pages
 import MainLandingGH from "./Pages/GitHub/Main/MainLanding"
@@ -29,7 +31,6 @@ import MainLandingGG from "./Pages/Google/Main/MainLanding"
 import VideoTableYT from "./Pages/Google/YouTube/VideosTable";
 import CredentialsTableGG from "./Pages/Google/Credentials/CredentialTable";
 import YTDeletedFileTable from "./Pages/Google/RecycleBin/YTDeletedFileTable"
-
 
 export default function App() {
   return (
@@ -47,6 +48,8 @@ export default function App() {
                     {/**
                      * Dashboard
                      */}
+                    <Route path="/dash" element={<MainLandingDash />} />
+                    <Route path="/dash/filestat" element={<FileStat />} />
                     <Route path="/dash/pingstat" element={<PingStats />} />
 
                     {/**
