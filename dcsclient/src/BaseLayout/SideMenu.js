@@ -31,12 +31,12 @@ const drawerWidth = 300;
 const listItems = [
     {
         key: "dashboard",
-        to: "/",
+        to: "/dash",
         name: "Dashboard",
         icon: <SpeedIcon />,
         children: [
             { name: "Ping Stat", icon: <NetworkCheckIcon />, to: "/dash/pingstat"},
-            { name: "Storage Usage", icon: <PieChartIcon />, to: "/dash/storageutil" },
+            { name: "File Stat", icon: <PieChartIcon />, to: "/dash/filestat" },
         ],
     },
     {

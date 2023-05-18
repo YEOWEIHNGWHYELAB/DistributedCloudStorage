@@ -47,7 +47,7 @@ export default function App() {
                     {/**
                      * Dashboard
                      */}
-                    <Route path="/dashboard/pingstats" element={<PingStats />} />
+                    <Route path="/dash/pingstat" element={<PingStats />} />
 
                     {/**
                      * GitHub Manager
