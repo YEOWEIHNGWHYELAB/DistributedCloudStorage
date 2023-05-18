@@ -141,7 +141,7 @@ function FileTable() {
                     }}
                     key={i}
                     onClick={() => handlePageChange(i)}
-                    disabled={filePage === i}
+                    disabled={filePage == i}
                 >
                     {i}
                 </MUIButton>
