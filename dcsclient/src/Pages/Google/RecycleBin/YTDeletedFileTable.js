@@ -34,7 +34,7 @@ function YTDeletedFileTable() {
 
     return (
         <div>
-
+            
         </div>
     );
 }

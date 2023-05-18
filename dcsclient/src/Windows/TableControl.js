@@ -12,3 +12,13 @@ export function sortResourceList(resourceList, sortField, sortDirection) {
         }
     });
 }
+
+export function sortTableColumn(sortField, setSortDirection, sortDirection, setSortField) {
+    return (field) => {
+        if (field === sortField) {
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        } else {
+            setSortField(field);
+        }
+    };
+}

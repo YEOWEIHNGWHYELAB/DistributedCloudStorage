@@ -122,6 +122,12 @@ exports.getFilesPag = async (req, res, pool) => {
     const limit = parseInt(req.body.limit) || 10;
     const offset = (page - 1) * limit;
 
+    let deletionQuery = false;
+
+    if (req.body.is_deleted) {
+        deletionQuery = req.body.is_deleted;
+    }
+
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, {
             algorithms: ["HS256"],
@@ -133,7 +139,7 @@ exports.getFilesPag = async (req, res, pool) => {
             SELECT id, gh_account_id, filename, created_at
             FROM ${tablePartitionName}
             WHERE username = $1 
-                AND is_deleted = false 
+                AND is_deleted = ${deletionQuery}
         `;
 
         if (req.body.search && req.body.search.trim() !== "") {

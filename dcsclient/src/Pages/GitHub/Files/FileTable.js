@@ -32,10 +32,13 @@ import { fileTableStyle } from "../../../Windows/TableStyle";
 import { deleteDialogPrompt, renameDialog } from "../../../Windows/DialogBox";
 import { multiSelectDeleteUploadButtons } from "../../../Windows/MultiOpsButton";
 import {
+    pageGoToNavigator,
     pageLimitGoToControl,
     pageNavigator,
+    paginationButtons
 } from "../../../Windows/PageControl";
-import { sortResourceList } from "../../../Windows/TableControls";
+import { fileUploader, performMultipleDownload, performSingleDownload } from "../../../Windows/FilesControl";
+import { sortResourceList, sortTableColumn } from "../../../Windows/TableControl";
 
 function FileTable() {
     const { enqueueSnackbar } = useSnackbar();
@@ -104,6 +107,7 @@ function FileTable() {
             limit: filePageLimit,
             search: searchTextPerm.toLocaleLowerCase(),
             extension: extensionTextPerm.toLocaleLowerCase(),
+            is_deleted: false
         });
     }, [filePage, filePageLimit, searchTextPerm, extensionTextPerm]);
 
@@ -118,71 +122,18 @@ function FileTable() {
         setPage(1);
     };
 
-    const getPageButtons = () => {
-        const pageButtons = [];
-        const maxVisibleButtons = 5;
-
-        const maxPageButtonCount = Math.min(pageMax, maxVisibleButtons);
-        const sideButtonsCount = Math.floor((maxPageButtonCount - 1) / 2);
-
-        let startPage = Math.max(filePage - sideButtonsCount, 1);
-
-        const endPage = Math.min(startPage + maxPageButtonCount - 1, pageMax);
-
-        if (endPage - startPage + 1 < maxPageButtonCount) {
-            startPage = Math.max(endPage - maxPageButtonCount + 1, 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pageButtons.push(
-                <MUIButton
-                    style={{
-                        border: "2px solid #555",
-                        margin: "2px",
-                        borderRadius: "4px",
-                        padding: "8px",
-                        boxSizing: "border-box",
-                    }}
-                    key={i}
-                    onClick={() => handlePageChange(i)}
-                    disabled={filePage == i}
-                >
-                    {i}
-                </MUIButton>
-            );
-        }
-
-        return pageButtons;
-    };
+    const getPageButtons = paginationButtons(pageMax, filePage, handlePageChange);
 
     const handleChangeNavPage = (event) => {
         setGoToPageSelected(event.target.value);
     };
 
-    const handleGoToPage = () => {
-        if (pageSelected == filePage) {
-            alert("Already on the page!");
-        } else if (pageSelected >= 1 && pageSelected <= pageMax) {
-            setPage(pageSelected);
-        } else {
-            if (pageMax === 1) {
-                alert("There is only 1 page!");
-                return;
-            }
-            alert(`Page number must be between 1 and ${pageMax}!`);
-        }
-    };
+    const handleGoToPage = pageGoToNavigator(pageSelected, filePage, pageMax, setPage);
 
     const [sortField, setSortField] = useState("filename");
     const [sortDirection, setSortDirection] = useState("asc");
 
-    const handleSort = (field) => {
-        if (field === sortField) {
-            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-        } else {
-            setSortField(field);
-        }
-    };
+    const handleSort = sortTableColumn(sortField, setSortDirection, sortDirection, setSortField);
 
     sortResourceList(resourceList, sortField, sortDirection);
 
@@ -208,33 +159,7 @@ function FileTable() {
         setSelectedFiles(files);
     };
 
-    const handleFileUpload = () => {
-        if (selectedFiles.length > 0) {
-            const formData = new FormData();
-
-            if (selectedFiles.length === 1) {
-                formData.append(`File`, selectedFiles[0]);
-
-                addFile(formData, () => {
-                    // Reset selected files state after upload
-                    setSelectedFiles([]);
-
-                    window.location.reload();
-                });
-            } else {
-                selectedFiles.forEach((file, index) => {
-                    formData.append(`File`, file);
-                });
-
-                // Perform API call to post formData to the backend
-                addMulFiles(formData, () => {
-                    setSelectedFiles([]);
-
-                    window.location.reload();
-                });
-            }
-        }
-    };
+    const handleFileUpload = fileUploader(selectedFiles, addFile, setSelectedFiles, addMulFiles);
 
     const handleFileUploadCancel = () => {
         setSelectedFiles([]);
@@ -295,57 +220,10 @@ function FileTable() {
     };
 
     // Performing download single file
-    const handleDownload = (id) => {
-        downloadFiles({ id: [id] }, (data) => {
-            const { download_url, filename } = data;
-
-            fetch(download_url)
-                .then((response) => response.blob())
-                .then((blob) => {
-                    const blobUrl = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = blobUrl;
-                    a.download = filename;
-                    a.click();
-                    URL.revokeObjectURL(blobUrl);
-                })
-                .catch((error) => {
-                    // console.error("Error downloading file:", error);
-                    enqueueSnackbar(`Error downloading file!`);
-                });
-        });
-    };
+    const handleDownload = performSingleDownload(downloadFiles, enqueueSnackbar);
 
     // Performing multiple download
-    const handleMulDownload = () => {
-        downloadFiles({ id: selectedElements }, (data) => {
-            if (data.download_url.length !== data.filename.length) {
-                enqueueSnackbar(`Error downloading files!`);
-                return;
-            }
-
-            const downloadPromises = data.download_url.map(
-                async (url, index) => {
-                    const response = await fetch(url);
-                    const blob = await response.blob();
-                    const blobUrl = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = blobUrl;
-                    a.download = data.filename[index];
-                    a.click();
-                    URL.revokeObjectURL(blobUrl);
-                }
-            );
-
-            Promise.all(downloadPromises)
-                .then(() => {
-                    enqueueSnackbar(`Download success!`);
-                })
-                .catch((error) => {
-                    enqueueSnackbar(`Download failed!`);
-                });
-        });
-    };
+    const handleMulDownload = performMultipleDownload(downloadFiles, selectedElements, enqueueSnackbar);
 
     // Renaming
     const [idEdit, setIDEdit] = useState(null);

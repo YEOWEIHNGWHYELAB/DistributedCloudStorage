@@ -97,3 +97,58 @@ export function pageLimitGoToControl(
         </FormContainer>
     );
 }
+
+export function paginationButtons(pageMax, filePage, handlePageChange) {
+    return () => {
+        const pageButtons = [];
+        const maxVisibleButtons = 5;
+
+        const maxPageButtonCount = Math.min(pageMax, maxVisibleButtons);
+        const sideButtonsCount = Math.floor((maxPageButtonCount - 1) / 2);
+
+        let startPage = Math.max(filePage - sideButtonsCount, 1);
+
+        const endPage = Math.min(startPage + maxPageButtonCount - 1, pageMax);
+
+        if (endPage - startPage + 1 < maxPageButtonCount) {
+            startPage = Math.max(endPage - maxPageButtonCount + 1, 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pageButtons.push(
+                <MUIButton
+                    style={{
+                        border: "2px solid #555",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        boxSizing: "border-box",
+                    }}
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    disabled={filePage == i}
+                >
+                    {i}
+                </MUIButton>
+            );
+        }
+
+        return pageButtons;
+    };
+}
+
+export function pageGoToNavigator(pageSelected, filePage, pageMax, setPage) {
+    return () => {
+        if (pageSelected == filePage) {
+            alert("Already on the page!");
+        } else if (pageSelected >= 1 && pageSelected <= pageMax) {
+            setPage(pageSelected);
+        } else {
+            if (pageMax === 1) {
+                alert("There is only 1 page!");
+                return;
+            }
+            alert(`Page number must be between 1 and ${pageMax}!`);
+        }
+    };
+}
