@@ -83,6 +83,7 @@ function FileTable() {
 
     const [filePage, setPage] = useState(1);
     const [filePageLimit, setPageLimit] = useState(100);
+    const [pageSelected, setGoToPageSelected] = useState(filePage);
 
     const [searchText, setSearchText] = useState("");
     const [extensionText, setExtensionText] = useState("");
@@ -150,14 +151,12 @@ function FileTable() {
         return pageButtons;
     };
 
-    const [pageSelected, goToPageSelected] = useState(filePage);
-
     const handleChangeNavPage = (event) => {
-        goToPageSelected(event.target.value);
+        setGoToPageSelected(event.target.value);
     };
 
     const handleGoToPage = () => {
-        if (pageSelected === filePage) {
+        if (pageSelected == filePage) {
             alert("Already on the page!");
         } else if (pageSelected >= 1 && pageSelected <= pageMax) {
             setPage(pageSelected);
