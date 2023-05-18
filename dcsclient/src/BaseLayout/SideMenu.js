@@ -51,7 +51,7 @@ const listItems = [
         ],
     },
     {
-        key: "youtube",
+        key: "google",
         to: "/google",
         name: "Google",
         icon: <GoogleIcon />,
