@@ -180,3 +180,45 @@ export function addNewCredentialButton(handleOpen) {
         </MUIButton>
     );
 }
+
+export function selectAllHandler(selectAll, setSelectedElements, resourceList, setSelectAll) {
+    return () => {
+        if (selectAll) {
+            setSelectedElements([]);
+        } else {
+            const allIds = resourceList.results.map((row) => row.id);
+            setSelectedElements(allIds);
+        }
+
+        setSelectAll(!selectAll);
+    };
+}
+
+export function selectAllItemCheckbox(StyledCell, setSelectedElements, files, selectedElements) {
+    return <StyledCell>
+        <input
+            type="checkbox"
+            className="selection-checkbox"
+            onChange={(event) => {
+                const isChecked = event.target.checked;
+
+                setSelectedElements(
+                    (prevSelectedElements) => {
+                        if (isChecked) {
+                            return [
+                                ...prevSelectedElements,
+                                files.id,
+                            ];
+                        } else {
+                            return prevSelectedElements.filter(
+                                (id) => id !== files.id
+                            );
+                        }
+                    }
+                );
+            } }
+            checked={selectedElements.includes(
+                files.id
+            )} />
+    </StyledCell>;
+}

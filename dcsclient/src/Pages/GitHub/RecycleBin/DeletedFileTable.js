@@ -20,21 +20,17 @@ import {
 import { useSnackbar } from "notistack";
 import moment from "moment";
 import { Formik, Form, Field } from "formik";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import DownloadIcon from "@mui/icons-material/Download";
-import * as Yup from "yup";
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 
 import { fileTableStyle } from "../../../Windows/TableStyle";
-import { deleteDialogPrompt, renameDialog } from "../../../Windows/DialogBox";
-import { multiSelectDeleteUploadButtons } from "../../../Windows/MultiOpsButton";
+import { selectAllHandler, selectAllItemCheckbox } from "../../../Windows/MultiOpsButton";
 import {
+    formContainerStyle,
     pageGoToNavigator,
     pageLimitGoToControl,
     pageNavigator,
     paginationButtons
 } from "../../../Windows/PageControl";
-import { fileUploader, performMultipleDownload, performSingleDownload } from "../../../Windows/FilesControl";
 import { sortResourceList, sortTableColumn } from "../../../Windows/TableControl";
 
 function DeletedFileTable() {
@@ -47,6 +43,8 @@ function DeletedFileTable() {
         StyledRow,
         StyledCell,
     } = fileTableStyle();
+
+    const FormContainer = formContainerStyle();
 
     const {
         resourceList,
@@ -68,10 +66,38 @@ function DeletedFileTable() {
     const [filePageLimit, setPageLimit] = useState(100);
     const [pageSelected, setGoToPageSelected] = useState(filePage);
 
+    const [selectAll, setSelectAll] = useState(false);
+    const [selectedElements, setSelectedElements] = useState([]);
+    const handleSelectAll = selectAllHandler(selectAll, setSelectedElements, resourceList, setSelectAll);
+
+    const handlePageChange = (pageNumber) => {
+        setPage(pageNumber);
+    };
+
+    const handleLimitChange = (event) => {
+        setPageLimit(parseInt(event.target.value));
+
+        // Reset page to 1 when the limit changes
+        setPage(1);
+    };
+
+    const getPageButtons = paginationButtons(pageMax, filePage, handlePageChange);
+
+    const handleChangeNavPage = (event) => {
+        setGoToPageSelected(event.target.value);
+    };
+
+    const handleGoToPage = pageGoToNavigator(pageSelected, filePage, pageMax, setPage);
+
     const [searchText, setSearchText] = useState("");
     const [extensionText, setExtensionText] = useState("");
     const [searchTextPerm, setSearchTextPerm] = useState("");
     const [extensionTextPerm, setExtensionTextPerm] = useState("");
+
+    const [sortField, setSortField] = useState("filename");
+    const [sortDirection, setSortDirection] = useState("asc");
+
+    const handleSort = sortTableColumn(sortField, setSortDirection, sortDirection, setSortField);
 
     useEffect(() => {
         getFilesPaginated({
@@ -87,12 +113,42 @@ function DeletedFileTable() {
         <div>
             <h2 style={{ textAlign: "left" }}>GitHub Recycle Bin</h2>
 
-            {/* <StyledTable>
+            {pageLimitGoToControl(
+                FormContainer,
+                filePageLimit,
+                handleLimitChange,
+                handleChangeNavPage,
+                pageSelected,
+                pageMax,
+                handleGoToPage
+            )}
+
+            <div>
+                <MUIButton
+                    style={{
+                        border: "2px solid #ff0000",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "20%",
+                        boxSizing: "border-box",
+                    }}
+                    onClick={() => {
+                        if (selectedElements.length !== 0) {
+                            //setOpendeleteMulDialog(true);
+                        }
+                    }}
+                >
+                    RESTORE SELECTED FILES
+                </MUIButton>
+            </div>
+
+            <StyledTable>
                 <thead>
                     <StyledHeaderRow>
                         <StyledHeaderCell
                             style={{
-                                width: "10%",
+                                width: "5%",
                             }}
                             onClick={() => handleSelectAll()}
                         >
@@ -130,12 +186,7 @@ function DeletedFileTable() {
                     <tbody>
                         {resourceList.results.map((files) => (
                             <StyledRow key={files.id}>
-                                <StyledCell>
-                                    <input
-                                        type="checkbox"
-                                        className="selection-checkbox"
-                                    />
-                                </StyledCell>
+                                {selectAllItemCheckbox(StyledCell, setSelectedElements, files, selectedElements)}
 
                                 <StyledCell>{files.filename}</StyledCell>
 
@@ -148,17 +199,21 @@ function DeletedFileTable() {
                                 <StyledCell>
                                     <IconButton
                                         onClick={() =>
-                                            handleOpenDeleteDialog(files.id)
+                                            console.log()
                                         }
                                     >
-                                        <DeleteIcon />
+                                        <RestoreFromTrashIcon />
                                     </IconButton>
                                 </StyledCell>
                             </StyledRow>
                         ))}
                     </tbody>
                 }
-            </StyledTable> */}
+            </StyledTable>
+
+            <br />
+
+            {pageNavigator(handlePageChange, filePage, getPageButtons, pageMax)}
         </div>
     );
 }
