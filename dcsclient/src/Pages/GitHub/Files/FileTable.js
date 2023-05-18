@@ -31,6 +31,7 @@ import "./PageControlStyle.css";
 import { fileTableStyle } from "../../../Windows/TableStyle";
 import { deleteDialogPrompt } from "../../../Windows/DialogBox";
 import { multiSelectDeleteUploadButtons } from "../../../Windows/MultiOpsButton";
+import { pageNavigator } from "../../../Windows/PageControl"
 
 
 function FileTable() {
@@ -643,39 +644,7 @@ function FileTable() {
 
             <br />
 
-            <div>
-                <MUIButton
-                    style={{
-                        border: "2px solid #555",
-                        margin: "2px",
-                        borderRadius: "4px",
-                        padding: "8px",
-                        width: "5%",
-                        boxSizing: "border-box",
-                    }}
-                    onClick={() => handlePageChange(filePage - 1)}
-                    disabled={filePage === 1}
-                >
-                    &lt;
-                </MUIButton>
-
-                {getPageButtons()}
-
-                <MUIButton
-                    style={{
-                        border: "2px solid #555",
-                        margin: "2px",
-                        borderRadius: "4px",
-                        padding: "8px",
-                        width: "5%",
-                        boxSizing: "border-box",
-                    }}
-                    onClick={() => handlePageChange(filePage + 1)}
-                    disabled={filePage === pageMax}
-                >
-                    &gt;
-                </MUIButton>
-            </div>
+            {pageNavigator(handlePageChange, filePage, getPageButtons, pageMax)}
         </div>
     );
 }
