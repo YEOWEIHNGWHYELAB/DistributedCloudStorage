@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-//import ping from "ping";
 
-const PingStats = () => {
+const PingStat = () => {
     const [pingLatencyGH, setPingLatencyGH] = useState(null);
-    const [pingLatencyYT, setPingLatencyYT] = useState(null);
 
     useEffect(() => {
         const ping = async () => {
@@ -21,20 +19,6 @@ const PingStats = () => {
 
             const latencyGH = endGH - startGH;
             setPingLatencyGH(latencyGH);
-
-            // let startYT = window.performance.now();
-            // try {
-            //     // Make a dummy request to the YouTube API
-            //     await fetch('https://www.googleapis.com/youtube/v3/');
-            // } catch (error) {
-            //     console.error('Error:', error);
-            //     return;
-            // }
-
-            // let endYT = window.performance.now();
-
-            // const latencyYT = endYT - startYT;
-            // setPingLatencyYT(latencyYT);
         };
 
         ping();
@@ -53,4 +37,4 @@ const PingStats = () => {
     );
 };
 
-export default PingStats;
+export default PingStat;
