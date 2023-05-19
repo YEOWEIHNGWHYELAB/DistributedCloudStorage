@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Formik, Form, Field } from "formik";
 import {
     Button as MUIButton,
@@ -24,6 +24,7 @@ function CredentialsCreator() {
     });
 
     const [file, setFile] = useState(null);
+    const fileInputRef = useRef(null);
     const [oAuth, setOAuth] = useState(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
@@ -31,6 +32,14 @@ function CredentialsCreator() {
     const handleFileChange = (event) => {
         const uploadedFile = event.target.files[0];
         setFile(uploadedFile);
+    };
+
+    const handleCancelUpload = () => {
+        setFile(null);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null; // Clear file input value
+        }
     };
 
     const handleDrop = (event) => {
@@ -106,8 +115,6 @@ function CredentialsCreator() {
         }
     };
 
-    const handleCancelUpload = () => setFile(null);
-
     const validationSchema = Yup.object().shape({
         email: Yup.string()
             .email("Invalid email address")
@@ -124,6 +131,7 @@ function CredentialsCreator() {
                 multiple
                 type="file"
                 onChange={handleFileChange}
+                ref={fileInputRef}
             />
 
             <MUIButton
@@ -136,6 +144,7 @@ function CredentialsCreator() {
                     boxSizing: "border-box",
                 }}
                 onClick={handleUploadOAuth}
+                disabled={localStorage.getItem('YTClientSecret') === null}
             >
                 SUBMIT OAUTH
             </MUIButton>
@@ -150,6 +159,7 @@ function CredentialsCreator() {
                     boxSizing: "border-box",
                 }}
                 onClick={handleGetOAuthCode}
+                disabled={file === null}
             >
                 UPLOAD CLIENT SECRET
             </MUIButton>
@@ -178,10 +188,10 @@ function CredentialsCreator() {
                     borderRadius: "4px",
                     padding: "8px",
                     width: "15%",
-                    boxSizing: "border-box",
-                    color: "red"
+                    boxSizing: "border-box"
                 }}
                 onClick={handleCancelUpload}
+                disabled={file === null}
             >
                 CANCEL
             </MUIButton>
