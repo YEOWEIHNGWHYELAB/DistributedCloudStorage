@@ -41,7 +41,6 @@ const listItems = [
     },
     {
         key: "github",
-        to: "/github",
         name: "GitHub",
         icon: <GitHubIcon />,
         children: [
@@ -52,7 +51,6 @@ const listItems = [
     },
     {
         key: "google",
-        to: "/google",
         name: "Google",
         icon: <GoogleIcon />,
         children: [

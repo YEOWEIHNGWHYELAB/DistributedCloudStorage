@@ -20,14 +20,14 @@ import MainLandingDash from "./Pages/Dashboard/Main/MainLanding"
 import FileStat from "./Pages/Dashboard/FileStat/FileStat";
 import PingStats from "./Pages/Dashboard/PingStat/PingStat";
 
+// Main Storage Pages
+
 // GitHub Pages
-import MainLandingGH from "./Pages/GitHub/Main/MainLanding"
 import CredentialsTableGH from "./Pages/GitHub/Credentials/CredentialTable";
 import FileTableGH from "./Pages/GitHub/Files/FileTable";
 import DeletedFileTableGH from "./Pages/GitHub/RecycleBin/DeletedFileTable";
 
 // Google Pages
-import MainLandingGG from "./Pages/Google/Main/MainLanding"
 import VideoTableYT from "./Pages/Google/YouTube/VideosTable";
 import CredentialsTableGG from "./Pages/Google/Credentials/CredentialTable";
 import YTDeletedFileTable from "./Pages/Google/RecycleBin/YTDeletedFileTable"
@@ -55,7 +55,6 @@ export default function App() {
                     {/**
                      * GitHub Manager
                      */}
-                    <Route path="/github" element={<MainLandingGH />} />
                     <Route path="/github/credential" element={<CredentialsTableGH />} />
                     <Route path="/github/files" element={<FileTableGH />} />
                     <Route path="/github/delfiles" element={<DeletedFileTableGH />} />
@@ -63,7 +62,6 @@ export default function App() {
                     {/**
                      * Google Manager
                      */}
-                    <Route path="/google" element={<MainLandingGG />} />
                     <Route path="/google/credential" element={<CredentialsTableGG />} />
                     <Route path="/google/youtube" element={<VideoTableYT />} />
                     <Route path="/google/ytdelfiles" element={<YTDeletedFileTable />} />
