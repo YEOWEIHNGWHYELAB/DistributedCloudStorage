@@ -147,6 +147,44 @@ exports.createCredentialsYT = async (req, res, pool) => {
     }
 };
 
+exports.createCredentialsYT = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ success: false, message: "Authorization header missing" });
+    }
+
+    let decoded = getDecodedJWTInfo(authHeader, res);
+
+    try {
+        const updateQueryText = `
+            UPDATE GoogleCredential
+            SET email = $2
+            WHERE id = $1
+                AND username = '${decoded.username}'`;
+
+        const updateID = req.body.id;
+        const email = req.body.email;
+        const values = [updateID, email];
+        const updateQueryCredential = await pool.query(updateQueryText, values);
+
+        res.json(
+            {
+                success: true, 
+                message: "Successfully updated selected credential!"
+            }
+        );
+    } catch (error) {
+        console.error('Failed to exchange authorization code for tokens:', error);
+        res.json(
+            {
+                success: false, 
+                message: "Failed to update credential!"
+            }
+        );
+    }
+};
+
 exports.getCredentials = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
 

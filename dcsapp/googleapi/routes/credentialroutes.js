@@ -19,6 +19,11 @@ module.exports = (pool) => {
         myCredentials.createCredentialsYT(req, res, pool);
     });
 
+    // Update new Google Credentials email for user
+    router.patch('/credentialsyt', (req, res) => {
+        myCredentials.createCredentialsYT(req, res, pool);
+    });
+
     // Delete Google Credential for user
     router.delete('/credentialsyt/:id', (req, res) => {
         myCredentials.deleteCredentialsYT(req, res, pool);

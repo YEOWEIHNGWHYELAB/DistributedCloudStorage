@@ -63,9 +63,6 @@ function CredentialTable() {
         getCredentialList();
     }, [getCredentialList]);
 
-    const [openCredDialog, setOpenAddCredDialog] = useState(false);
-    const handleOpenCredDialog = () => setOpenAddCredDialog(true);
-
     const [idDelete, setIDDelete] = useState(null);
     const [openSingleDialog, setOpenSingleDialog] = useState(false);
     const [openMultiDialog, setOpenMultiDialog] = useState(false);
@@ -116,6 +113,28 @@ function CredentialTable() {
         setSearchTerm(event.target.value);
     };
 
+    const [idEmailEdit, setEmailIDEdit] = useState(null);
+    const [currEmail, setCurrEmail] = useState();
+    const [openDialogEmail, setOpenDialogEmail] = useState(false);
+
+    const handleOpenEmailEdit = (editEmailID, emailToEdit) => {
+        setEmailIDEdit(editEmailID);
+        setCurrEmail(emailToEdit);
+        setOpenDialogEmail(true);
+    };
+
+    const handleCloseDialogEmail = () => {
+        setOpenDialogEmail(false);
+        setEmailIDEdit(null);
+    };
+
+    const handleSubmitNewEmail = (values) => {
+        values["id"] = idEmailEdit;
+        updateResource(values);
+        setEmailIDEdit(null);
+        handleCloseDialogEmail();
+    };
+
     const sortedCredentials = sortResourceList(
         credentialList,
         sortField,
@@ -130,6 +149,12 @@ function CredentialTable() {
     });
 
     const [selectedElements, setSelectedElements] = useState([]);
+
+    const validationSchema = Yup.object().shape({
+        email: Yup.string()
+            .email("Invalid email address")
+            .required("Email is required")
+    });
 
     return (
         <div>
@@ -146,6 +171,60 @@ function CredentialTable() {
                 handleDeleteSelected,
                 "Are you sure you want to delete selected Credentials?"
             )}
+
+            <Dialog open={openDialogEmail} onClose={handleCloseDialogEmail} fullWidth>
+                <DialogTitle>
+                    Enter the email address
+                </DialogTitle>
+
+                <Formik
+                    initialValues={{
+
+                        email: idEmailEdit
+                            ? currEmail.email
+                            : "",
+                    }}
+                    onSubmit={(values) => {
+                        handleSubmitNewEmail(values);
+                    }}
+                    validationSchema={validationSchema}
+                >
+                    {({ values, errors, touched, handleChange }) => (
+                        <Form>
+                            <DialogContent>
+                                <Field
+                                    name="email"
+                                    as={TextField}
+                                    label="Email"
+                                    fullWidth
+                                    margin="normal"
+                                    value={values.email}
+                                    error={errors.email && touched.email}
+                                    helperText={touched.email && errors.email}
+                                    onChange={handleChange}
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <MUIButton
+                                    onClick={handleCloseDialogEmail}
+                                    color="primary"
+                                >
+                                    Cancel
+                                </MUIButton>
+                                <MUIButton
+                                    type="submit"
+                                    color="primary"
+                                    disabled={
+                                        !values.email
+                                    }
+                                >
+                                    Submit
+                                </MUIButton>
+                            </DialogActions>
+                        </Form>
+                    )}
+                </Formik>
+            </Dialog>
 
             <h2 style={{ textAlign: "left" }}>My Google Credentials</h2>
 
@@ -250,16 +329,12 @@ function CredentialTable() {
 
                             <StyledCell>
                                 <IconButton
-                                // onClick={() =>
-                                //     handleOpenEdit(credential.id, {
-                                //         id: credential.id,
-                                //         github_username:
-                                //             credential.github_username,
-                                //         email: credential.email,
-                                //         access_token:
-                                //             credential.access_token,
-                                //     })
-                                // }
+                                    onClick={() =>
+                                        handleOpenEmailEdit(credential.id, {
+                                            id: credential.id,
+                                            email: credential.email
+                                        })
+                                    }
                                 >
                                     <EditIcon />
                                 </IconButton>
