@@ -29,6 +29,10 @@ import "../../../../Windows/SearchStyle.css";
 
 import RequestCredential from "../../../../Hooks/RequestCredential";
 import { fileTableStyle } from "../../../../Windows/TableStyle";
+import {
+    addNewCredentialButton,
+    deleteSelectedCredentialsButton,
+} from "../../../../Windows/MultiOpsButton";
 import { deleteDialogPrompt } from "../../../../Windows/DialogBox";
 import { sortResourceList } from "../../../../Windows/TableControl";
 
@@ -59,6 +63,38 @@ function CredentialTable() {
         getCredentialList();
     }, [getCredentialList]);
 
+    const [openCredDialog, setOpenAddCredDialog] = useState(false);
+    const handleOpenCredDialog = () => setOpenAddCredDialog(true);
+
+    const [idDelete, setIDDelete] = useState(null);
+    const [openSingleDialog, setOpenSingleDialog] = useState(false);
+    const [openMultiDialog, setOpenMultiDialog] = useState(false);
+
+    const handleOpenMultiDeleteDialog = () => setOpenMultiDialog(true);
+    const handleCloseMultiDeleteDialog = () => setOpenMultiDialog(false);
+
+    const handleOpenDeleteDialog = (id) => {
+        setIDDelete(id);
+        setOpenSingleDialog(true);
+    };
+
+    const handleDeleteClose = () => {
+        setOpenSingleDialog(false);
+        setIDDelete(null);
+    };
+
+    const handleDelete = () => {
+        deleteResource(idDelete);
+        setOpenSingleDialog(false);
+        setIDDelete(null);
+    };
+
+    const handleDeleteSelected = () => {
+        deleteSelectedResource(selectedElements);
+        setSelectedElements([]);
+        handleCloseMultiDeleteDialog();
+    };
+
     function copyToClipboard(oAuth2Data) {
         navigator.clipboard.writeText(oAuth2Data);
     }
@@ -80,18 +116,37 @@ function CredentialTable() {
         setSearchTerm(event.target.value);
     };
 
-    const sortedCredentials = sortResourceList(credentialList, sortField, sortDirection, true);
+    const sortedCredentials = sortResourceList(
+        credentialList,
+        sortField,
+        sortDirection,
+        true
+    );
 
     const filteredCredentials = sortedCredentials.filter((credential) => {
-        return (
-            credential.email.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        return credential.email
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
     });
 
     const [selectedElements, setSelectedElements] = useState([]);
 
     return (
         <div>
+            {deleteDialogPrompt(
+                openSingleDialog,
+                handleDeleteClose,
+                handleDelete,
+                "Are you sure you want to delete this Credential?"
+            )}
+
+            {deleteDialogPrompt(
+                openMultiDialog,
+                handleCloseMultiDeleteDialog,
+                handleDeleteSelected,
+                "Are you sure you want to delete selected Credentials?"
+            )}
+
             <h2 style={{ textAlign: "left" }}>My Google Credentials</h2>
 
             <input
@@ -104,6 +159,13 @@ function CredentialTable() {
 
             <br />
             <br />
+
+            {addNewCredentialButton(handleOpenCredDialog)}
+
+            {deleteSelectedCredentialsButton(
+                selectedElements,
+                handleOpenMultiDeleteDialog
+            )}
 
             <StyledTable>
                 <thead>
@@ -190,9 +252,9 @@ function CredentialTable() {
                                 </IconButton>
 
                                 <IconButton
-                                // onClick={() =>
-                                //     handleOpenDeleteDialog(credential.id)
-                                // }
+                                    onClick={() =>
+                                        handleOpenDeleteDialog(credential.id)
+                                    }
                                 >
                                     <DeleteIcon />
                                 </IconButton>
