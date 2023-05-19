@@ -29,6 +29,7 @@ import DeletedFileTableGH from "./Pages/GitHub/RecycleBin/DeletedFileTable";
 
 // Google Pages
 import CredentialsTableYT from "./Pages/Google/YouTube/Credentials/CredentialTable";
+import CredentialsCreatorYT from "./Pages/Google/YouTube/Credentials/CredentialCreator";
 import VideoTableYT from "./Pages/Google/YouTube/VideosTable/VideosTable";
 import YTDeletedFileTable from "./Pages/Google/YouTube/RecycleBin/YTDeletedFileTable";
 
@@ -63,6 +64,7 @@ export default function App() {
                      * Google Manager
                      */}
                     <Route path="/google/credentialyt" element={<CredentialsTableYT />} />
+                    <Route path="/google/credentialyt/creator" element={<CredentialsCreatorYT />} />
                     <Route path="/google/ytvideos" element={<VideoTableYT />} />
                     <Route path="/google/ytdelfiles" element={<YTDeletedFileTable />} />
                   </Route>
