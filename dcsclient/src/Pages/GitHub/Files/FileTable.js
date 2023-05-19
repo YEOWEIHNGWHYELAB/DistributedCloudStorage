@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import RequestGitHubResource from "../../../Hooks/RequestGitHubResource";
+import RequestGitHubResource from "../../../Hooks/RequestResource";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -30,8 +30,9 @@ import "./PageControlStyle.css";
 
 import { fileTableStyle } from "../../../Windows/TableStyle";
 import { deleteDialogPrompt, renameDialog } from "../../../Windows/DialogBox";
-import { multiSelectDeleteUploadButtons } from "../../../Windows/MultiOpsButton";
+import { multiSelectDeleteUploadButtons, selectAllHandler, selectAllItemCheckbox } from "../../../Windows/MultiOpsButton";
 import {
+    formContainerStyle,
     pageGoToNavigator,
     pageLimitGoToControl,
     pageNavigator,
@@ -51,12 +52,7 @@ function FileTable() {
         StyledCell,
     } = fileTableStyle();
 
-    const FormContainer = styled(FormControl)`
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-end;
-    `;
+    const FormContainer = formContainerStyle();
 
     const {
         resourceList,
@@ -77,16 +73,7 @@ function FileTable() {
     // Multi-Select
     const [selectAll, setSelectAll] = useState(false);
     const [selectedElements, setSelectedElements] = useState([]);
-    const handleSelectAll = () => {
-        if (selectAll) {
-            setSelectedElements([]);
-        } else {
-            const allIds = resourceList.results.map((row) => row.id);
-            setSelectedElements(allIds);
-        }
-
-        setSelectAll(!selectAll);
-    };
+    const handleSelectAll = selectAllHandler(selectAll, setSelectedElements, resourceList, setSelectAll);
 
     const [filePage, setPage] = useState(1);
     const [filePageLimit, setPageLimit] = useState(100);
@@ -214,7 +201,7 @@ function FileTable() {
     };
 
     const handleDeleteMul = () => {
-        deleteMulFiles(selectedElements);
+        deleteMulFiles(selectedElements, true);
         setOpendeleteMulDialog(false);
         setSelectedElements([]);
     };
@@ -323,7 +310,7 @@ function FileTable() {
                     <StyledHeaderRow>
                         <StyledHeaderCell
                             style={{
-                                width: "10%",
+                                width: "5%",
                             }}
                             onClick={() => handleSelectAll()}
                         >
@@ -361,35 +348,7 @@ function FileTable() {
                     <tbody>
                         {resourceList.results.map((files) => (
                             <StyledRow key={files.id}>
-                                <StyledCell>
-                                    <input
-                                        type="checkbox"
-                                        className="selection-checkbox"
-                                        onChange={(event) => {
-                                            const isChecked =
-                                                event.target.checked;
-
-                                            setSelectedElements(
-                                                (prevSelectedElements) => {
-                                                    if (isChecked) {
-                                                        return [
-                                                            ...prevSelectedElements,
-                                                            files.id,
-                                                        ];
-                                                    } else {
-                                                        return prevSelectedElements.filter(
-                                                            (id) =>
-                                                                id !== files.id
-                                                        );
-                                                    }
-                                                }
-                                            );
-                                        }}
-                                        checked={selectedElements.includes(
-                                            files.id
-                                        )}
-                                    />
-                                </StyledCell>
+                                {selectAllItemCheckbox(StyledCell, setSelectedElements, files, selectedElements)}
 
                                 <StyledCell>{files.filename}</StyledCell>
 

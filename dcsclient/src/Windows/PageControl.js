@@ -1,8 +1,10 @@
 import {
     Button as MUIButton,
+    FormControl,
     MenuItem,
     Select as SelectMUI,
 } from "@mui/material";
+import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
@@ -24,7 +26,7 @@ export function pageNavigator(
                     boxSizing: "border-box",
                 }}
                 onClick={() => handlePageChange(filePage - 1)}
-                disabled={filePage === 1}
+                disabled={filePage == 1}
             >
                 &lt;
             </MUIButton>
@@ -41,7 +43,7 @@ export function pageNavigator(
                     boxSizing: "border-box",
                 }}
                 onClick={() => handlePageChange(filePage + 1)}
-                disabled={filePage === pageMax}
+                disabled={filePage == pageMax}
             >
                 &gt;
             </MUIButton>
@@ -151,4 +153,13 @@ export function pageGoToNavigator(pageSelected, filePage, pageMax, setPage) {
             alert(`Page number must be between 1 and ${pageMax}!`);
         }
     };
+}
+
+export function formContainerStyle() {
+    return styled(FormControl)`
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+    `;
 }

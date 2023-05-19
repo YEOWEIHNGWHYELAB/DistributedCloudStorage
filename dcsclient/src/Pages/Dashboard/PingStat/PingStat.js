@@ -1,43 +1,40 @@
-import React, { useState } from "react";
-//import ping from "ping";
+import React, { useEffect, useState } from "react";
 
-const PingStats = () => {
-    const [pingStats, setPingStats] = useState([]);
+const PingStat = () => {
+    const [pingLatencyGH, setPingLatencyGH] = useState(null);
 
-    const getPingStats = async () => {
-        const urls = [
-            "https://api.github.com", 
-            "https://www.youtube.com"
-        ];
+    useEffect(() => {
+        const ping = async () => {
+            let startGH = window.performance.now();
 
-        const stats = [];
+            try {
+                // Make a dummy request to the GitHub API
+                await fetch('https://api.github.com/');
+            } catch (error) {
+                console.error('Error:', error);
+                return;
+            }
 
-        for (const url of urls) {
-            const res = 1; //await ping.promise.probe(url);
-            stats.push({
-                url,
-                time: res.time,
-                alive: res.alive
-            });
-        }
+            let endGH = window.performance.now();
 
-        setPingStats(stats);
-    };
+            const latencyGH = endGH - startGH;
+            setPingLatencyGH(latencyGH);
+        };
+
+        ping();
+    }, []);
 
     return (
         <div>
-            <button onClick={getPingStats}>Get Ping Stats</button>
-
-            <ul>
-                {pingStats.map((stat, index) => (
-                    <li key={index}>
-                        {stat.url}: {stat.alive ? `${stat.time}ms` : "Down"}
-                    </li>
-                ))}
-            </ul>
-            
+            {pingLatencyGH !== null ? (
+                <div>
+                    <p>Ping GitHub latency: {pingLatencyGH.toFixed(2)} milliseconds</p>
+                </div>
+            ) : (
+                <p>Loading...</p>
+            )}
         </div>
     );
 };
 
-export default PingStats;
+export default PingStat;
