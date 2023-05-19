@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import RequestResource from "../../../Hooks/RequestResourceCredential";
+import RequestCredential from "../../../Hooks/RequestCredential";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboard } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -38,7 +38,7 @@ function CredentialsTable() {
         updateResource,
         deleteResource,
         deleteSelectedResource,
-    } = RequestResource({
+    } = RequestCredential({
         endpoint: "github/credentials",
         resourceLabel: "GitHub Credentials",
     });
