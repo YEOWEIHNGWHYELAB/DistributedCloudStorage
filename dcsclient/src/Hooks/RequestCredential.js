@@ -12,7 +12,7 @@ import SetHeaderToken from "../Contexts/SetHeaderToken";
  * DELETE without additional complex operations.
  */
 export default function RequestResource({ endpoint, resourceLabel }) {
-    const [resourceList, setResourceList] = useState({
+    const [credentialList, setResourceList] = useState({
         results: []
     });
     const [error, setError] = useState(null);
@@ -35,7 +35,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     }, [enqueueSnackbar, setError, setLoading]);
 
     // Callback lets us recreate function when dependencies created 
-    const getResourceList = useCallback(({ query = "" } = {}) => {
+    const getCredentialList = useCallback(({ query = "" } = {}) => {
         setLoading(true);
 
         axios.get(`/${endpoint}/${query}`, SetHeaderToken())
@@ -77,7 +77,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                  */
                 const updatedResourceID = values.id;
                 const newResourceList = {
-                    results: resourceList.results.map((r) => {
+                    results: credentialList.results.map((r) => {
                         if (r.id === updatedResourceID) {
                             return values;
                         }
@@ -90,7 +90,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                 setLoading(false);
                 enqueueSnackbar(`${resourceLabel} updated`);
             }).catch(handleRequestResourceError)
-    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading, resourceList]);
+    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading, credentialList]);
 
     /**
      * In general, it is not recommended to embed IDs into the request body of a DELETE request. 
@@ -112,7 +112,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                 enqueueSnackbar(`${resourceLabel} deleted`);
 
                 const newResourceList = {
-                    results: resourceList.results.filter((r) => {
+                    results: credentialList.results.filter((r) => {
                         return r.id !== id
                     })
                 };
@@ -120,7 +120,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                 setResourceList(newResourceList);
             })
             .catch(handleRequestResourceError);
-    }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+    }, [endpoint, credentialList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
     const deleteSelectedResource = useCallback((selectedIDs) => {
         setLoading(true);
@@ -131,17 +131,17 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                 enqueueSnackbar(`Selected ${resourceLabel} deleted!`);
 
                 const newResourceList = {
-                    results: deleteSelectedResultID(resourceList.results, selectedIDs)
+                    results: deleteSelectedResultID(credentialList.results, selectedIDs)
                 };
 
                 setResourceList(newResourceList);
             }).catch(handleRequestResourceError);
-    }, [endpoint, resourceList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+    }, [endpoint, credentialList, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
     return {
         addResource,
-        resourceList,
-        getResourceList,
+        credentialList,
+        getCredentialList,
         addResource,
         updateResource,
         deleteResource,

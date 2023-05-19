@@ -33,8 +33,8 @@ function CredentialsTable() {
 
     const {
         addResource,
-        getResourceList,
-        resourceList,
+        getCredentialList,
+        credentialList,
         updateResource,
         deleteResource,
         deleteSelectedResource,
@@ -44,8 +44,8 @@ function CredentialsTable() {
     });
 
     useEffect(() => {
-        getResourceList();
-    }, [getResourceList]);
+        getCredentialList();
+    }, [getCredentialList]);
 
     const [open, setOpen] = useState(false);
     const [idDelete, setIDDelete] = useState(null);
@@ -129,7 +129,7 @@ function CredentialsTable() {
         setSearchTerm(event.target.value);
     };
 
-    const sortedCredentials = resourceList.results.sort((a, b) => {
+    const sortedCredentials = credentialList.results.sort((a, b) => {
         const aValue = a[sortField];
         const bValue = b[sortField];
 

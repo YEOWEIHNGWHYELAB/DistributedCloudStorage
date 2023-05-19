@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
+import { faClipboard } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -41,36 +42,34 @@ function CredentialTable() {
 
     const {
         addResource,
-        getResourceList,
-        resourceList,
+        getCredentialList,
+        credentialList,
         updateResource,
         deleteResource,
         deleteSelectedResource,
     } = RequestCredential({
-        endpoint: "github/credentials",
-        resourceLabel: "GitHub Credentials",
+        endpoint: "google/credentialsyt",
+        resourceLabel: "YouTube Credentials",
     });
+
+    useEffect(() => {
+        getCredentialList();
+    }, [getCredentialList]);
+
+    function copyToClipboard(oAuth2Data) {
+        navigator.clipboard.writeText(oAuth2Data);
+    }
+
+    const [selectedElements, setSelectedElements] = useState([]);
 
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>My Google Credentials</h2>
 
-            {/* <StyledTable>
+    <StyledTable>
                 <thead>
                     <StyledHeaderRow>
                         <StyledHeaderCell>Select</StyledHeaderCell>
-
-                        <StyledHeaderCell
-                            // className={
-                            //     sortField === "github_username"
-                            //         ? `sortable ${sortDirection}`
-                            //         : "sortable"
-                            // }
-                            // onClick={() => handleSort("github_username")}
-                            // style={{ sortField }}
-                        >
-                            Username
-                        </StyledHeaderCell>
 
                         <StyledHeaderCell
                             // className={
@@ -83,13 +82,13 @@ function CredentialTable() {
                             Email
                         </StyledHeaderCell>
 
-                        <StyledHeaderCell>Access Token 📋</StyledHeaderCell>
+                        <StyledHeaderCell>OAuth 2.0 Data 📋</StyledHeaderCell>
 
                         <StyledHeaderCell>Actions</StyledHeaderCell>
                     </StyledHeaderRow>
                 </thead>
                 <tbody>
-                    {filteredCredentials.map((credential) => (
+                    {credentialList.results.map((credential) => (
                         <StyledRow key={credential.id}>
                             <StyledCell>
                                 <input
@@ -118,16 +117,13 @@ function CredentialTable() {
                                     )}
                                 />
                             </StyledCell>
-                            <StyledCell>
-                                {credential.github_username}
-                            </StyledCell>
 
                             <StyledCell>{credential.email}</StyledCell>
                             <StyledCell>
                                 <IconButton
-                                    onClick={() =>
-                                        copyToClipboard(credential.access_token)
-                                    }
+                                    onClick={() => {
+                                        copyToClipboard(JSON.stringify(credential.data))
+                                    }}
                                 >
                                     <FontAwesomeIcon
                                         icon={faClipboard}
@@ -163,7 +159,7 @@ function CredentialTable() {
                         </StyledRow>
                     ))}
                 </tbody>
-            </StyledTable> */}
+            </StyledTable>
         </div>
     );
 }
