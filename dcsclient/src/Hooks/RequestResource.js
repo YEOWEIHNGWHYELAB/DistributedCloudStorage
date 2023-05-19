@@ -37,7 +37,6 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         axios.get(`/${endpoint}`, SetHeaderToken())
             .then((res) => {
                 setLoading(false);
-                enqueueSnackbar(`All ${resourceLabel} listed!`);
 
                 if (res.data) {
                     setResourceList({
@@ -53,7 +52,6 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         axios.post(`/${endpoint}pag`, values, SetHeaderToken())
             .then((res) => {
                 setLoading(false);
-                enqueueSnackbar(`${resourceLabel} obtained`);
 
                 if (res.data.results) {
                     setResourceList({

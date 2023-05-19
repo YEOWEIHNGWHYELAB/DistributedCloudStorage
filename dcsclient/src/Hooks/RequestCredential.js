@@ -52,6 +52,19 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError);
     }, [endpoint, handleRequestResourceError, setLoading]);
 
+    const getOAuthLinkYT = useCallback((values, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/google/credkickstartyt`, values, SetHeaderToken())
+            .then((res) => {
+                setLoading(false);
+
+                if (successCallback) {
+                    successCallback(res.data.auth_url);
+                }
+            }).catch(handleRequestResourceError);
+    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading])
+
     const addResource = useCallback((values, successCallback) => {
         setLoading(true);
 
@@ -142,6 +155,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         addResource,
         credentialList,
         getCredentialList,
+        getOAuthLinkYT,
         addResource,
         updateResource,
         deleteResource,

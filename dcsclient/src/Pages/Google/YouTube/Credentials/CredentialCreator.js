@@ -1,10 +1,32 @@
-import React, { useEffect, useState } from "react";
-import { Button as MUIButton } from "@mui/material";
+import React, { useState } from "react";
+import { Formik, Form, Field } from "formik";
+import {
+    Button as MUIButton,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField
+} from "@mui/material";
 import parseClientSecret from "./ParseClientSecret";
+import { Link } from 'react-router-dom';
+import * as Yup from "yup";
+
+import RequestCredential from "../../../../Hooks/RequestCredential";
 
 function CredentialsCreator() {
+    const {
+        getOAuthLinkYT,
+        addResource
+    } = RequestCredential({
+        endpoint: "google/credentialsyt",
+        resourceLabel: "YouTube Credentials",
+    });
+
     const [file, setFile] = useState(null);
+    const [oAuth, setOAuth] = useState(null);
     const [isDragOver, setIsDragOver] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
 
     const handleFileChange = (event) => {
         const uploadedFile = event.target.files[0];
@@ -27,18 +49,70 @@ function CredentialsCreator() {
         setIsDragOver(false);
     };
 
-    const handleUpload = async () => {
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
+    const handleSubmit = (values) => {
+        let newOAuth = oAuth;
+        newOAuth["email"] = values.email;
+
+        addResource(newOAuth, () => {
+            window.location.href = "/google/credentialyt";
+        });
+
+        handleCloseDialog();
+    };
+
+    const handleGetOAuthCode = async () => {
         if (file) {
             try {
                 const parsedData = await parseClientSecret(file);
-                console.log(parsedData);
+                localStorage.setItem('YTClientSecret', JSON.stringify(parsedData));
+
+                getOAuthLinkYT(parsedData, (linkToAuthenticate) => {
+                    window.location.href = linkToAuthenticate;
+                });
             } catch (error) {
                 alert("File is Invalid!");
             }
+        } else {
+            alert("No file selected!");
+        }
+    };
+
+    const handleUploadOAuth = async () => {
+        if (localStorage.getItem('YTClientSecret') != null) {
+            const oAuthData = localStorage.getItem('YTClientSecret');
+            let oAuthenticator = JSON.parse(oAuthData);
+            localStorage.removeItem('YTClientSecret');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            if (code) {
+                // If the 'code' value contains special characters, you can 
+                // convert it to a proper string using the decodeURIComponent() 
+                // function
+                const decodedCode = decodeURIComponent(code);
+                oAuthenticator["yt_access_token_kickstart"] = decodedCode;
+                setOAuth(oAuthenticator);
+                setOpenDialog(true);
+            } else {
+                alert("Invalid code!");
+            }
+        } else {
+            alert("OAuth is invalid!");
         }
     };
 
     const handleCancelUpload = () => setFile(null);
+
+    const validationSchema = Yup.object().shape({
+        email: Yup.string()
+            .email("Invalid email address")
+            .required("Email is required")
+    });
 
     return (
         <div>
@@ -51,19 +125,46 @@ function CredentialsCreator() {
                 type="file"
                 onChange={handleFileChange}
             />
+
+            <MUIButton
+                style={{
+                    border: "2px solid grey",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "25%",
+                    boxSizing: "border-box",
+                }}
+                onClick={handleUploadOAuth}
+            >
+                SUBMIT OAUTH
+            </MUIButton>
+
+            <MUIButton
+                style={{
+                    border: "2px solid grey",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "25%",
+                    boxSizing: "border-box",
+                }}
+                onClick={handleGetOAuthCode}
+            >
+                UPLOAD CLIENT SECRET
+            </MUIButton>
+
             <label htmlFor="file-upload">
                 <MUIButton
-                    variant="contained"
                     component="span"
                     style={{
-                        border: "2px solid #0000ff",
+                        border: "2px solid grey",
                         margin: "2px",
                         borderRadius: "4px",
                         padding: "8px",
                         width: "25%",
                         boxSizing: "border-box",
                         color: "green",
-                        background: "transparent"
                     }}
                 >
                     CHOOSE CLIENT SECRET
@@ -76,27 +177,66 @@ function CredentialsCreator() {
                     margin: "2px",
                     borderRadius: "4px",
                     padding: "8px",
-                    width: "25%",
-                    boxSizing: "border-box",
-                }}
-                onClick={handleUpload}
-            >
-                UPLOAD CLIENT SECRET
-            </MUIButton>
-
-            <MUIButton
-                style={{
-                    border: "2px solid grey",
-                    margin: "2px",
-                    borderRadius: "4px",
-                    padding: "8px",
                     width: "15%",
                     boxSizing: "border-box",
+                    color: "red"
                 }}
                 onClick={handleCancelUpload}
             >
                 CANCEL
             </MUIButton>
+
+            <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth>
+                <DialogTitle>
+                    Enter the email address
+                </DialogTitle>
+
+                <Formik
+                    initialValues={{
+                        email: ""
+                    }}
+                    onSubmit={(values) => {
+                        handleSubmit(values);
+                    }}
+                    validationSchema={validationSchema}
+                >
+                    {({ values, errors, touched, handleChange }) => (
+                        <Form>
+                            <DialogContent>
+                                <Field
+                                    name="email"
+                                    as={TextField}
+                                    label="Email"
+                                    fullWidth
+                                    margin="normal"
+                                    value={values.email}
+                                    error={errors.email && touched.email}
+                                    helperText={touched.email && errors.email}
+                                    onChange={handleChange}
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <MUIButton
+                                    onClick={handleCloseDialog}
+                                    color="primary"
+                                >
+                                    Cancel
+                                </MUIButton>
+                                <MUIButton
+                                    type="submit"
+                                    color="primary"
+                                    disabled={
+                                        !values.email
+                                    }
+                                >
+                                    Submit
+                                </MUIButton>
+                            </DialogActions>
+                        </Form>
+                    )}
+                </Formik>
+            </Dialog>
+
             <div
                 onDragOver={handleDragEnter}
                 onDragEnter={handleDragEnter}
@@ -117,8 +257,23 @@ function CredentialsCreator() {
                     margin: "20px 0",
                 }}
             >
-                {file ? file.name : "Drag and drop a file here"}
+                {file ? file.name : "Drag and drop the client secret json file here"}
             </div>
+
+            <Link to="/google/credentialyt">
+                <MUIButton
+                    style={{
+                        border: "2px solid grey",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "15%",
+                        boxSizing: "border-box",
+                    }}
+                >
+                    Back
+                </MUIButton>
+            </Link>
         </div>
     );
 }

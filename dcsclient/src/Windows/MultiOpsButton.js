@@ -28,7 +28,6 @@ export function multiSelectDeleteUploadButtons(
             />
             <label htmlFor="file-upload">
                 <MUIButton
-                    variant="contained"
                     component="span"
                     style={{
                         border: "2px solid #0000ff",

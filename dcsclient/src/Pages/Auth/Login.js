@@ -43,10 +43,6 @@ export default function Login() {
                     <LockOutlinedIcon />
                 </Avatar>
 
-                <Typography component="h1" variant="h5">
-                    Login
-                </Typography>
-
                 <Formik
                     validationSchema={validationSchema}
                     validateOnBlur={false}
@@ -93,12 +89,12 @@ export default function Login() {
                                 </LoadingButton>
                                 <Grid container>
                                     <Grid item xs>
-                                        <Link to="/auth/password-reset" key="reset-password" >
+                                        <Link to="/auth/forgotpw" key="forgotpw" >
                                             Forgot password?
                                         </Link>
                                     </Grid>
                                     <Grid item>
-                                        <Link to="/auth/register" keys="signup">
+                                        <Link to="/auth/register" keys="register">
                                             {"Don't have an account? Register"}
                                         </Link>
                                     </Grid>

@@ -24,6 +24,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
+import { Link } from 'react-router-dom';
 
 import "../../../../Windows/SearchStyle.css";
 
@@ -48,7 +49,6 @@ function CredentialTable() {
     } = fileTableStyle();
 
     const {
-        addResource,
         getCredentialList,
         credentialList,
         updateResource,
@@ -160,7 +160,20 @@ function CredentialTable() {
             <br />
             <br />
 
-            {addNewCredentialButton(handleOpenCredDialog)}
+            <Link to="/google/credentialyt/creator">
+                <MUIButton
+                    style={{
+                        border: "2px solid #ff7bff",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "20%",
+                        boxSizing: "border-box",
+                    }}
+                >
+                    ADD NEW CLIENT SECRET
+                </MUIButton>
+            </Link>
 
             {deleteSelectedCredentialsButton(
                 selectedElements,
