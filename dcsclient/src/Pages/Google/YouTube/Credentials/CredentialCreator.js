@@ -1,20 +1,6 @@
 import React, { useEffect, useState } from "react";
-import RequestCredential from "../../../../Hooks/RequestCredential";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClipboard } from "@fortawesome/free-solid-svg-icons";
-import {
-    Button as MUIButton,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    TextField,
-} from "@mui/material";
-import { Formik, Form, Field } from "formik";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import * as Yup from "yup";
+import { Button as MUIButton } from "@mui/material";
+import parseClientSecret from "./ParseClientSecret";
 
 function CredentialsCreator() {
     const [file, setFile] = useState(null);
@@ -44,19 +30,73 @@ function CredentialsCreator() {
     const handleUpload = async () => {
         if (file) {
             try {
-                // const content = await parseClientSecret(file);
-                // Make an API call to your backend to store the content in the database
-                // console.log(content);
+                const parsedData = await parseClientSecret(file);
+                console.log(parsedData);
             } catch (error) {
-                console.error("Error parsing client secret:", error);
+                alert("File is Invalid!");
             }
         }
     };
 
+    const handleCancelUpload = () => setFile(null);
+
     return (
         <div>
-            <button onClick={handleUpload}>Upload</button>
-            <input type="file" onChange={handleFileChange} />
+            <input
+                style={{
+                    display: "none",
+                }}
+                id="file-upload"
+                multiple
+                type="file"
+                onChange={handleFileChange}
+            />
+            <label htmlFor="file-upload">
+                <MUIButton
+                    variant="contained"
+                    component="span"
+                    style={{
+                        border: "2px solid #0000ff",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "25%",
+                        boxSizing: "border-box",
+                        color: "green",
+                        background: "transparent"
+                    }}
+                >
+                    CHOOSE CLIENT SECRET
+                </MUIButton>
+            </label>
+
+            <MUIButton
+                style={{
+                    border: "2px solid grey",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "25%",
+                    boxSizing: "border-box",
+                }}
+                onClick={handleUpload}
+            >
+                UPLOAD CLIENT SECRET
+            </MUIButton>
+
+            <MUIButton
+                style={{
+                    border: "2px solid grey",
+                    margin: "2px",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    width: "15%",
+                    boxSizing: "border-box",
+                }}
+                onClick={handleCancelUpload}
+            >
+                CANCEL
+            </MUIButton>
             <div
                 onDragOver={handleDragEnter}
                 onDragEnter={handleDragEnter}
