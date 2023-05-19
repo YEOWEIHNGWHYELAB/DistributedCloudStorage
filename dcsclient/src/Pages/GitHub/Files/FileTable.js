@@ -122,7 +122,7 @@ function FileTable() {
 
     const handleSort = sortTableColumn(sortField, setSortDirection, sortDirection, setSortField);
 
-    sortResourceList(resourceList, sortField, sortDirection);
+    sortResourceList(resourceList, sortField, sortDirection, false);
 
     const handleSearchChange = (event) => {
         setSearchText(event.target.value);

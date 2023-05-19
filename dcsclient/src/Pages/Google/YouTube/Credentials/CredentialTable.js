@@ -25,7 +25,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
-import RequestCredential from "../../../../Hooks/RequestCredential"
+import RequestCredential from "../../../../Hooks/RequestCredential";
 import { fileTableStyle } from "../../../../Windows/TableStyle";
 import { deleteDialogPrompt } from "../../../../Windows/DialogBox";
 
@@ -60,24 +60,41 @@ function CredentialTable() {
         navigator.clipboard.writeText(oAuth2Data);
     }
 
+    const [sortField, setSortField] = useState("email");
+    const [sortDirection, setSortDirection] = useState("asc");
+
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const handleSort = (field) => {
+        if (field === sortField) {
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        } else {
+            setSortField(field);
+        }
+    };
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
     const [selectedElements, setSelectedElements] = useState([]);
 
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>My Google Credentials</h2>
 
-    <StyledTable>
+            <StyledTable>
                 <thead>
                     <StyledHeaderRow>
                         <StyledHeaderCell>Select</StyledHeaderCell>
 
                         <StyledHeaderCell
-                            // className={
-                            //     sortField === "email"
-                            //         ? `sortable ${sortDirection}`
-                            //         : "sortable"
-                            // }
-                            // onClick={() => handleSort("email")}
+                            className={
+                                sortField === "email"
+                                    ? `sortable ${sortDirection}`
+                                    : "sortable"
+                            }
+                            onClick={() => handleSort("email")}
                         >
                             Email
                         </StyledHeaderCell>
@@ -122,7 +139,9 @@ function CredentialTable() {
                             <StyledCell>
                                 <IconButton
                                     onClick={() => {
-                                        copyToClipboard(JSON.stringify(credential.data))
+                                        copyToClipboard(
+                                            JSON.stringify(credential.data)
+                                        );
                                     }}
                                 >
                                     <FontAwesomeIcon
@@ -134,24 +153,24 @@ function CredentialTable() {
 
                             <StyledCell>
                                 <IconButton
-                                    // onClick={() =>
-                                    //     handleOpenEdit(credential.id, {
-                                    //         id: credential.id,
-                                    //         github_username:
-                                    //             credential.github_username,
-                                    //         email: credential.email,
-                                    //         access_token:
-                                    //             credential.access_token,
-                                    //     })
-                                    // }
+                                // onClick={() =>
+                                //     handleOpenEdit(credential.id, {
+                                //         id: credential.id,
+                                //         github_username:
+                                //             credential.github_username,
+                                //         email: credential.email,
+                                //         access_token:
+                                //             credential.access_token,
+                                //     })
+                                // }
                                 >
                                     <EditIcon />
                                 </IconButton>
 
                                 <IconButton
-                                    // onClick={() =>
-                                    //     handleOpenDeleteDialog(credential.id)
-                                    // }
+                                // onClick={() =>
+                                //     handleOpenDeleteDialog(credential.id)
+                                // }
                                 >
                                     <DeleteIcon />
                                 </IconButton>

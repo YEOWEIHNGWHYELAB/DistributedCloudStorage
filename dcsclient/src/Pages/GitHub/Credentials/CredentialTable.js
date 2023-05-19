@@ -19,6 +19,7 @@ import * as Yup from "yup";
 import { fileTableStyle } from "../../../Windows/TableStyle";
 import { deleteDialogPrompt } from "../../../Windows/DialogBox";
 import { addNewCredentialButton, deleteSelectedCredentialsButton } from "../../../Windows/MultiOpsButton";
+import { sortResourceList } from "../../../Windows/TableControl";
 
 import "./SearchStyle.css";
 
@@ -129,18 +130,7 @@ function CredentialsTable() {
         setSearchTerm(event.target.value);
     };
 
-    const sortedCredentials = credentialList.results.sort((a, b) => {
-        const aValue = a[sortField];
-        const bValue = b[sortField];
-
-        if (aValue < bValue) {
-            return sortDirection === "asc" ? -1 : 1;
-        } else if (aValue > bValue) {
-            return sortDirection === "asc" ? 1 : -1;
-        } else {
-            return 0;
-        }
-    });
+    const sortedCredentials = sortResourceList(credentialList, sortField, sortDirection, true);
 
     // filter the credentials array based on the search term
     const filteredCredentials = sortedCredentials.filter((credential) => {

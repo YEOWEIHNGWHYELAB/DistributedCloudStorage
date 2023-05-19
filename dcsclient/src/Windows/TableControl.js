@@ -1,5 +1,5 @@
-export function sortResourceList(resourceList, sortField, sortDirection) {
-    resourceList.results.sort((a, b) => {
+export function sortResourceList(resourceList, sortField, sortDirection, isReturned) {
+    const sortedList = resourceList.results.sort((a, b) => {
         const aValue = a[sortField];
         const bValue = b[sortField];
 
@@ -11,6 +11,10 @@ export function sortResourceList(resourceList, sortField, sortDirection) {
             return 0;
         }
     });
+
+    if (isReturned) {
+        return sortedList;
+    }
 }
 
 export function sortTableColumn(sortField, setSortDirection, sortDirection, setSortField) {
