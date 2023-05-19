@@ -21,7 +21,7 @@ import { deleteDialogPrompt } from "../../../Windows/DialogBox";
 import { addNewCredentialButton, deleteSelectedCredentialsButton } from "../../../Windows/MultiOpsButton";
 import { sortResourceList } from "../../../Windows/TableControl";
 
-import "./SearchStyle.css";
+import "../../../Windows/SearchStyle.css";
 
 function CredentialsTable() {
     const {

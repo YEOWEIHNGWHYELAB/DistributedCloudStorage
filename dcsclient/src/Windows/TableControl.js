@@ -1,4 +1,4 @@
-export function sortResourceList(resourceList, sortField, sortDirection, isReturned) {
+export function sortResourceList(resourceList, sortField, sortDirection, isReturned = false) {
     const sortedList = resourceList.results.sort((a, b) => {
         const aValue = a[sortField];
         const bValue = b[sortField];

@@ -1,3 +1,13 @@
+.search-input-cred {
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    color: #007bff;
+    background-color: transparent;
+}
+
 .search-container {
     display: flex;
     align-items: center;

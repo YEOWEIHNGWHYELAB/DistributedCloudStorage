@@ -25,9 +25,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
+import "../../../../Windows/SearchStyle.css";
+
 import RequestCredential from "../../../../Hooks/RequestCredential";
 import { fileTableStyle } from "../../../../Windows/TableStyle";
 import { deleteDialogPrompt } from "../../../../Windows/DialogBox";
+import { sortResourceList } from "../../../../Windows/TableControl";
 
 function CredentialTable() {
     const { enqueueSnackbar } = useSnackbar();
@@ -77,11 +80,30 @@ function CredentialTable() {
         setSearchTerm(event.target.value);
     };
 
+    const sortedCredentials = sortResourceList(credentialList, sortField, sortDirection, true);
+
+    const filteredCredentials = sortedCredentials.filter((credential) => {
+        return (
+            credential.email.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    });
+
     const [selectedElements, setSelectedElements] = useState([]);
 
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>My Google Credentials</h2>
+
+            <input
+                type="text"
+                placeholder="Search by Email"
+                className="search-input-cred"
+                value={searchTerm}
+                onChange={handleSearch}
+            />
+
+            <br />
+            <br />
 
             <StyledTable>
                 <thead>
@@ -105,7 +127,7 @@ function CredentialTable() {
                     </StyledHeaderRow>
                 </thead>
                 <tbody>
-                    {credentialList.results.map((credential) => (
+                    {filteredCredentials.map((credential) => (
                         <StyledRow key={credential.id}>
                             <StyledCell>
                                 <input

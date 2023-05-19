@@ -25,8 +25,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
-import "./SearchStyle.css";
-import "./PageControlStyle.css";
+import "../../../Windows/SearchStyle.css";
+import "../../../Windows/PageControlStyle.css";
 
 import { fileTableStyle } from "../../../Windows/TableStyle";
 import { deleteDialogPrompt, renameDialog } from "../../../Windows/DialogBox";
@@ -267,8 +267,6 @@ function FileTable() {
                     className="search-icon"
                 />
             </div>
-
-            <br />
 
             {pageLimitGoToControl(
                 FormContainer,
