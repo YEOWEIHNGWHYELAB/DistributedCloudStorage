@@ -28,9 +28,9 @@ import FileTableGH from "./Pages/GitHub/Files/FileTable";
 import DeletedFileTableGH from "./Pages/GitHub/RecycleBin/DeletedFileTable";
 
 // Google Pages
-import VideoTableYT from "./Pages/Google/YouTube/VideosTable";
-import CredentialsTableGG from "./Pages/Google/Credentials/CredentialTable";
-import YTDeletedFileTable from "./Pages/Google/RecycleBin/YTDeletedFileTable"
+import CredentialsTableYT from "./Pages/Google/YouTube/Credentials/CredentialTable";
+import VideoTableYT from "./Pages/Google/YouTube/VideosTable/VideosTable";
+import YTDeletedFileTable from "./Pages/Google/YouTube/RecycleBin/YTDeletedFileTable";
 
 export default function App() {
   return (
@@ -62,8 +62,8 @@ export default function App() {
                     {/**
                      * Google Manager
                      */}
-                    <Route path="/google/credential" element={<CredentialsTableGG />} />
-                    <Route path="/google/youtube" element={<VideoTableYT />} />
+                    <Route path="/google/credentialyt" element={<CredentialsTableYT />} />
+                    <Route path="/google/ytvideos" element={<VideoTableYT />} />
                     <Route path="/google/ytdelfiles" element={<YTDeletedFileTable />} />
                   </Route>
                 </Route>

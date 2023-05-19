@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import RequestGitHubResource from "../../../Hooks/RequestResource";
+import RequestGitHubResource from "../../../../Hooks/RequestResource";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -25,8 +25,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
-import { fileTableStyle } from "../../../Windows/TableStyle";
-import { deleteDialogPrompt } from "../../../Windows/DialogBox";
+import { fileTableStyle } from "../../../../Windows/TableStyle";
+import { deleteDialogPrompt } from "../../../../Windows/DialogBox";
 
 
 function YTDeletedFileTable() {
