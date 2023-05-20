@@ -22,6 +22,11 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         return results.filter(result => !idSet.has(result.id));
     }
 
+    function deleteSelectedVideoResultID(results, idToDelete) {
+        const idSet = new Set(idToDelete);
+        return results.filter(result => !idSet.has(result.video_id));
+    }
+
     const handleRequestResourceError = useCallback((err) => {
         const formattedError = HTTPAPIError(err);
         setError(formattedError);
@@ -187,7 +192,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                 enqueueSnackbar(`Selected ${resourceLabel} ${messageStatus}!`);
 
                 const newResourceList = {
-                    results: deleteSelectedResultID(resourceList.results, selectedIDs)
+                    results: deleteSelectedVideoResultID(resourceList.results, selectedIDs)
                 };
 
                 setResourceList(newResourceList);

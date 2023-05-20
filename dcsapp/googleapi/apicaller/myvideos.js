@@ -404,13 +404,13 @@ exports.deleteVideoSoft = async (req, res, pool) => {
     // Obtaining all the available credentials from the account
     const updateQueryVideo = `
         UPDATE YouTubeVideos_${decoded.username}
-        SET is_deleted = true
+        SET is_deleted = ${req.body.is_deletion}
         WHERE username = '${decoded.username}'
             AND video_id = ANY($1::VARCHAR[])
     `;
 
     try {
-        const deleteVideo = await pool.query(updateQueryVideo, [req.body.video_id]);
+        const deleteVideo = await pool.query(updateQueryVideo, [req.body.id]);
         res.json({ success: true, message: "Soft deleted!" });
     } catch (error) {
         // console.log(error);

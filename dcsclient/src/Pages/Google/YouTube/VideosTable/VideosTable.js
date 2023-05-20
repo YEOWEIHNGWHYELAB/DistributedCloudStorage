@@ -60,7 +60,8 @@ function VideosTable() {
         addMulFiles,
         downloadFiles,
         getFilesPaginated,
-        updateVideo
+        updateVideo,
+        deleteMulFiles
     } = RequestYouTubeResourcePag({
         endpoint: "google/youtube/videos",
         resourceLabel: "Videos",
@@ -140,6 +141,24 @@ function VideosTable() {
         new_title: Yup.string().required("Title is required!"),
     });
 
+    // Handling single deletion
+    const [deleteDialog, setOpenDeleteDiaglog] = useState(false);
+    const [idDelete, setIDDelete] = useState(null);
+    const handleOpenDeleteDialog = (id) => {
+        setIDDelete(id);
+        setOpenDeleteDiaglog(true);
+    };
+    const handleDeleteID = () => {
+        deleteMulFiles([idDelete], true);
+        setOpenDeleteDiaglog(false);
+        setIDDelete(null);
+    };
+    const handleDeleteCloseDialog = () => {
+        setOpenDeleteDiaglog(false);
+        setIDDelete(null);
+    };
+
+
     // Handling of file uploads
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -152,26 +171,6 @@ function VideosTable() {
     const handleFileUploadCancel = () => {
         setSelectedFiles([]);
     };
-
-    const [deleteDialog, setOpenDeleteDiaglog] = useState(false);
-    const [idDelete, setIDDelete] = useState(null);
-
-    const handleOpenDeleteDialog = (id) => {
-        setIDDelete(id);
-        setOpenDeleteDiaglog(true);
-    };
-
-    const handleDeleteCloseDialog = () => {
-        setOpenDeleteDiaglog(false);
-        setIDDelete(null);
-    };
-
-    const handleDeleteID = () => {
-        // deleteFile(idDelete);
-        setOpenDeleteDiaglog(false);
-        setIDDelete(null);
-    };
-
     const handleFileUpload = fileUploader(selectedFiles, addFile, setSelectedFiles, addMulFiles);
 
     // Multiple deletion
@@ -182,7 +181,7 @@ function VideosTable() {
     };
 
     const handleDeleteMul = () => {
-        //deleteMulFiles(selectedElements, true);
+        deleteMulFiles(selectedElements, true);
         setOpendeleteMulDialog(false);
         setSelectedElements([]);
     };
@@ -328,7 +327,7 @@ function VideosTable() {
 
                                     <IconButton
                                         onClick={() =>
-                                            handleOpenDeleteDialog(videos.id)
+                                            handleOpenDeleteDialog(videos.video_id)
                                         }
                                     >
                                         <DeleteIcon />
