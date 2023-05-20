@@ -11,21 +11,30 @@ module.exports = (pool, mongoYTTrackCollection) => {
         { name: 'video', maxCount: 1 },
         { name: 'thumbnail', maxCount: 1 }
     ]), (req, res) => {
-        myVideosController.uploadVideo(null, req, res, pool, mongoYTTrackCollection);
+        let error = null;
+
+        try {
+            myVideosController.uploadVideo(null, req, res, pool, mongoYTTrackCollection);
+        } catch(err) {
+            error = err;
+        }
+
+        if (error) {
+            res.json({ success: false, message: "Failed to upload!" });
+        } else {
+            res.json({
+                success: true,
+                message: "Video uploaded successfully"
+            });
+        }
     });
 
     // Upload multiple new videos
     router.post('/youtube/videos/mul', tempstorage.array('File'), async (req, res, next) => {
         const files = req.files;
-
-        let fileIDX = 0;
-        let fileLen = files.length;
-
         let error = null;
 
         for (const file of files) {
-            fileIDX++;
-
             try {
                 await myVideosController.uploadVideo(file, req, res, pool, mongoYTTrackCollection);
             } catch (err) {

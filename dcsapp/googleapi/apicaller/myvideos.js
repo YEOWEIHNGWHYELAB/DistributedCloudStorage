@@ -81,13 +81,6 @@ async function uploadCompletion(videoPath, data, thumbnailStream, thumbnailPath,
             const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
             const values = [username, videoID, video.snippet.title, account_id];
             const result = await pool.query(queryText, values);
-
-            res.json({
-                success: true,
-                message: "Video uploaded successfully",
-                results: `https://www.youtube.com/watch?v=${videoID}`,
-                title: video.snippet.title
-            });
         });
     } else {
         const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
@@ -414,7 +407,7 @@ exports.editVideoMeta = async (req, res, pool) => {
             }
         }, async function (err, data) {
             if (err) {
-                console.log(err);
+                // console.log(err);
                 res.json({ success: false, message: "Error updating video metadata" });
             } else {
                 const updatedVideo = await pool.query(updateQueryVideo, [req.body.video_id, req.body.title]);
