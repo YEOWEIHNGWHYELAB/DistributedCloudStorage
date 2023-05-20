@@ -61,7 +61,42 @@ function setUpYTAPIClient(oauth2Client) {
     });
 }
 
-async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, username, account_id, videoName) {
+async function uploadCompletion(videoPath, data, thumbnailStream, thumbnailPath, youtube, username, account_id, pool, res) {
+    // Clean up the uploaded file
+    fs.unlinkSync(videoPath);
+
+    // Upload thumbnails
+    const video = data.data;
+    const videoID = video.id;
+
+    if (thumbnailStream != null && thumbnailPath != null) {
+        const thumbnailResponse = await youtube.thumbnails.set({
+            videoId: videoID,
+            media: {
+                body: thumbnailStream
+            }
+        }, async function () {
+            fs.unlinkSync(thumbnailPath);
+
+            const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
+            const values = [username, videoID, video.snippet.title, account_id];
+            const result = await pool.query(queryText, values);
+
+            res.json({
+                success: true,
+                message: "Video uploaded successfully",
+                results: `https://www.youtube.com/watch?v=${videoID}`,
+                title: video.snippet.title
+            });
+        });
+    } else {
+        const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
+        const values = [username, videoID, video.snippet.title, account_id];
+        const result = await pool.query(queryText, values);
+    }
+}
+
+async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, username, account_id, videoName, isLastVideo) {
     let videoTitle = videoName;
     let videoDescription = "";
 
@@ -73,59 +108,27 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
         videoDescription = req.body.description;
     }
 
-    return await youtube.videos.insert({
-        part: 'snippet,status',
-        requestBody: {
-            snippet: {
-                title: videoTitle,
-                description: videoDescription
+    try {
+        const responseInsert = await youtube.videos.insert({
+            part: 'snippet,status',
+            requestBody: {
+                snippet: {
+                    title: videoTitle,
+                    description: videoDescription
+                },
+                status: {
+                    privacyStatus: req.headers.privacy_status
+                }
             },
-            status: {
-                privacyStatus: req.headers.privacy_status
+            media: {
+                body: videoStream
             }
-        },
-        media: {
-            body: videoStream
-        }
-    }, async function (err, data) {
-        if (err) {
-            console.log(err);
-            res.json({ success: false, message: "Failed to upload!" });
-        } else {
-            // Clean up the uploaded file
-            fs.unlinkSync(videoPath);
+        });
 
-            // Upload thumbnails
-            const video = data.data;
-            const videoID = video.id;
-
-            if (thumbnailStream != null && thumbnailPath != null) {
-                const thumbnailResponse = await youtube.thumbnails.set({
-                    videoId: videoID,
-                    media: {
-                        body: thumbnailStream
-                    }
-                }, async function () {
-                    fs.unlinkSync(thumbnailPath);
-
-                    const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
-                    const values = [username, videoID, video.snippet.title, account_id];
-                    const result = await pool.query(queryText, values);
-
-                    res.json({
-                        success: true,
-                        message: "Video uploaded successfully",
-                        results: `https://www.youtube.com/watch?v=${videoID}`,
-                        title: video.snippet.title
-                    });
-                });
-            } else {
-                const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
-                const values = [username, videoID, video.snippet.title, account_id];
-                const result = await pool.query(queryText, values);
-            }
-        }
-    });
+        const responseComplete = await uploadCompletion(videoPath, data, thumbnailStream, thumbnailPath, youtube, username, account_id, pool, res);
+    } catch (err) {
+        throw new Error(err);
+    }
 }
 
 // Wrap the refreshAccessToken function in a promise
@@ -273,11 +276,8 @@ exports.uploadVideo = async (file, req, res, pool, mongoYTTrackCollection) => {
         } else {
             const response = await uploadVideo(youtube, req, videoStream, res, videoPath, null, null, pool, decoded.username, credentialIDUsed, videoName);
         }
-
     } catch (err) {
-        // console.log(err);
-        // next(err);
-        res.json({ success: false, message: "Failed to upload!" });
+        throw new Error(err);
     }
 };
 

@@ -10,3 +10,6 @@ tempstorage/*
 
 # Test Data Files
 testfiles/*
+
+# Client Secrets
+clientsecrets/*
