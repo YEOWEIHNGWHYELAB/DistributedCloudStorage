@@ -58,7 +58,7 @@ module.exports = (pool) => {
     })
 
     // Obtain download link for a file
-    router.post('/getfiles', (req, res) => {
+    router.post('/files/getfiles', (req, res) => {
         myFilesAdvancedController.getDownloadLink(req, res, pool);
     })
 

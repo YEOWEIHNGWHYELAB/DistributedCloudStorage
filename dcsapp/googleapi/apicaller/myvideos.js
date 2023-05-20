@@ -268,6 +268,15 @@ exports.uploadVideo = async (file, req, res, pool, mongoYTTrackCollection) => {
     }
 };
 
+exports.getDownload = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    const dcsAuthToken = checkAuthHeader(authHeader, res);
+
+    // Decoding the JWT
+    let decoded = decodeAuthToken(dcsAuthToken, res);
+    
+}
+
 exports.getVideosPag = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);

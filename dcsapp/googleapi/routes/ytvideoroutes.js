@@ -56,7 +56,7 @@ module.exports = (pool, mongoYTTrackCollection) => {
     });
 
     router.post('youtube/getfiles', (req, res) => {
-        myFilesAdvancedController.getDownload(req, res, pool);
+        myVideosController.getDownload(req, res, pool);
     })
 
     router.patch('/youtube/videos', (req, res) => {
