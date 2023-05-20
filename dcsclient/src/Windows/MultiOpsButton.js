@@ -221,3 +221,45 @@ export function selectAllItemCheckbox(StyledCell, setSelectedElements, files, se
             )} />
     </StyledCell>;
 }
+
+export function selectAllVideoHandler(selectAll, setSelectedElements, resourceList, setSelectAll) {
+    return () => {
+        if (selectAll) {
+            setSelectedElements([]);
+        } else {
+            const allIds = resourceList.results.map((row) => row.video_id);
+            setSelectedElements(allIds);
+        }
+
+        setSelectAll(!selectAll);
+    };
+}
+
+export function selectAllVideosCheckbox(StyledCell, setSelectedElements, files, selectedElements) {
+    return <StyledCell>
+        <input
+            type="checkbox"
+            className="selection-checkbox"
+            onChange={(event) => {
+                const isChecked = event.target.checked;
+
+                setSelectedElements(
+                    (prevSelectedElements) => {
+                        if (isChecked) {
+                            return [
+                                ...prevSelectedElements,
+                                files.video_id,
+                            ];
+                        } else {
+                            return prevSelectedElements.filter(
+                                (video_id) => video_id !== files.video_id
+                            );
+                        }
+                    }
+                );
+            } }
+            checked={selectedElements.includes(
+                files.video_id
+            )} />
+    </StyledCell>;
+}

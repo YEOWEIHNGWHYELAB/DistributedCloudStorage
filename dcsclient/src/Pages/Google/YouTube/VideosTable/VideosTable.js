@@ -27,7 +27,7 @@ import * as Yup from "yup";
 
 import RequestResource from "../../../../Hooks/RequestResource";
 
-import { multiSelectDeleteUploadButtons, selectAllHandler, selectAllItemCheckbox } from "../../../../Windows/MultiOpsButton";
+import { multiSelectDeleteUploadButtons, selectAllVideoHandler, selectAllVideosCheckbox } from "../../../../Windows/MultiOpsButton";
 import {
     formContainerStyle,
     pageGoToNavigator,
@@ -69,7 +69,7 @@ function VideosTable() {
 
     const [selectAll, setSelectAll] = useState(false);
     const [selectedElements, setSelectedElements] = useState([]);
-    const handleSelectAll = selectAllHandler(selectAll, setSelectedElements, resourceList, setSelectAll);
+    const handleSelectAll = selectAllVideoHandler(selectAll, setSelectedElements, resourceList, setSelectAll);
 
     // Page Controls
     const [filePage, setPage] = useState(1);
@@ -299,7 +299,7 @@ function VideosTable() {
                     <tbody>
                         {resourceList.results.map((videos) => (
                             <StyledRow key={videos.video_id}>
-                                {selectAllItemCheckbox(StyledCell, setSelectedElements, videos, selectedElements)}
+                                {selectAllVideosCheckbox(StyledCell, setSelectedElements, videos, selectedElements)}
 
                                 <StyledCell>{videos.title}</StyledCell>
 
