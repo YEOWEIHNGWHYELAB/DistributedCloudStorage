@@ -95,3 +95,73 @@ export function renameDialog(
         </Dialog>
     );
 }
+
+export function editSelectedVideoDialog(
+    openEditDialog,
+    handleEditClose,
+    originalVideoTitle,
+    idEdit,
+    handleUpdateFileSubmit,
+    FileNamevalidationSchema
+) {
+    return (
+        <Dialog open={openEditDialog} onClose={handleEditClose} fullWidth>
+            <DialogTitle>Rename selected file</DialogTitle>
+
+            <Formik
+                initialValues={{
+                    new_title: originalVideoTitle ? originalVideoTitle : "",
+                }}
+                onSubmit={(values, { resetForm }) => {
+                    if (idEdit) {
+                        handleUpdateFileSubmit(values);
+                    }
+
+                    resetForm();
+                }}
+                validationSchema={FileNamevalidationSchema}
+            >
+                {({ values, errors, touched, handleChange }) => (
+                    <Form>
+                        <DialogContent>
+                            <Field
+                                name="new_title"
+                                as={TextField}
+                                label="New Title"
+                                fullWidth
+                                value={values.new_title}
+                                error={
+                                    errors.new_title && touched.new_title
+                                }
+                                helperText={
+                                    touched.new_title && errors.new_title
+                                }
+                                onChange={handleChange}
+                            />
+                        </DialogContent>
+
+                        <DialogActions>
+                            <MUIButton
+                                onClick={handleEditClose}
+                                color="primary"
+                            >
+                                Cancel
+                            </MUIButton>
+
+                            <MUIButton
+                                type="submit"
+                                color="primary"
+                                disabled={
+                                    values.new_title == originalVideoTitle ||
+                                    values.new_title == ""
+                                }
+                            >
+                                Rename
+                            </MUIButton>
+                        </DialogActions>
+                    </Form>
+                )}
+            </Formik>
+        </Dialog>
+    );
+}

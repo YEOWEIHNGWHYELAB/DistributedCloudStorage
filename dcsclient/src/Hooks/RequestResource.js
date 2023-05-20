@@ -141,13 +141,15 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
                 const newResourceList = {
                     results: resourceList.results.map((r) => {
-                        if (r.video_id === updatedResourceID) {
+                        if (r.video_id == updatedResourceID) {
                             r.title = values.title;
                         }
 
                         return r;
                     })
                 }
+
+                console.log(res);
 
                 setResourceList(newResourceList);
                 setLoading(false);
@@ -201,6 +203,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         getAllFiles,
         getFilesPaginated,
         updateFile,
+        updateVideo,
         deleteFile,
         deleteMulFiles,
         error

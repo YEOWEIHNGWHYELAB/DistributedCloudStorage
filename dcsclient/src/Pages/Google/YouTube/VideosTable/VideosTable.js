@@ -25,6 +25,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
+import RequestResource from "../../../../Hooks/RequestResource";
+
 import { multiSelectDeleteUploadButtons, selectAllHandler, selectAllItemCheckbox } from "../../../../Windows/MultiOpsButton";
 import {
     formContainerStyle,
@@ -34,8 +36,8 @@ import {
     paginationButtons
 } from "../../../../Windows/PageControl";
 import { fileTableStyle } from "../../../../Windows/TableStyle";
-import { deleteDialogPrompt } from "../../../../Windows/DialogBox";
-import RequestResource from "../../../../Hooks/RequestResource";
+import { deleteDialogPrompt, editSelectedVideoDialog } from "../../../../Windows/DialogBox";
+import { fileUploader, performMultipleDownload, performSingleDownload } from "../../../../Windows/FilesControl";
 import { sortResourceList, sortTableColumn } from "../../../../Windows/TableControl";
 
 function VideosTable() {
@@ -54,6 +56,9 @@ function VideosTable() {
     const {
         resourceList,
         pageMax,
+        addFile,
+        addMulFiles,
+        downloadFiles,
         getFilesPaginated,
         updateVideo
     } = RequestYouTubeResourcePag({
@@ -65,10 +70,24 @@ function VideosTable() {
     const [selectedElements, setSelectedElements] = useState([]);
     const handleSelectAll = selectAllHandler(selectAll, setSelectedElements, resourceList, setSelectAll);
 
+    // Page Controls
     const [filePage, setPage] = useState(1);
     const [filePageLimit, setPageLimit] = useState(100);
     const [pageSelected, setGoToPageSelected] = useState(filePage);
+    const handlePageChange = (pageNumber) => {
+        setPage(pageNumber);
+    };
+    const handleLimitChange = (event) => {
+        setPageLimit(parseInt(event.target.value));
+        setPage(1);
+    };
+    const getPageButtons = paginationButtons(pageMax, filePage, handlePageChange);
+    const handleChangeNavPage = (event) => {
+        setGoToPageSelected(event.target.value);
+    };
+    const handleGoToPage = pageGoToNavigator(pageSelected, filePage, pageMax, setPage);
 
+    // Search Controls
     const [searchText, setSearchText] = useState("");
     const [searchTextPerm, setSearchTextPerm] = useState("");
     const handleSearchChange = (event) => {
@@ -78,6 +97,13 @@ function VideosTable() {
         setSearchTextPerm(searchText);
     };
 
+    // Sorting controls
+    const [sortField, setSortField] = useState("title");
+    const [sortDirection, setSortDirection] = useState("asc");
+    const handleSort = sortTableColumn(sortField, setSortDirection, sortDirection, setSortField);
+    sortResourceList(resourceList, sortField, sortDirection, false);
+
+    // Main Page Controls
     useEffect(() => {
         getFilesPaginated({
             page: filePage,
@@ -87,31 +113,45 @@ function VideosTable() {
         });
     }, [filePage, filePageLimit, searchTextPerm]);
 
-    const handlePageChange = (pageNumber) => {
-        setPage(pageNumber);
+    // Renaming Controls
+    const [idEdit, setIDEdit] = useState(null);
+    const [originalVideoTitle, setOriginalFileName] = useState(null);
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const handleOpenEditDialog = (id, title) => {
+        setOriginalFileName(title);
+        setIDEdit(id);
+        setOpenEditDialog(true);
+    };
+    const handleEditClose = () => {
+        setOpenEditDialog(false);
+        setIDEdit(null);
+        setOriginalFileName(null);
+    };
+    const handleUpdateVideoSubmit = (values) => {
+        let newValues = {
+            video_id: idEdit,
+            title: values.new_title
+        }
+
+        updateVideo(newValues);
+        handleEditClose();
+    };
+    const videoMetaValidationSchema = Yup.object().shape({
+        new_title: Yup.string().required("Title is required!"),
+    });
+
+    // Handling of file uploads
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isDraggingOver, setIsDraggingOver] = useState(false);
+
+    const handleFileSelect = (event) => {
+        const files = Array.from(event.target.files);
+        setSelectedFiles(files);
     };
 
-    const handleLimitChange = (event) => {
-        setPageLimit(parseInt(event.target.value));
-
-        // Reset page to 1 when the limit changes
-        setPage(1);
+    const handleFileUploadCancel = () => {
+        setSelectedFiles([]);
     };
-
-    const getPageButtons = paginationButtons(pageMax, filePage, handlePageChange);
-
-    const handleChangeNavPage = (event) => {
-        setGoToPageSelected(event.target.value);
-    };
-
-    const handleGoToPage = pageGoToNavigator(pageSelected, filePage, pageMax, setPage);
-
-    const [sortField, setSortField] = useState("title");
-    const [sortDirection, setSortDirection] = useState("asc");
-
-    const handleSort = sortTableColumn(sortField, setSortDirection, sortDirection, setSortField);
-
-    sortResourceList(resourceList, sortField, sortDirection, false);
 
     const [deleteDialog, setOpenDeleteDiaglog] = useState(false);
     const [idDelete, setIDDelete] = useState(null);
@@ -132,28 +172,38 @@ function VideosTable() {
         setIDDelete(null);
     };
 
-    // Renaming
-    const [idEdit, setIDEdit] = useState(null);
-    const [originalFileName, setOriginalFileName] = useState(null);
-    const [openEditDialog, setOpenEditDialog] = useState(false);
-    const handleOpenEditDialog = (id, originalFileName) => {
-        setIDEdit(id);
-        setOriginalFileName(originalFileName);
-        setOpenEditDialog(true);
+    const handleFileUpload = fileUploader(selectedFiles, addFile, setSelectedFiles, addMulFiles);
+
+    // Multiple deletion
+    const [deleteMulDialog, setOpendeleteMulDialog] = useState(false);
+
+    const handleDeleteCloseMulDialog = () => {
+        setOpendeleteMulDialog(false);
     };
-    const handleEditClose = () => {
-        setOpenEditDialog(false);
-        setIDEdit(null);
-        setOriginalFileName(null);
+
+    const handleDeleteMul = () => {
+        //deleteMulFiles(selectedElements, true);
+        setOpendeleteMulDialog(false);
+        setSelectedElements([]);
     };
-    const handleUpdateFileSubmit = (values) => {
-        values["video_id"] = idEdit;
-        // updateFile(values);
-        handleEditClose();
-    };
+
+    // Performing download single file
+    const handleDownload = performSingleDownload(downloadFiles, enqueueSnackbar);
+
+    // Performing multiple download
+    const handleMulDownload = performMultipleDownload(downloadFiles, selectedElements, enqueueSnackbar);
 
     return (
         <div>
+            {editSelectedVideoDialog(
+                openEditDialog,
+                handleEditClose,
+                originalVideoTitle,
+                idEdit,
+                handleUpdateVideoSubmit,
+                videoMetaValidationSchema
+            )}
+
             <h2 style={{ textAlign: "left" }}>My YouTube Videos</h2>
 
             <div className="search-container">
@@ -161,7 +211,7 @@ function VideosTable() {
                     type="text"
                     className="search-input"
                     placeholder="Search by Title"
-                    style={{width: "100%"}}
+                    style={{ width: "100%" }}
                     value={searchText}
                     onChange={handleSearchChange}
                 />
@@ -180,6 +230,31 @@ function VideosTable() {
                 pageSelected,
                 pageMax,
                 handleGoToPage
+            )}
+
+            {deleteDialogPrompt(
+                deleteDialog,
+                handleDeleteCloseDialog,
+                handleDeleteID,
+                "Are you sure you want to delete this video?"
+            )}
+
+            {deleteDialogPrompt(
+                deleteMulDialog,
+                handleDeleteCloseMulDialog,
+                handleDeleteMul,
+                "Are you sure you want to delete the selected videos?"
+            )}
+
+            {multiSelectDeleteUploadButtons(
+                handleFileSelect,
+                selectedElements,
+                handleMulDownload,
+                setOpendeleteMulDialog,
+                selectedFiles,
+                handleFileUpload,
+                handleFileUploadCancel,
+                isDraggingOver
             )}
 
             <StyledTable>
@@ -243,8 +318,8 @@ function VideosTable() {
                                     <IconButton
                                         onClick={() =>
                                             handleOpenEditDialog(
-                                                videos.id,
-                                                videos.filename
+                                                videos.video_id,
+                                                videos.title
                                             )
                                         }
                                     >
@@ -264,8 +339,8 @@ function VideosTable() {
                     </tbody>
                 }
             </StyledTable>
-            
-            <br/>
+
+            <br />
 
             {pageNavigator(handlePageChange, filePage, getPageButtons, pageMax)}
         </div>

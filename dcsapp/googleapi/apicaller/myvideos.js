@@ -378,7 +378,7 @@ exports.editVideoMeta = async (req, res, pool) => {
             }
         }, async function (err, data) {
             if (err) {
-                // console.log(err);
+                console.log(err);
                 res.json({ success: false, message: "Error updating video metadata" });
             } else {
                 const updatedVideo = await pool.query(updateQueryVideo, [req.body.video_id, req.body.title]);
