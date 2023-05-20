@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import RequestGitHubResource from "../../../Hooks/RequestResource";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
@@ -140,6 +140,7 @@ function FileTable() {
     // Handling of file uploads
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
+    const fileInputRef = useRef(null);
 
     const handleFileSelect = (event) => {
         const files = Array.from(event.target.files);
@@ -150,6 +151,10 @@ function FileTable() {
 
     const handleFileUploadCancel = () => {
         setSelectedFiles([]);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null; // Clear file input value
+        }
     };
 
     useEffect(() => {
@@ -300,7 +305,8 @@ function FileTable() {
                 selectedFiles,
                 handleFileUpload,
                 handleFileUploadCancel,
-                isDraggingOver
+                isDraggingOver,
+                fileInputRef
             )}
 
             <StyledTable>

@@ -61,13 +61,24 @@ function setUpYTAPIClient(oauth2Client) {
     });
 }
 
-async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, username, account_id) {
+async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, username, account_id, videoName) {
+    let videoTitle = videoName;
+    let videoDescription = "";
+
+    if (req.header.title != null) {
+        videoTitle = req.headers.title;
+    }
+
+    if (req.body.description != null) {
+        videoDescription = req.body.description;
+    }
+
     return await youtube.videos.insert({
         part: 'snippet,status',
         requestBody: {
             snippet: {
-                title: req.headers.title,
-                description: req.body.description
+                title: videoTitle,
+                description: videoDescription
             },
             status: {
                 privacyStatus: req.headers.privacy_status
@@ -78,7 +89,7 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
         }
     }, async function (err, data) {
         if (err) {
-            // console.log(err);
+            console.log(err);
             res.json({ success: false, message: "Failed to upload!" });
         } else {
             // Clean up the uploaded file
@@ -88,25 +99,31 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
             const video = data.data;
             const videoID = video.id;
 
-            const thumbnailResponse = await youtube.thumbnails.set({
-                videoId: videoID,
-                media: {
-                    body: thumbnailStream
-                }
-            }, async function () {
-                fs.unlinkSync(thumbnailPath);
+            if (thumbnailStream != null && thumbnailPath != null) {
+                const thumbnailResponse = await youtube.thumbnails.set({
+                    videoId: videoID,
+                    media: {
+                        body: thumbnailStream
+                    }
+                }, async function () {
+                    fs.unlinkSync(thumbnailPath);
 
+                    const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
+                    const values = [username, videoID, video.snippet.title, account_id];
+                    const result = await pool.query(queryText, values);
+
+                    res.json({
+                        success: true,
+                        message: "Video uploaded successfully",
+                        results: `https://www.youtube.com/watch?v=${videoID}`,
+                        title: video.snippet.title
+                    });
+                });
+            } else {
                 const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
                 const values = [username, videoID, video.snippet.title, account_id];
                 const result = await pool.query(queryText, values);
-
-                res.json({
-                    success: true,
-                    message: "Video uploaded successfully",
-                    results: `https://www.youtube.com/watch?v=${videoID}`,
-                    title: video.snippet.title
-                });
-            });
+            }
         }
     });
 }
@@ -126,7 +143,7 @@ function refreshAccessToken(oauth2ClientAccessTokenGetter) {
 }
 
 // Upload new video
-exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
+exports.uploadVideo = async (file, req, res, pool, mongoYTTrackCollection) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
@@ -228,16 +245,35 @@ exports.uploadVideo = async (req, res, pool, mongoYTTrackCollection) => {
         // Set up YouTube API client
         const youtube = setUpYTAPIClient(oauth2Client);
 
-        const { path: videoPath, originalname: videoName } = req.files['video'][0];
-        const { path: thumbnailPath, originalname: thumbnailName } = req.files['thumbnail'][0];
+        let videoName;
+        let videoPath;
+        let thumbnailName;
+        let thumbnailPath;
+
+        if (file != null) {
+            videoName = file.originalname;
+            videoPath = file.path;
+            thumbnailName = null;
+            thumbnailPath = null;
+        } else {
+            videoPath = req.files['video'][0].path;
+            videoName = req.files['video'][0].originalname;
+            thumbnailPath = req.files['thumbnail'][0].path;
+            thumbnailName = req.files['thumbnail'][0].originalname;
+        }
 
         const videoStream = fs.createReadStream(videoPath);
-        const thumbnailStream = fs.createReadStream(thumbnailPath);
 
         // const videoNameActual = path.basename(videoName, path.extname(videoName));
         // const thumbnailNameActual = path.basename(thumbnailName, path.extname(thumbnailName));
 
-        const response = await uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, decoded.username, credentialIDUsed);
+        if (thumbnailPath != null) {
+            const thumbnailStream = fs.createReadStream(thumbnailPath);
+            const response = await uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, decoded.username, credentialIDUsed, videoName);
+        } else {
+            const response = await uploadVideo(youtube, req, videoStream, res, videoPath, null, null, pool, decoded.username, credentialIDUsed, videoName);
+        }
+
     } catch (err) {
         // console.log(err);
         // next(err);
@@ -281,7 +317,7 @@ exports.getVideosPag = async (req, res, pool) => {
         const queryPageCountResult = await pool.query(queryPageCount, [
             decoded.username,
         ]);
-    
+
         res.json(
             {
                 success: true,

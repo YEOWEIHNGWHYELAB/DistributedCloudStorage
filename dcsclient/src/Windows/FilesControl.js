@@ -82,3 +82,22 @@ export function fileUploader(selectedFiles, addFile, setSelectedFiles, addMulFil
         }
     };
 }
+
+export function fileNoSingleUploader(selectedFiles, addFile, setSelectedFiles, addMulFiles) {
+    return () => {
+        if (selectedFiles.length > 0) {
+            const formData = new FormData();
+
+            selectedFiles.forEach((file, index) => {
+                formData.append(`File`, file);
+            });
+
+            // Perform API call to post formData to the backend
+            addMulFiles(formData, () => {
+                setSelectedFiles([]);
+
+                window.location.reload();
+            });
+        }
+    };
+}

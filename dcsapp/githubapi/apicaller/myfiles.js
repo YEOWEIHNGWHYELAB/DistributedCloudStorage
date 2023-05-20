@@ -203,7 +203,7 @@ exports.createNewFile = async (file, req, res, pool) => {
         path = file.path;
     } else {
         originalname = req.file.originalname;
-        filename = req.file.path;
+        filename = req.file.filename;
         path = req.file.path;
     }
     

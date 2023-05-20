@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import RequestYouTubeResourcePag from "../../../../Hooks/RequestResource";
+import React, { useEffect, useState, useRef } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -25,7 +24,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
-import RequestResource from "../../../../Hooks/RequestResource";
+import RequestYouTubeResourcePag from "../../../../Hooks/RequestResource";
 
 import { multiSelectDeleteUploadButtons, selectAllVideoHandler, selectAllVideosCheckbox } from "../../../../Windows/MultiOpsButton";
 import {
@@ -37,7 +36,7 @@ import {
 } from "../../../../Windows/PageControl";
 import { fileTableStyle } from "../../../../Windows/TableStyle";
 import { deleteDialogPrompt, editSelectedVideoDialog } from "../../../../Windows/DialogBox";
-import { fileUploader, performMultipleDownload, performSingleDownload } from "../../../../Windows/FilesControl";
+import { fileNoSingleUploader, performMultipleDownload, performSingleDownload } from "../../../../Windows/FilesControl";
 import { sortResourceList, sortTableColumn } from "../../../../Windows/TableControl";
 
 function VideosTable() {
@@ -158,33 +157,53 @@ function VideosTable() {
         setIDDelete(null);
     };
 
-
-    // Handling of file uploads
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [isDraggingOver, setIsDraggingOver] = useState(false);
-
-    const handleFileSelect = (event) => {
-        const files = Array.from(event.target.files);
-        setSelectedFiles(files);
-    };
-
-    const handleFileUploadCancel = () => {
-        setSelectedFiles([]);
-    };
-    const handleFileUpload = fileUploader(selectedFiles, addFile, setSelectedFiles, addMulFiles);
-
     // Multiple deletion
     const [deleteMulDialog, setOpendeleteMulDialog] = useState(false);
-
     const handleDeleteCloseMulDialog = () => {
         setOpendeleteMulDialog(false);
     };
-
     const handleDeleteMul = () => {
         deleteMulFiles(selectedElements, true);
         setOpendeleteMulDialog(false);
         setSelectedElements([]);
     };
+
+    // Video upload handler
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isDraggingOver, setIsDraggingOver] = useState(false);
+    const fileInputRef = useRef(null);
+    const handleFileSelect = (event) => {
+        const files = Array.from(event.target.files);
+        setSelectedFiles(files);
+    };
+    const handleFileUpload = fileNoSingleUploader(selectedFiles, addFile, setSelectedFiles, addMulFiles);
+    const handleFileUploadCancel = () => {
+        setSelectedFiles([]);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null;
+        }
+    };
+    useEffect(() => {
+        const handleDocumentDragOver = (event) => {
+            event.preventDefault();
+        };
+
+        const handleDocumentDrop = (event) => {
+            event.preventDefault();
+            setIsDraggingOver(false);
+            const files = Array.from(event.dataTransfer.files);
+            setSelectedFiles(files);
+        };
+
+        document.addEventListener("dragover", handleDocumentDragOver);
+        document.addEventListener("drop", handleDocumentDrop);
+
+        return () => {
+            document.removeEventListener("dragover", handleDocumentDragOver);
+            document.removeEventListener("drop", handleDocumentDrop);
+        };
+    }, []);
 
     // Performing download single file
     const handleDownload = performSingleDownload(downloadFiles, enqueueSnackbar);
@@ -253,7 +272,8 @@ function VideosTable() {
                 selectedFiles,
                 handleFileUpload,
                 handleFileUploadCancel,
-                isDraggingOver
+                isDraggingOver,
+                fileInputRef
             )}
 
             <StyledTable>

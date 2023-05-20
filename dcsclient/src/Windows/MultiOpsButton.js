@@ -13,7 +13,8 @@ export function multiSelectDeleteUploadButtons(
     selectedFiles,
     handleFileUpload,
     handleFileUploadCancel,
-    isDraggingOver
+    isDraggingOver,
+    fileInputRef
 ) {
     return (
         <div>
@@ -25,6 +26,7 @@ export function multiSelectDeleteUploadButtons(
                 multiple
                 type="file"
                 onChange={handleFileSelect}
+                ref={fileInputRef}
             />
             <label htmlFor="file-upload">
                 <MUIButton
