@@ -117,7 +117,7 @@ function refreshAccessToken(oauth2ClientAccessTokenGetter) {
     return new Promise((resolve, reject) => {
         oauth2ClientAccessTokenGetter.refreshAccessToken((err, token) => {
             if (err) {
-                // reject(err);
+                reject("Failed to get token!");
                 res.json({ success: false, message: "Failed to get token!" });
             } else {
                 resolve(token);
@@ -258,17 +258,24 @@ exports.getVideosPag = async (req, res, pool) => {
     const offset = (page - 1) * limit;
 
     // Obtain video credential ID
-    const videoPaginatedQuery = `
+    let videoPaginatedQuery = `
         SELECT video_id, title
         FROM YouTubeVideos_${decoded.username}
-        WHERE username = $1 AND is_deleted = false
-        LIMIT $2 OFFSET $3
+        WHERE username = $1 
+            AND is_deleted = false 
     `;
+
+    if (req.body.search && req.body.search.trim() !== "") {
+        videoPaginatedQuery += `AND title ILIKE '%${req.body.search.trim()}%' `;
+    }
+
+    videoPaginatedQuery += `LIMIT $2 OFFSET $3`;
 
     try {
         const videoPagResult = await pool.query(videoPaginatedQuery, [decoded.username, limit, offset]);
         res.json({ success: true, message: "Videos obtained successfully", results: videoPagResult.rows});
     } catch (error) {
+        console.log(error);
         res.json({ success: false, message: "Failed to get videos" });
     }
 };
