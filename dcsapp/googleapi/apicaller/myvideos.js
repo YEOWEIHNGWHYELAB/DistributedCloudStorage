@@ -77,23 +77,19 @@ async function uploadCompletion(videoPath, data, thumbnailStream, thumbnailPath,
             }
         }, async function () {
             fs.unlinkSync(thumbnailPath);
-
-            const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
-            const values = [username, videoID, video.snippet.title, account_id];
-            const result = await pool.query(queryText, values);
         });
-    } else {
-        const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
-        const values = [username, videoID, video.snippet.title, account_id];
-        const result = await pool.query(queryText, values);
     }
+
+    const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
+    const values = [username, videoID, video.snippet.title, account_id];
+    const result = await pool.query(queryText, values);
 }
 
 async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, username, account_id, videoName, isLastVideo) {
     let videoTitle = videoName;
     let videoDescription = "";
 
-    if (req.header.title != null) {
+    if (req.headers.title != null) {
         videoTitle = req.headers.title;
     }
 
@@ -118,7 +114,7 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
             }
         });
 
-        const responseComplete = await uploadCompletion(videoPath, data, thumbnailStream, thumbnailPath, youtube, username, account_id, pool, res);
+        const responseComplete = await uploadCompletion(videoPath, responseInsert, thumbnailStream, thumbnailPath, youtube, username, account_id, pool, res);
     } catch (err) {
         throw new Error(err);
     }
@@ -260,13 +256,11 @@ exports.uploadVideo = async (file, req, res, pool, mongoYTTrackCollection) => {
 
         const videoStream = fs.createReadStream(videoPath);
 
-        // const videoNameActual = path.basename(videoName, path.extname(videoName));
-        // const thumbnailNameActual = path.basename(thumbnailName, path.extname(thumbnailName));
-
         if (thumbnailPath != null) {
             const thumbnailStream = fs.createReadStream(thumbnailPath);
             const response = await uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, decoded.username, credentialIDUsed, videoName);
         } else {
+            console.log("test");
             const response = await uploadVideo(youtube, req, videoStream, res, videoPath, null, null, pool, decoded.username, credentialIDUsed, videoName);
         }
     } catch (err) {
@@ -416,7 +410,6 @@ exports.editVideoMeta = async (req, res, pool) => {
         });
     } catch (err) {
         // console.log(err);
-        // next(err);
         res.json({ success: false, message: "Error updating video metadata" });
     }
 };

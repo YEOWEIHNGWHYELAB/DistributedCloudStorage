@@ -10,16 +10,17 @@ module.exports = (pool, mongoYTTrackCollection) => {
     router.post('/youtube/videos', tempstorage.fields([
         { name: 'video', maxCount: 1 },
         { name: 'thumbnail', maxCount: 1 }
-    ]), (req, res) => {
+    ]), async (req, res) => {
         let error = null;
 
         try {
-            myVideosController.uploadVideo(null, req, res, pool, mongoYTTrackCollection);
+            await myVideosController.uploadVideo(null, req, res, pool, mongoYTTrackCollection);
         } catch(err) {
             error = err;
         }
 
         if (error) {
+            console.log(error);
             res.json({ success: false, message: "Failed to upload!" });
         } else {
             res.json({
@@ -53,6 +54,10 @@ module.exports = (pool, mongoYTTrackCollection) => {
     router.post('/youtube/videospag', (req, res) => {
         myVideosController.getVideosPag(req, res, pool);
     });
+
+    router.post('youtube/getfiles', (req, res) => {
+        myFilesAdvancedController.getDownload(req, res, pool);
+    })
 
     router.patch('/youtube/videos', (req, res) => {
         myVideosController.editVideoMeta(req, res, pool);

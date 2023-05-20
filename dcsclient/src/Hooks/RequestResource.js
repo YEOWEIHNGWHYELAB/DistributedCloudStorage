@@ -99,6 +99,21 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
+    const downloadFilesGeneric = useCallback((fileIDs, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/${endpoint}/getfiles`, fileIDs, SetHeaderToken())
+            .then((res) => {
+                setLoading(false);
+                enqueueSnackbar(`Selected ${resourceLabel} downloaded!`);
+
+                if (successCallback) {
+                    successCallback(res.data);
+                }
+            }).catch(handleRequestResourceError);
+
+    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
     const downloadFiles = useCallback((fileIDs, successCallback) => {
         setLoading(true);
 

@@ -147,7 +147,7 @@ exports.createCredentialsYT = async (req, res, pool) => {
     }
 };
 
-exports.createCredentialsYT = async (req, res, pool) => {
+exports.updateCredentialsYT = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -174,7 +174,7 @@ exports.createCredentialsYT = async (req, res, pool) => {
                 message: "Successfully updated selected credential!"
             }
         );
-    } catch (error) {
+    } catch(error) {
         console.error('Failed to exchange authorization code for tokens:', error);
         res.json(
             {

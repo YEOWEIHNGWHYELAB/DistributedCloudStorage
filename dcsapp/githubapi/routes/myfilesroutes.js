@@ -62,11 +62,6 @@ module.exports = (pool) => {
         myFilesAdvancedController.getDownloadLink(req, res, pool);
     })
 
-    // Replace the user's file
-    router.patch('/getfiles', uploadsTempStorage.single('File'), (req, res) => {
-        myFilesAdvancedController.replaceFile(req, res, pool);
-    });
-
     // Perform multiple soft delete on selected files
     router.post('/files/muldel', (req, res) => {
         myFilesAdvancedController.multipleDelete(req, res, pool);
