@@ -271,9 +271,26 @@ exports.getVideosPag = async (req, res, pool) => {
 
     videoPaginatedQuery += `LIMIT $2 OFFSET $3`;
 
+    const queryPageCount = `
+        SELECT COUNT(id) AS num_files
+        FROM GitHubFiles
+        WHERE username = $1 AND is_deleted = false
+    `;
+
     try {
         const videoPagResult = await pool.query(videoPaginatedQuery, [decoded.username, limit, offset]);
-        res.json({ success: true, message: "Videos obtained successfully", results: videoPagResult.rows});
+        const queryPageCountResult = await pool.query(queryPageCount, [
+            decoded.username,
+        ]);
+    
+        res.json(
+            {
+                success: true,
+                message: "Videos obtained successfully",
+                results: videoPagResult.rows,
+                maxpage: Math.ceil(queryPageCountResult.rows[0].num_files / limit)
+            }
+        );
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Failed to get videos" });
@@ -336,7 +353,7 @@ exports.editVideoMeta = async (req, res, pool) => {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
             credentialData.yt_client_secret,
-            credentialData.yt_client_id, 
+            credentialData.yt_client_id,
             credentialData.yt_redirect_uris
         );
 
@@ -396,7 +413,7 @@ exports.deleteVideoSoft = async (req, res, pool) => {
     try {
         const deleteVideo = await pool.query(updateQueryVideo, [req.body.video_id]);
         res.json({ success: true, message: "Soft deleted!" });
-    } catch(error) {
+    } catch (error) {
         // console.log(error);
         res.json({ success: false, message: "Soft deletion failed" });
     }
@@ -460,7 +477,7 @@ exports.deleteVideoHard = async (req, res, pool) => {
         // Set up OAuth2 client
         const oauth2Client = new OAuth2(
             credentialData.yt_client_secret,
-            credentialData.yt_client_id, 
+            credentialData.yt_client_id,
             credentialData.yt_redirect_uris
         );
 
@@ -481,7 +498,7 @@ exports.deleteVideoHard = async (req, res, pool) => {
                 // console.log(err);
                 res.json({ success: false, message: "Hard deletion failed!" });
             } else {
-                const deleteVideo = await pool.query(deleteQueryCredential, [req.params.id]); 
+                const deleteVideo = await pool.query(deleteQueryCredential, [req.params.id]);
                 res.json({ success: true, message: "Hard deleted!" });
             }
         });

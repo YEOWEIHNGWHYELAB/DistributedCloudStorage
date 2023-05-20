@@ -69,19 +69,22 @@ function VideosTable() {
     const [pageSelected, setGoToPageSelected] = useState(filePage);
 
     const [searchText, setSearchText] = useState("");
-    const [extensionText, setExtensionText] = useState("");
     const [searchTextPerm, setSearchTextPerm] = useState("");
-    const [extensionTextPerm, setExtensionTextPerm] = useState("");
+    const handleSearchChange = (event) => {
+        setSearchText(event.target.value);
+    };
+    const handleSearch = () => {
+        setSearchTextPerm(searchText);
+    };
 
     useEffect(() => {
         getFilesPaginated({
             page: filePage,
             limit: filePageLimit,
             search: searchTextPerm.toLocaleLowerCase(),
-            extension: extensionTextPerm.toLocaleLowerCase(),
             is_deleted: false
         });
-    }, [filePage, filePageLimit, searchTextPerm, extensionTextPerm]);
+    }, [filePage, filePageLimit, searchTextPerm]);
 
     const handlePageChange = (pageNumber) => {
         setPage(pageNumber);
@@ -143,13 +146,41 @@ function VideosTable() {
         setOriginalFileName(null);
     };
     const handleUpdateFileSubmit = (values) => {
-        values["id"] = idEdit;
+        values["video_id"] = idEdit;
         // updateFile(values);
         handleEditClose();
     };
 
     return (
         <div>
+            <h2 style={{ textAlign: "left" }}>My YouTube Videos</h2>
+
+            <div className="search-container">
+                <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search by Title"
+                    style={{width: "100%"}}
+                    value={searchText}
+                    onChange={handleSearchChange}
+                />
+
+                <AiOutlineSearch
+                    onClick={handleSearch}
+                    className="search-icon"
+                />
+            </div>
+
+            {pageLimitGoToControl(
+                FormContainer,
+                filePageLimit,
+                handleLimitChange,
+                handleChangeNavPage,
+                pageSelected,
+                pageMax,
+                handleGoToPage
+            )}
+
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
@@ -232,6 +263,8 @@ function VideosTable() {
                     </tbody>
                 }
             </StyledTable>
+
+            {pageNavigator(handlePageChange, filePage, getPageButtons, pageMax)}
         </div>
     );
 }
