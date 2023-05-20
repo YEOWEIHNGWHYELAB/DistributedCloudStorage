@@ -89,9 +89,8 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
             const videoID = video.id;
 
             const thumbnailResponse = await youtube.thumbnails.set({
-                videoID,
+                videoId: videoID,
                 media: {
-                    mimeType: 'image/png',
                     body: thumbnailStream
                 }
             }, async function () {
@@ -259,7 +258,7 @@ exports.getVideosPag = async (req, res, pool) => {
 
     // Obtain video credential ID
     let videoPaginatedQuery = `
-        SELECT video_id, title
+        SELECT video_id, title, created_at
         FROM YouTubeVideos_${decoded.username}
         WHERE username = $1 
             AND is_deleted = false 
@@ -292,7 +291,7 @@ exports.getVideosPag = async (req, res, pool) => {
             }
         );
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: "Failed to get videos" });
     }
 };
@@ -379,7 +378,7 @@ exports.editVideoMeta = async (req, res, pool) => {
             }
         }, async function (err, data) {
             if (err) {
-                console.log(err);
+                // console.log(err);
                 res.json({ success: false, message: "Error updating video metadata" });
             } else {
                 const updatedVideo = await pool.query(updateQueryVideo, [req.body.video_id, req.body.title]);
@@ -387,7 +386,7 @@ exports.editVideoMeta = async (req, res, pool) => {
             }
         });
     } catch (err) {
-        console.log(err);
+        // console.log(err);
         // next(err);
         res.json({ success: false, message: "Error updating video metadata" });
     }

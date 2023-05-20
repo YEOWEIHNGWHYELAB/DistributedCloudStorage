@@ -54,7 +54,8 @@ function VideosTable() {
     const {
         resourceList,
         pageMax,
-        getFilesPaginated
+        getFilesPaginated,
+        updateVideo
     } = RequestYouTubeResourcePag({
         endpoint: "google/youtube/videos",
         resourceLabel: "Videos",
@@ -105,7 +106,7 @@ function VideosTable() {
 
     const handleGoToPage = pageGoToNavigator(pageSelected, filePage, pageMax, setPage);
 
-    const [sortField, setSortField] = useState("filename");
+    const [sortField, setSortField] = useState("title");
     const [sortDirection, setSortDirection] = useState("asc");
 
     const handleSort = sortTableColumn(sortField, setSortDirection, sortDirection, setSortField);
@@ -195,11 +196,11 @@ function VideosTable() {
 
                         <StyledHeaderCell
                             className={
-                                sortField === "filename"
+                                sortField === "title"
                                     ? `sortable ${sortDirection}`
                                     : "sortable"
                             }
-                            onClick={() => handleSort("filename")}
+                            onClick={() => handleSort("title")}
                             style={{ sortField }}
                         >
                             Video Title
@@ -263,6 +264,8 @@ function VideosTable() {
                     </tbody>
                 }
             </StyledTable>
+            
+            <br/>
 
             {pageNavigator(handlePageChange, filePage, getPageButtons, pageMax)}
         </div>

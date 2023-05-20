@@ -132,6 +132,29 @@ export default function RequestResource({ endpoint, resourceLabel }) {
             }).catch(handleRequestResourceError)
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading, resourceList]);
 
+    const updateVideo = useCallback((values) => {
+        setLoading(true);
+
+        axios.patch(`/${endpoint}`, values, SetHeaderToken())
+            .then((res) => {
+                const updatedResourceID = values.video_id;
+
+                const newResourceList = {
+                    results: resourceList.results.map((r) => {
+                        if (r.video_id === updatedResourceID) {
+                            r.title = values.title;
+                        }
+
+                        return r;
+                    })
+                }
+
+                setResourceList(newResourceList);
+                setLoading(false);
+                enqueueSnackbar(`Video name updated`);
+            }).catch(handleRequestResourceError)
+    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading, resourceList]);
+
     const deleteFile = useCallback((id) => {
         setLoading(true);
 
