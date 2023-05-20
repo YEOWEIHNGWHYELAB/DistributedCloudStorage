@@ -19,13 +19,13 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     function deleteSelectedResultID(results, idToDelete) {
         const idSet = new Set(idToDelete);
-        return results.filter(result => !idSet.has(result.id));
+        return results.filter(result => !idSet.has((result.id) ? result.id : result.video_id));
     }
 
-    function deleteSelectedVideoResultID(results, idToDelete) {
-        const idSet = new Set(idToDelete);
-        return results.filter(result => !idSet.has(result.video_id));
-    }
+    // function deleteSelectedVideoResultID(results, idToDelete) {
+    //     const idSet = new Set(idToDelete);
+    //     return results.filter(result => !idSet.has(result.video_id));
+    // }
 
     const handleRequestResourceError = useCallback((err) => {
         const formattedError = HTTPAPIError(err);
@@ -192,7 +192,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                 enqueueSnackbar(`Selected ${resourceLabel} ${messageStatus}!`);
 
                 const newResourceList = {
-                    results: deleteSelectedVideoResultID(resourceList.results, selectedIDs)
+                    results: deleteSelectedResultID(resourceList.results, selectedIDs)
                 };
 
                 setResourceList(newResourceList);
