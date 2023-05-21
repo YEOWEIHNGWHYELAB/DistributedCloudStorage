@@ -34,13 +34,6 @@ const validationSchema = Yup.object().shape({
 });
 
 function SingleVideoCreator() {
-    const handleSubmit = (values, { resetForm }) => {
-        console.log('Submitted:', values.title, values.description, values.privacy);
-
-        // Reset the form
-        // resetForm();
-    };
-
     // Video manager
     const [video, setVideo] = useState(null);
     const [isDragOverVideo, setIsDragOverVideo] = useState(false);
@@ -106,6 +99,15 @@ function SingleVideoCreator() {
         resetForm();
     };
 
+    const handleSubmit = (values, { resetForm }) => {
+        console.log('Submitted:', values.title, values.description, values.privacy);
+        console.log(thumbnail);
+        console.log(video);
+
+        // Reset the form
+        // resetForm();
+    };
+
     return (
         <div>
             <input
@@ -115,6 +117,7 @@ function SingleVideoCreator() {
                 id="video-upload"
                 multiple
                 type="file"
+                accept="video/*"
                 onChange={handleVideoChange}
                 ref={videoInputRef}
             />
@@ -126,6 +129,7 @@ function SingleVideoCreator() {
                 id="thumbnail-upload"
                 multiple
                 type="file"
+                accept="image/*"
                 onChange={handleThumbnailChange}
                 ref={thumbnailInputRef}
             />
@@ -135,13 +139,18 @@ function SingleVideoCreator() {
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
             >
-                {({ resetForm, errors, touched }) => (
+                {({ values, resetForm, errors, touched }) => (
                     <Form>
                         <MUIButton
                             type="submit"
                             variant="contained"
                             color="primary"
                             style={{ margin: "2px" }}
+                            disabled={video === null 
+                                || thumbnail === null
+                                || values.title === null || values.title === ""
+                                || values.description === null || values.description === ""
+                            }
                         >
                             Upload
                         </MUIButton>
