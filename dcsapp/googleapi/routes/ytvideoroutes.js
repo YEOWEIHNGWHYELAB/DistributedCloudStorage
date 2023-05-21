@@ -55,10 +55,6 @@ module.exports = (pool, mongoYTTrackCollection, mongoYTMetaCollection) => {
         myVideosController.getVideosPag(req, res, pool);
     });
 
-    router.post('youtube/getfiles', (req, res) => {
-        myVideosController.getDownload(req, res, pool);
-    });
-
     router.get('/youtube/videos/metainfo/:id', (req, res) => {
         myVideosController.getMeta(req, res, pool, mongoYTMetaCollection);
     });
