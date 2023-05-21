@@ -114,6 +114,8 @@ function SingleVideoCreator() {
         addYTVideo(formData, () => {
             // Reset the form
             resetForm();
+            handleCancelUploadVideo();
+            handleCancelUploadThumbnail();
         });
     };
 
