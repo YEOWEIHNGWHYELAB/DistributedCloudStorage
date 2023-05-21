@@ -112,9 +112,6 @@ function SingleVideoCreator() {
         formData.append(`privacy_status`, values.privacy);
 
         addYTVideo(formData, () => {
-            // Reset selected files state after upload
-            setSelectedFiles([]);
-
             // Reset the form
             resetForm();
         });
