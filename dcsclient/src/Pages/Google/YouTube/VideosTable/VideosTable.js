@@ -277,6 +277,9 @@ function VideosTable() {
 
             <Dialog open={videoViewDialog} onClose={handleOpenViewVideoClose}>
                 <DialogTitle>Go to Video</DialogTitle>
+                <DialogContent>
+                    Ensure you have permission to view this video from your current YouTube account!
+                </DialogContent>
                 <DialogActions>
                     <MUIButton onClick={handleViewVideo}>YES!</MUIButton>
                     <MUIButton onClick={handleOpenViewVideoClose}>NO!</MUIButton>
