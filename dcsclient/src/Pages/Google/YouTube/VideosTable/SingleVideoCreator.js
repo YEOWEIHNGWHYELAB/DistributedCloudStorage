@@ -1,8 +1,4 @@
 import React, { useState, useRef } from "react";
-import { Formik, Form, Field } from "formik";
-import { useDrop } from 'react-dnd';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
     Button as MUIButton,
     Dialog,
@@ -14,8 +10,8 @@ import {
     TextField
 } from "@mui/material";
 import { Link } from 'react-router-dom';
-import { Formik, Form, Field } from 'formik';
-import * as Yup from "yup";
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 import RequestResource from "../../../../Hooks/RequestResource";
 
@@ -25,76 +21,109 @@ const privacyOptions = [
     { label: 'Private', value: 'private' },
 ];
 
+const initialValues = {
+    title: '',
+    description: '',
+    privacy: 'public',
+};
+
+const validationSchema = Yup.object().shape({
+    title: Yup.string().required('Title is required'),
+    description: Yup.string().required('Description is required'),
+    privacy: Yup.string().required('Privacy status is required'),
+});
 
 function SingleVideoCreator() {
-
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [privacy, setPrivacy] = useState('public');
-
-    const handleTitleChange = (event) => {
-        setTitle(event.target.value);
+    const handleSubmit = (values) => {
+        console.log('Submitted:', values.title, values.description, values.privacy);
     };
 
-    const handleDescriptionChange = (event) => {
-        setDescription(event.target.value);
-    };
-
-    const handlePrivacyChange = (event) => {
-        setPrivacy(event.target.value);
-    };
-
-    const handleSubmit = () => {
-        // Handle form submission logic here, e.g., call an API to upload the video
-        console.log('Submitted:', title, description, privacy);
-    };
+    const handleReset = () => {{
+        initialValues.title = '';
+        initialValues.description = '';
+    }};
 
     return (
         <div>
-            <MUIButton variant="contained" color="primary" onClick={handleSubmit}>
-                Upload
-            </MUIButton>
-
-            <br/>
-            <br/>
-
-            <TextField
-                label="Title"
-                value={title}
-                onChange={handleTitleChange}
-                fullWidth
-            />
-
-            <br/>
-            <br/>
-
-            <TextField
-                label="Description"
-                value={description}
-                onChange={handleDescriptionChange}
-                multiline
-                rows={4}
-                fullWidth
-            />
-
-            <br/>
-            <br/>
-
-            <Select
-                label="Privacy"
-                value={privacy}
-                onChange={handlePrivacyChange}
-                fullWidth
+            <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
             >
-                {privacyOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                    </MenuItem>
-                ))}
-            </Select>
+                {({ errors, touched }) => (
+                    <Form>
+                        <MUIButton
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            style={{margin: "2px"}}
+                        >
+                            Upload
+                        </MUIButton>
 
-            <br/>
-            <br/>
+                        <MUIButton
+                            variant="contained"
+                            style={{margin: "2px"}}
+                            onClick={handleReset}
+                        >
+                            Reset
+                        </MUIButton>
+                            
+
+                        <br />
+                        <br />
+
+                        <Field
+                            as={TextField}
+                            label="Title"
+                            name="title"
+                            error={
+                                errors.title && touched.title
+                            }
+                            helperText={
+                                touched.title && errors.title
+                            }
+                            fullWidth
+                        />
+
+                        <br />
+                        <br />
+
+                        <Field
+                            as={TextField}
+                            label="Description"
+                            name="description"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            error={
+                                errors.description && touched.description
+                            }
+                            helperText={
+                                touched.description && errors.description
+                            }
+                        />
+
+                        <br />
+                        <br />
+
+                        <Field
+                            as={Select}
+                            name="privacy"
+                            fullWidth
+                        >
+                            {privacyOptions.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Field>
+                    </Form>
+                )}
+            </Formik>
+
+            <br />
+            <br />
 
             <Link to="/google/ytvideos">
                 <MUIButton
