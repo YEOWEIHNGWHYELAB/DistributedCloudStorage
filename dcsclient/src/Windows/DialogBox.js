@@ -4,6 +4,8 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    MenuItem,
+    Select,
     TextField
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
@@ -100,10 +102,18 @@ export function editSelectedVideoDialog(
     openEditDialog,
     handleEditClose,
     originalVideoTitle,
+    originalVideoDescription,
+    originalVideoPrivacy,
     idEdit,
     handleUpdateFileSubmit,
     FileNamevalidationSchema
 ) {
+    const privacyOptions = [
+        { label: 'Public', value: 'public' },
+        { label: 'Unlisted', value: 'unlisted' },
+        { label: 'Private', value: 'private' }
+    ];
+
     return (
         <Dialog open={openEditDialog} onClose={handleEditClose} fullWidth>
             <DialogTitle>Rename selected file</DialogTitle>
@@ -111,6 +121,8 @@ export function editSelectedVideoDialog(
             <Formik
                 initialValues={{
                     new_title: originalVideoTitle ? originalVideoTitle : "",
+                    new_description: originalVideoDescription ? originalVideoDescription : "",
+                    new_privacy: originalVideoPrivacy ? originalVideoPrivacy : "public"
                 }}
                 onSubmit={(values, { resetForm }) => {
                     if (idEdit) {
@@ -138,6 +150,45 @@ export function editSelectedVideoDialog(
                                 }
                                 onChange={handleChange}
                             />
+
+                            <br />
+                            <br />
+
+                            <Field
+                                name="new_description"
+                                as={TextField}
+                                label="New Description"
+                                fullWidth
+                                multiline
+                                rows={4}
+                                value={values.new_description}
+                                error={
+                                    errors.new_description && touched.new_description
+                                }
+                                helperText={
+                                    touched.new_description && errors.new_description
+                                }
+                                onChange={handleChange}
+                            />
+
+                            <br />
+                            <br />
+
+                            <Field
+                                name="new_privacy"
+                                as={Select}
+                                fullWidth
+                                values={values.new_privacy}
+                            >
+                                {privacyOptions.map((option) => (
+                                    <MenuItem
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </Field>
                         </DialogContent>
 
                         <DialogActions>
@@ -152,11 +203,15 @@ export function editSelectedVideoDialog(
                                 type="submit"
                                 color="primary"
                                 disabled={
-                                    values.new_title == originalVideoTitle ||
-                                    values.new_title == ""
+                                    (values.new_title == originalVideoTitle ||
+                                        values.new_title == "") &&
+                                    (values.new_description == originalVideoDescription ||
+                                        values.new_description == "") &&
+                                    (values.new_privacy == originalVideoPrivacy ||
+                                        values.new_privacy == "")
                                 }
                             >
-                                Rename
+                                Edit Meta Info
                             </MUIButton>
                         </DialogActions>
                     </Form>

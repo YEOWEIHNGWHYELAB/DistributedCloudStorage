@@ -10,6 +10,8 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     const [resourceList, setResourceList] = useState({
         results: []
     });
+    const [ytDescriptionMeta, setYTDescriptionMeta] = useState("");
+    const [ytPrivacyMeta, setYTPrivacyMeta] = useState("");
     const [pageMax, setPageMax] = useState(0);
     const [error, setError] = useState(null);
 
@@ -42,6 +44,24 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                     setResourceList({
                         results: res.data
                     });
+                }
+            }).catch(handleRequestResourceError);
+    }, [endpoint, handleRequestResourceError, setLoading]);
+
+    const getYTMetaInfo = useCallback((id, successCallback) => {
+        setLoading(true);
+
+        axios.get(`/google/youtube/videos/metainfo/${id}`, SetHeaderToken())
+            .then((res) => {
+                setLoading(false);
+
+                if (res.data.results) {
+                    setYTDescriptionMeta(res.data.results.description);
+                    setYTPrivacyMeta(res.data.results.privacy_status);
+
+                    if (successCallback) {
+                        successCallback();
+                    }
                 }
             }).catch(handleRequestResourceError);
     }, [endpoint, handleRequestResourceError, setLoading]);
@@ -163,8 +183,6 @@ export default function RequestResource({ endpoint, resourceLabel }) {
                     })
                 }
 
-                console.log(res);
-
                 setResourceList(newResourceList);
                 setLoading(false);
                 enqueueSnackbar(`Video name updated`);
@@ -210,6 +228,8 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
     return {
         resourceList,
+        ytDescriptionMeta,
+        ytPrivacyMeta,
         pageMax,
         addYTVideo,
         addFile,
@@ -217,6 +237,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         downloadFiles,
         getAllFiles,
         getFilesPaginated,
+        getYTMetaInfo,
         updateFile,
         updateVideo,
         deleteFile,

@@ -56,11 +56,14 @@ function VideosTable() {
 
     const {
         resourceList,
+        ytDescriptionMeta,
+        ytPrivacyMeta,
         pageMax,
         addFile,
         addMulFiles,
         downloadFiles,
         getFilesPaginated,
+        getYTMetaInfo,
         updateVideo,
         deleteMulFiles
     } = RequestYouTubeResourcePag({
@@ -120,9 +123,11 @@ function VideosTable() {
     const [originalVideoTitle, setOriginalFileName] = useState(null);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const handleOpenEditDialog = (id, title) => {
-        setOriginalFileName(title);
-        setIDEdit(id);
-        setOpenEditDialog(true);
+        getYTMetaInfo(id, () => {
+            setOriginalFileName(title);
+            setIDEdit(id);
+            setOpenEditDialog(true);
+        });
     };
     const handleEditClose = () => {
         setOpenEditDialog(false);
@@ -132,14 +137,18 @@ function VideosTable() {
     const handleUpdateVideoSubmit = (values) => {
         let newValues = {
             video_id: idEdit,
-            title: values.new_title
+            title: values.new_title,
+            description: values.new_description,
+            privacy_status: values.new_privacy
         }
 
         updateVideo(newValues);
         handleEditClose();
     };
     const videoMetaValidationSchema = Yup.object().shape({
-        new_title: Yup.string().required("Title is required!"),
+        new_title: Yup.string().required("Title is required!").max(100, 'Title must be less than 100 characters'),
+        new_description: Yup.string().required("Descrition is required!").max(5000, 'Description must be less than 5000 characters'),
+        new_privacy: Yup.string().required('Privacy status is required')
     });
 
     // Handling single deletion
@@ -229,6 +238,8 @@ function VideosTable() {
                 openEditDialog,
                 handleEditClose,
                 originalVideoTitle,
+                ytDescriptionMeta,
+                ytPrivacyMeta,
                 idEdit,
                 handleUpdateVideoSubmit,
                 videoMetaValidationSchema
@@ -302,7 +313,7 @@ function VideosTable() {
                 >
                     UPLOAD SINGLE VIDEO
                 </MUIButton>
-                
+
                 <input
                     style={{
                         display: "none",
