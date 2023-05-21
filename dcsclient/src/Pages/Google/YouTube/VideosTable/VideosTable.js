@@ -22,6 +22,7 @@ import { Formik, Form, Field } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import * as Yup from "yup";
 
 import RequestYouTubeResourcePag from "../../../../Hooks/RequestResource";
@@ -205,11 +206,21 @@ function VideosTable() {
         };
     }, []);
 
-    // Performing download single file
-    const handleDownload = performSingleDownload(downloadFiles, enqueueSnackbar);
-
-    // Performing multiple download
-    const handleMulDownload = performMultipleDownload(downloadFiles, selectedElements, enqueueSnackbar);
+    // Viewing of video
+    const [idView, setIDView] = useState(null);
+    const [videoViewDialog, setOpenVideoViewDialog] = useState(false);
+    const handleOpenViewVideo = (videoID) => {
+        setIDView(videoID);
+        setOpenVideoViewDialog(true);
+    }
+    const handleOpenViewVideoClose = () => {
+        setIDView(null);
+        setOpenVideoViewDialog(false);
+    };
+    const handleViewVideo = () => {
+        window.open(`https://www.youtube.com/watch?v=${idView}`, '_blank');
+        setOpenVideoViewDialog(false);
+    };
 
     return (
         <div>
@@ -264,17 +275,115 @@ function VideosTable() {
                 "Are you sure you want to delete the selected videos?"
             )}
 
-            {multiSelectDeleteUploadButtons(
-                handleFileSelect,
-                selectedElements,
-                handleMulDownload,
-                setOpendeleteMulDialog,
-                selectedFiles,
-                handleFileUpload,
-                handleFileUploadCancel,
-                isDraggingOver,
-                fileInputRef
-            )}
+            <Dialog open={videoViewDialog} onClose={handleOpenViewVideoClose}>
+                <DialogTitle>Go to Video</DialogTitle>
+                <DialogActions>
+                    <MUIButton onClick={handleViewVideo}>YES!</MUIButton>
+                    <MUIButton onClick={handleOpenViewVideoClose}>NO!</MUIButton>
+                </DialogActions>
+            </Dialog>
+
+            <div>
+                <input
+                    style={{
+                        display: "none",
+                    }}
+                    id="file-upload"
+                    multiple
+                    type="file"
+                    onChange={handleFileSelect}
+                    ref={fileInputRef}
+                />
+                <label htmlFor="file-upload">
+                    <MUIButton
+                        component="span"
+                        style={{
+                            border: "2px solid #0000ff",
+                            margin: "2px",
+                            borderRadius: "4px",
+                            padding: "8px",
+                            width: "25%",
+                            boxSizing: "border-box",
+                            color: "green",
+                            background: "transparent",
+                        }}
+                    >
+                        SELECT FILES FOR UPLOAD
+                    </MUIButton>
+                </label>
+
+                <MUIButton
+                    style={{
+                        border: "2px solid #ff0000",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "20%",
+                        boxSizing: "border-box",
+                    }}
+                    onClick={() => {
+                        if (selectedElements.length !== 0) {
+                            setOpendeleteMulDialog(true);
+                        }
+                    }}
+                >
+                    DELETE SELECTED FILE
+                </MUIButton>
+
+                {selectedFiles.length > 0 && (
+                    <div>
+                        <p>Selected files to upload:</p>
+                        <ul>
+                            {selectedFiles.map((file, index) => (
+                                <li key={index}>{file.name}</li>
+                            ))}
+                        </ul>
+
+                        <MUIButton
+                            style={{
+                                border: "2px solid grey",
+                                margin: "2px",
+                                borderRadius: "4px",
+                                padding: "8px",
+                                width: "15%",
+                                boxSizing: "border-box",
+                            }}
+                            onClick={handleFileUpload}
+                        >
+                            UPLOAD FILES
+                        </MUIButton>
+
+                        <MUIButton
+                            style={{
+                                border: "2px solid grey",
+                                margin: "2px",
+                                borderRadius: "4px",
+                                padding: "8px",
+                                width: "15%",
+                                boxSizing: "border-box",
+                            }}
+                            onClick={handleFileUploadCancel}
+                        >
+                            CANCEL
+                        </MUIButton>
+                    </div>
+                )}
+
+                {isDraggingOver && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            border: "2px solid #ff0000",
+                            zIndex: 9999,
+                        }}
+                    ></div>
+                )}
+            </div>
 
             <StyledTable>
                 <thead>
@@ -330,8 +439,12 @@ function VideosTable() {
                                 </StyledCell>
 
                                 <StyledCell>
-                                    <IconButton>
-                                        <DownloadIcon />
+                                    <IconButton
+                                        onClick={() =>
+                                            handleOpenViewVideo(videos.video_id)
+                                        }
+                                    >
+                                        <PlayCircleIcon />
                                     </IconButton>
 
                                     <IconButton
@@ -362,7 +475,7 @@ function VideosTable() {
             <br />
 
             {pageNavigator(handlePageChange, filePage, getPageButtons, pageMax)}
-        </div>
+        </div >
     );
 }
 
