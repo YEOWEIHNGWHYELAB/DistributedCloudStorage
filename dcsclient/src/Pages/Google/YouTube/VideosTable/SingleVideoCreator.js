@@ -1,19 +1,15 @@
 import React, { useState, useRef } from "react";
 import {
     Button as MUIButton,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
     MenuItem,
     Select,
     TextField
 } from "@mui/material";
 import { Link } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 
-import RequestResource from "../../../../Hooks/RequestResource";
+import RequestResourceYTVideo from "../../../../Hooks/RequestResource";
 
 const privacyOptions = [
     { label: 'Public', value: 'public' },
@@ -28,12 +24,19 @@ const initialValues = {
 };
 
 const validationSchema = Yup.object().shape({
-    title: Yup.string().required('Title is required'),
-    description: Yup.string().required('Description is required'),
+    title: Yup.string().required('Title is required').max(100, 'Title must be less than 100 characters'),
+    description: Yup.string().required('Description is required').max(5000, 'Description must be less than 5000 characters'),
     privacy: Yup.string().required('Privacy status is required'),
 });
 
 function SingleVideoCreator() {
+    const {
+        addYTVideo
+    } = RequestResourceYTVideo({
+        endpoint: "google/youtube/videos",
+        resourceLabel: "Videos"
+    });
+
     // Video manager
     const [video, setVideo] = useState(null);
     const [isDragOverVideo, setIsDragOverVideo] = useState(false);
@@ -100,12 +103,21 @@ function SingleVideoCreator() {
     };
 
     const handleSubmit = (values, { resetForm }) => {
-        console.log('Submitted:', values.title, values.description, values.privacy);
-        console.log(thumbnail);
-        console.log(video);
+        const formData = new FormData();
 
-        // Reset the form
-        // resetForm();
+        formData.append(`video`, video);
+        formData.append(`thumbnail`, thumbnail);
+        formData.append(`title`, values.title);
+        formData.append(`description`, values.description);
+        formData.append(`privacy_status`, values.privacy);
+
+        addYTVideo(formData, () => {
+            // Reset selected files state after upload
+            setSelectedFiles([]);
+
+            // Reset the form
+            resetForm();
+        });
     };
 
     return (
@@ -146,7 +158,7 @@ function SingleVideoCreator() {
                             variant="contained"
                             color="primary"
                             style={{ margin: "2px" }}
-                            disabled={video === null 
+                            disabled={video === null
                                 || thumbnail === null
                                 || values.title === null || values.title === ""
                                 || values.description === null || values.description === ""

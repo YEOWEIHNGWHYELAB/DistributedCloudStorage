@@ -211,6 +211,7 @@ export default function RequestResource({ endpoint, resourceLabel }) {
     return {
         resourceList,
         pageMax,
+        addYTVideo,
         addFile,
         addMulFiles,
         downloadFiles,
