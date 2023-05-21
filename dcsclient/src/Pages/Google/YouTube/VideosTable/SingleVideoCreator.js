@@ -34,14 +34,16 @@ const validationSchema = Yup.object().shape({
 });
 
 function SingleVideoCreator() {
-    const handleSubmit = (values) => {
+    const handleSubmit = (values, { resetForm }) => {
         console.log('Submitted:', values.title, values.description, values.privacy);
+
+        // Reset the form
+        // resetForm();
     };
 
-    const handleReset = () => {{
-        initialValues.title = '';
-        initialValues.description = '';
-    }};
+    const handleReset = (resetForm) => {
+        resetForm();
+    };
 
     return (
         <div>
@@ -50,25 +52,26 @@ function SingleVideoCreator() {
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
             >
-                {({ errors, touched }) => (
+                {({ resetForm, errors, touched }) => (
                     <Form>
                         <MUIButton
                             type="submit"
                             variant="contained"
                             color="primary"
-                            style={{margin: "2px"}}
+                            style={{ margin: "2px" }}
                         >
                             Upload
                         </MUIButton>
 
                         <MUIButton
-                            variant="contained"
-                            style={{margin: "2px"}}
-                            onClick={handleReset}
+                            type="button"
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handleReset(resetForm)}
                         >
                             Reset
                         </MUIButton>
-                            
+
 
                         <br />
                         <br />
