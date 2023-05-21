@@ -57,10 +57,14 @@ module.exports = (pool, mongoYTTrackCollection, mongoYTMetaCollection) => {
 
     router.post('youtube/getfiles', (req, res) => {
         myVideosController.getDownload(req, res, pool);
-    })
+    });
+
+    router.get('/youtube/videos/metainfo/:id', (req, res) => {
+        myVideosController.getMeta(req, res, pool, mongoYTMetaCollection);
+    });
 
     router.patch('/youtube/videos', (req, res) => {
-        myVideosController.editVideoMeta(req, res, pool);
+        myVideosController.editVideoMeta(req, res, pool, mongoYTMetaCollection);
     });
 
     router.post('/youtube/videos/muldel', (req, res) => {

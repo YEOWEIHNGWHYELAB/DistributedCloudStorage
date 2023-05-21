@@ -336,8 +336,18 @@ exports.getVideosPag = async (req, res, pool) => {
     }
 };
 
+exports.getMeta = async (req, res, pool, mongoYTMetaCollection) => {
+    let existingCurrentYTLog = await mongoYTMetaCollection.findOne({ _id: req.params.id });
+
+    if (existingCurrentYTLog != null) {
+        res.json({ success: true, message: "Successfully obtained video meta info", results: existingCurrentYTLog });
+    } else {
+        res.json({ success: false, message: "Failed to get video meta info" });
+    }
+};
+
 // Edit video meta data
-exports.editVideoMeta = async (req, res, pool) => {
+exports.editVideoMeta = async (req, res, pool, mongoYTMetaCollection) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
@@ -425,14 +435,14 @@ exports.editVideoMeta = async (req, res, pool) => {
                 res.json({ success: false, message: "Error updating video metadata" });
             } else {
                 const updatedVideo = await pool.query(updateQueryVideo, [req.body.video_id, req.body.title]);
+
+                const queryID = { _id: req.body.video_id };
+                const updateQuery = { $set: { privacy_status: req.body.privacy_status, description: req.body.description } };
+                const result = await mongoYTMetaCollection.updateOne(queryID, updateQuery);
+
                 res.json({ success: true, message: "Successfully updated video metadata" });
             }
         });
-
-        const queryID = { _id: req.body.video_id };
-        const updateQuery = { $set: { privacy_status: req.body.description, description: req.body.privacy_status } };
-
-        const result = await mongoYTTrackCollection.updateOne(queryID, updateQuery);
     } catch (err) {
         // console.log(err);
         res.json({ success: false, message: "Error updating video metadata" });
