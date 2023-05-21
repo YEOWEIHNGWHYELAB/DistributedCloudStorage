@@ -22,11 +22,6 @@ export default function RequestResource({ endpoint, resourceLabel }) {
         return results.filter(result => !idSet.has((result.id) ? result.id : result.video_id));
     }
 
-    // function deleteSelectedVideoResultID(results, idToDelete) {
-    //     const idSet = new Set(idToDelete);
-    //     return results.filter(result => !idSet.has(result.video_id));
-    // }
-
     const handleRequestResourceError = useCallback((err) => {
         const formattedError = HTTPAPIError(err);
         setError(formattedError);
@@ -66,6 +61,20 @@ export default function RequestResource({ endpoint, resourceLabel }) {
 
                 if (res.data.maxpage) {
                     setPageMax(res.data.maxpage);
+                }
+            }).catch(handleRequestResourceError);
+    }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
+    const addYTVideo = useCallback((singleForm, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/${endpoint}`, singleForm, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+                enqueueSnackbar(`${resourceLabel} uploaded`);
+                
+                if (successCallback) {
+                    successCallback();
                 }
             }).catch(handleRequestResourceError);
     }, [endpoint, enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);

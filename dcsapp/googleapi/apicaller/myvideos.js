@@ -85,12 +85,12 @@ async function uploadCompletion(videoPath, data, thumbnailStream, thumbnailPath,
     const result = await pool.query(queryText, values);
 }
 
-async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, username, account_id, videoName, isLastVideo) {
+async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, username, account_id, videoName, mongoYTMetaCollection) {
     let videoTitle = videoName;
     let videoDescription = "";
 
-    if (req.headers.title != null) {
-        videoTitle = req.headers.title;
+    if (req.body.title != null) {
+        videoTitle = req.body.title;
     }
 
     if (req.body.description != null) {
@@ -106,13 +106,23 @@ async function uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailS
                     description: videoDescription
                 },
                 status: {
-                    privacyStatus: req.headers.privacy_status
+                    privacyStatus: (req.body.privacy_status != null) ? req.body.privacy_status : "private"
                 }
             },
             media: {
                 body: videoStream
             }
         });
+
+        let videoID = responseInsert.data.id;
+
+        const ytUploadMeta = {
+            _id: videoID,
+            description: newStatLog,
+            privacy_status: (req.body.privacy_status != null) ? req.body.privacy_status : "private"
+        };
+
+        await mongoYTMetaCollection.insertOne(ytUploadMeta);
 
         const responseComplete = await uploadCompletion(videoPath, responseInsert, thumbnailStream, thumbnailPath, youtube, username, account_id, pool, res);
     } catch (err) {
@@ -135,7 +145,7 @@ function refreshAccessToken(oauth2ClientAccessTokenGetter) {
 }
 
 // Upload new video
-exports.uploadVideo = async (file, req, res, pool, mongoYTTrackCollection) => {
+exports.uploadVideo = async (file, req, res, pool, mongoYTTrackCollection, mongoYTMetaCollection) => {
     const authHeader = req.headers.authorization;
     const dcsAuthToken = checkAuthHeader(authHeader, res);
 
@@ -258,10 +268,9 @@ exports.uploadVideo = async (file, req, res, pool, mongoYTTrackCollection) => {
 
         if (thumbnailPath != null) {
             const thumbnailStream = fs.createReadStream(thumbnailPath);
-            const response = await uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, decoded.username, credentialIDUsed, videoName);
+            const response = await uploadVideo(youtube, req, videoStream, res, videoPath, thumbnailStream, thumbnailPath, pool, decoded.username, credentialIDUsed, videoName, mongoYTMetaCollection);
         } else {
-            console.log("test");
-            const response = await uploadVideo(youtube, req, videoStream, res, videoPath, null, null, pool, decoded.username, credentialIDUsed, videoName);
+            const response = await uploadVideo(youtube, req, videoStream, res, videoPath, null, null, pool, decoded.username, credentialIDUsed, videoName, mongoYTMetaCollection);
         }
     } catch (err) {
         throw new Error(err);
@@ -406,6 +415,9 @@ exports.editVideoMeta = async (req, res, pool) => {
                     title: req.body.title,
                     description: req.body.description,
                     categoryId: 28
+                },
+                status: {
+                    privacyStatus: req.body.privacy_status
                 }
             }
         }, async function (err, data) {
@@ -417,6 +429,11 @@ exports.editVideoMeta = async (req, res, pool) => {
                 res.json({ success: true, message: "Successfully updated video metadata" });
             }
         });
+
+        const queryID = { _id: req.body.video_id };
+        const updateQuery = { $set: { privacy_status: req.body.description, description: req.body.privacy_status } };
+
+        const result = await mongoYTTrackCollection.updateOne(queryID, updateQuery);
     } catch (err) {
         // console.log(err);
         res.json({ success: false, message: "Error updating video metadata" });

@@ -89,7 +89,7 @@ Promise.all([
     }, googleCredentialsRoute);
 
     // Youtube Videos Routers
-    const youtubeVideosRoute = require('./googleapi/routes/ytvideoroutes')(pool, mongoYTTrackCollection);
+    const youtubeVideosRoute = require('./googleapi/routes/ytvideoroutes')(pool, mongoYTTrackCollection, mongoYTMetaCollection);
     app.use('/google', (req, res, next) => {
         auth.isAuthenticated(req, res, next, pool);
     }, youtubeVideosRoute);

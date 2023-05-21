@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
+import { Link } from 'react-router-dom';
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -287,6 +288,21 @@ function VideosTable() {
             </Dialog>
 
             <div>
+                <MUIButton
+                    style={{
+                        border: "2px solid",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        width: "20%",
+                        boxSizing: "border-box",
+                    }}
+                    component={Link}
+                    to="/google/ytvideos/creator"
+                >
+                    UPLOAD SINGLE VIDEO
+                </MUIButton>
+                
                 <input
                     style={{
                         display: "none",
@@ -330,7 +346,7 @@ function VideosTable() {
                         }
                     }}
                 >
-                    DELETE SELECTED FILE
+                    DELETE SELECTED VIDEO
                 </MUIButton>
 
                 {selectedFiles.length > 0 && (

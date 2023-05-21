@@ -5,7 +5,7 @@ const multer = require('multer');
 const tempstorage = multer({ dest: '../../tempstorage/' });
 
 
-module.exports = (pool, mongoYTTrackCollection) => {
+module.exports = (pool, mongoYTTrackCollection, mongoYTMetaCollection) => {
     // Upload new video
     router.post('/youtube/videos', tempstorage.fields([
         { name: 'video', maxCount: 1 },
@@ -14,13 +14,13 @@ module.exports = (pool, mongoYTTrackCollection) => {
         let error = null;
 
         try {
-            await myVideosController.uploadVideo(null, req, res, pool, mongoYTTrackCollection);
+            await myVideosController.uploadVideo(null, req, res, pool, mongoYTTrackCollection, mongoYTMetaCollection);
         } catch(err) {
             error = err;
         }
 
         if (error) {
-            console.log(error);
+            // console.log(error);
             res.json({ success: false, message: "Failed to upload!" });
         } else {
             res.json({
@@ -37,7 +37,7 @@ module.exports = (pool, mongoYTTrackCollection) => {
 
         for (const file of files) {
             try {
-                await myVideosController.uploadVideo(file, req, res, pool, mongoYTTrackCollection);
+                await myVideosController.uploadVideo(file, req, res, pool, mongoYTTrackCollection, mongoYTMetaCollection);
             } catch (err) {
                 error = err;
                 break;

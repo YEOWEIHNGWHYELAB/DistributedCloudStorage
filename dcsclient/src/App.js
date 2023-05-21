@@ -31,6 +31,7 @@ import DeletedFileTableGH from "./Pages/GitHub/RecycleBin/DeletedFileTable";
 import CredentialsTableYT from "./Pages/Google/YouTube/Credentials/CredentialTable";
 import CredentialsCreatorYT from "./Pages/Google/YouTube/Credentials/CredentialCreator";
 import VideoTableYT from "./Pages/Google/YouTube/VideosTable/VideosTable";
+import VideoTableYTCreator from "./Pages/Google/YouTube/VideosTable/SingleVideoCreator";
 import YTDeletedFileTable from "./Pages/Google/YouTube/RecycleBin/YTDeletedFileTable";
 
 export default function App() {
@@ -66,6 +67,7 @@ export default function App() {
                     <Route path="/google/credentialyt" element={<CredentialsTableYT />} />
                     <Route path="/google/credentialyt/creator" element={<CredentialsCreatorYT />} />
                     <Route path="/google/ytvideos" element={<VideoTableYT />} />
+                    <Route path="/google/ytvideos/creator" element={<VideoTableYTCreator />} />
                     <Route path="/google/ytdelfiles" element={<YTDeletedFileTable />} />
                   </Route>
                 </Route>
