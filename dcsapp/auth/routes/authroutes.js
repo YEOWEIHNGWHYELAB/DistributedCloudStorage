@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../apicaller/auth');
 
-module.exports = (pool) => {
+module.exports = (pool, sgMail) => {
     // Register user
     router.post('/register', (req, res) => {
         authController.register(req, res, pool);
@@ -20,7 +20,12 @@ module.exports = (pool) => {
 
     // Forgot Password
     router.post('/forgotpwd', (req, res) => {
-        authController.forgotPassword(req, res, pool);
+        authController.forgotPasswordKickStart(req, res, pool, sgMail);
+    });
+
+    // Confirm Forgot Password
+    router.post('/confirmforgotpwd', (req, res) => {
+        authController.forgotPasswordConfirm(req, res, pool, sgMail);
     });
 
     // User self-identify

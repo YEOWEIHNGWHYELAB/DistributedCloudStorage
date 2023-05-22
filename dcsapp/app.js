@@ -17,6 +17,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+// SendGrid Mail Initialization
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_APIKEY);
 
 // Initialize PG DB
 const { Pool } = require('pg');
@@ -53,7 +56,7 @@ Promise.all([
      * Authentication for DCS
      */
     // Authentication Routing
-    const authRouter = require('./auth/routes/authroutes')(pool);
+    const authRouter = require('./auth/routes/authroutes')(pool, sgMail);
     app.use('/auth', authRouter);
 
 

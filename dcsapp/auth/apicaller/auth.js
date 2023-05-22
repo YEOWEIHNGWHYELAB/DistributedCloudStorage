@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const jwtManager = require('./jwtmanager');
 const createtTablePartition = require('../filemanager/createtable');
+const mailManager = require("./sendmail");
+const codeManger = require("./codegenerator");
 
 
 // Register user
@@ -162,7 +164,7 @@ exports.changePassword = async (req, res, pool) => {
         res.json({ success: true, message: "Password changed successfully" });
     } catch (err) {
         // console.error(err);
-        
+
         if (err instanceof jwt.TokenExpiredError) {
             res.status(401).json({ success: false, message: 'Please login again' });
         } else {
@@ -172,8 +174,88 @@ exports.changePassword = async (req, res, pool) => {
 };
 
 // Forgot Password
-exports.forgotPassword = async (req, res, pool) => {
+exports.forgotPasswordKickStart = async (req, res, pool, sgMail) => {
     const { username } = req.body;
+
+    try {
+        const queryResult = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        const user = queryResult.rows[0];
+
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Invalid username!' });
+        }
+
+        // Generate a one-time code
+        const code = Math.floor(1000000 + Math.random() * 9000000);
+
+        // Update the user's reset code and code expiration in the database
+        await pool.query(
+            `UPDATE users
+            SET reset_code = $1,
+                reset_code_expiration = (NOW() + INTERVAL '1 minute')
+            WHERE username = $2`,
+            [code, username]
+        );
+
+        await mailManager.sendEmailResetPasswordKickStart(sgMail, user.username, user.email, code);
+
+        res.json({ message: 'Password reset OTP sent to your email!' });
+    } catch (error) {
+        // console.error('Error sending password reset OTP', error);
+        res.status(500).json({ message: 'An error occurred while sending the OTP!' });
+    }
+
+    mailManager.sendEmailPasswordConfirmation();
+};
+
+// Confirmation for forgotten password
+exports.forgotPasswordConfirm = async (req, res, pool, sgMail) => {
+    const { username, code } = req.body;
+
+    try {
+        const queryResult = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        const userDetails = queryResult.rows[0];
+
+        if (!userDetails) {
+            return res.status(401).json({ success: false, message: 'Invalid username!' });
+        }
+
+        const result = await pool.query(
+            `SELECT *
+            FROM users
+            WHERE username = $1
+                AND reset_code = $2
+                AND reset_code_expiration > LOCALTIMESTAMP`,
+            [username, code]
+        );
+
+        const user = result.rows[0];
+
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Invalid username!' });
+        }
+
+        // Update the user's password in the database
+        var min = 15; // minimum length
+        var max = 20; // maximum length
+        var pwdLen = Math.floor(Math.random() * (max - min + 1)) + min;
+        const new_password = codeManger.generateRandomString(pwdLen);
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+        const updateResult = await pool.query(`
+            UPDATE users
+            SET reset_code = NULL, 
+                reset_code_expiration = NULL, 
+                password = $2
+            WHERE username = $1`
+            , [username, hashedPassword]);
+
+        await mailManager.sendEmailPasswordConfirmation(sgMail, username, userDetails.email, new_password);
+
+        res.json({ success: true, message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error resetting password', error);
+        res.status(500).json({ message: 'An error occurred while resetting the password' });
+    }
 };
 
 // Verify JWT token
