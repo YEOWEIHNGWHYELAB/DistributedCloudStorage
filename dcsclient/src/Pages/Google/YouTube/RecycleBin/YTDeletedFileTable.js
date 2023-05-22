@@ -25,18 +25,32 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
+import RequestYTDeletedResource from "../../../../Hooks/RequestResource";
+
 import { fileTableStyle } from "../../../../Windows/TableStyle";
 import { deleteDialogPrompt } from "../../../../Windows/DialogBox";
-
 
 function YTDeletedFileTable() {
     const { enqueueSnackbar } = useSnackbar();
 
-    return (
-        <div>
-            
-        </div>
-    );
+    const {
+        resourceList,
+        ytDescriptionMeta,
+        ytPrivacyMeta,
+        pageMax,
+        addFile,
+        addMulFiles,
+        downloadFiles,
+        getFilesPaginated,
+        getYTMetaInfo,
+        updateVideo,
+        deleteMulFiles,
+    } = RequestYTDeletedResource({
+        endpoint: "google/youtube/videos",
+        resourceLabel: "Videos",
+    });
+
+    return <div></div>;
 }
 
 export default YTDeletedFileTable;

@@ -348,7 +348,7 @@ function VideosTable() {
                         margin: "2px",
                         borderRadius: "4px",
                         padding: "8px",
-                        width: "20%",
+                        width: "25%",
                         boxSizing: "border-box",
                     }}
                     onClick={() => {
