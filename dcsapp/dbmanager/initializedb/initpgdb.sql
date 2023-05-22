@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS YouTubeVideos (
     google_account_id SERIAL REFERENCES GoogleCredential(id),
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    path_dir VARCHAR(400) DEFAULT '' NOT NULL,
     PRIMARY KEY (video_id, username)
 ) PARTITION BY LIST (username);
 
@@ -67,6 +68,7 @@ CREATE TABLE IF NOT EXISTS GitHubFiles (
     filename TEXT NOT NULL,
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    path_dir VARCHAR(400) DEFAULT '' NOT NULL,
     PRIMARY KEY (id, username)
 ) PARTITION BY LIST (username);
 
