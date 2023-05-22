@@ -22,6 +22,7 @@ import FileStat from "./Pages/Dashboard/FileStat/FileStat";
 import PingStats from "./Pages/Dashboard/PingStat/PingStat";
 
 // Main Storage Pages
+import SMCO from './Pages/Main/SMCO';
 
 // GitHub Pages
 import CredentialsTableGH from "./Pages/GitHub/Credentials/CredentialTable";
@@ -54,6 +55,11 @@ export default function App() {
                     <Route path="/dash" element={<MainLandingDash />} />
                     <Route path="/dash/filestat" element={<FileStat />} />
                     <Route path="/dash/pingstat" element={<PingStats />} />
+
+                    {/**
+                     * SMCOverlord
+                     */}
+                    <Route path="/smco" element={<SMCO />} />
 
                     {/**
                      * GitHub Manager

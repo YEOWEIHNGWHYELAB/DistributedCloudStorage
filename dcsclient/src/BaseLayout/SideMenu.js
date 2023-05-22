@@ -21,6 +21,8 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import ArticleIcon from '@mui/icons-material/Article';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import CloudIcon from '@mui/icons-material/Cloud';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
 import { Box } from "@mui/system";
 import { GlobalStyles, useTheme } from "@mui/material";
@@ -37,6 +39,14 @@ const listItems = [
             { name: "Ping Stat", icon: <NetworkCheckIcon />, to: "/dash/pingstat"},
             { name: "File Stat", icon: <PieChartIcon />, to: "/dash/filestat" },
         ],
+    },
+    {
+        key: "smco",
+        name: "SMCOverlord",
+        icon: <CloudIcon />,
+        children: [
+            { name: "SMCO Files", icon: <FolderOpenIcon />, to: "/smco"},
+        ]
     },
     {
         key: "github",
