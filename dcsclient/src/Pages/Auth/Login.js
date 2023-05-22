@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 import RequestAuth from '../../Hooks/RequestAuth';
 
 const validationSchema = yup.object({
-    username: yup.string().required("Email Address / Username is required!"),
+    username: yup.string().required("Username is required!"),
     password: yup.string().required("Password is required!")
 })
 

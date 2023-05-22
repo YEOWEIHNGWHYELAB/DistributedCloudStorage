@@ -14,6 +14,7 @@ import BaseLayout from './BaseLayout';
 // Authentication Pages
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
+import ForgotPassword from './Pages/Auth/ForgotPassword';
 
 // Dashboard Pages
 import MainLandingDash from "./Pages/Dashboard/Main/MainLanding"
@@ -77,6 +78,7 @@ export default function App() {
                     */}
                   <Route path="/auth/login" element={<Login />} />
                   <Route path="/auth/register" element={<Register />} />
+                  <Route path="/auth/forgotpw" element={<ForgotPassword />} />
                 </Route>
               </Routes>
             </Box>
