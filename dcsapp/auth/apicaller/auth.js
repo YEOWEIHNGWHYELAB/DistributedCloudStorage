@@ -171,6 +171,11 @@ exports.changePassword = async (req, res, pool) => {
     }
 };
 
+// Forgot Password
+exports.forgotPassword = async (req, res, pool) => {
+    const { username } = req.body;
+};
+
 // Verify JWT token
 exports.isAuthenticated = async (req, res, next, pool) => {
     const authHeader = req.headers.authorization;

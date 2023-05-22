@@ -18,6 +18,11 @@ module.exports = (pool) => {
         authController.changePassword(req, res, pool);
     });
 
+    // Forgot Password
+    router.post('/forgotpwd', (req, res) => {
+        authController.forgotPassword(req, res, pool);
+    });
+
     // User self-identify
     router.get('/whoami', (req, res) => {
         authController.getUsername(req, res, pool);
