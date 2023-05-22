@@ -302,9 +302,9 @@ exports.getVideosPag = async (req, res, pool) => {
     videoPaginatedQuery += `LIMIT $2 OFFSET $3`;
 
     const queryPageCount = `
-        SELECT COUNT(id) AS num_files
-        FROM GitHubFiles
-        WHERE username = $1 AND is_deleted = false
+        SELECT COUNT(video_id) AS num_files
+        FROM YouTubeVideos_${decoded.username}
+        WHERE username = $1 AND is_deleted = ${req.body.is_deleted}
     `;
 
     try {

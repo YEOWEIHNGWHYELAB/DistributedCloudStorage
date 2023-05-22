@@ -29,6 +29,13 @@ import {
     selectAllVideoHandler,
     selectAllVideosCheckbox,
 } from "../../../../Windows/MultiOpsButton";
+import {
+    formContainerStyle,
+    pageGoToNavigator,
+    pageLimitGoToControl,
+    pageNavigator,
+    paginationButtons
+} from "../../../../Windows/PageControl";
 import { fileTableStyle } from "../../../../Windows/TableStyle";
 import {
     sortResourceList,
@@ -44,6 +51,8 @@ function YTDeletedFileTable() {
         StyledCell,
     } = fileTableStyle();
 
+    const FormContainer = formContainerStyle();
+
     const { resourceList, pageMax, getFilesPaginated, deleteMulFiles } =
         RequestYTDeletedResource({
             endpoint: "google/youtube/videos",
@@ -51,17 +60,32 @@ function YTDeletedFileTable() {
         });
 
     const [searchText, setSearchText] = useState("");
-    const [extensionText, setExtensionText] = useState("");
     const [searchTextPerm, setSearchTextPerm] = useState("");
-    const [extensionTextPerm, setExtensionTextPerm] = useState("");
 
     const [filePage, setPage] = useState(1);
     const [filePageLimit, setPageLimit] = useState(100);
     const [pageSelected, setGoToPageSelected] = useState(filePage);
+    const handlePageChange = (pageNumber) => {
+        setPage(pageNumber);
+    };
+    const handleLimitChange = (event) => {
+        setPageLimit(parseInt(event.target.value));
+        setPage(1);
+    };
+    const getPageButtons = paginationButtons(pageMax, filePage, handlePageChange);
+    const handleChangeNavPage = (event) => {
+        setGoToPageSelected(event.target.value);
+    };
+    const handleGoToPage = pageGoToNavigator(pageSelected, filePage, pageMax, setPage);
 
     const [selectAll, setSelectAll] = useState(false);
     const [selectedElements, setSelectedElements] = useState([]);
-    const handleSelectAll = selectAllVideoHandler(selectAll, setSelectedElements, resourceList, setSelectAll);
+    const handleSelectAll = selectAllVideoHandler(
+        selectAll,
+        setSelectedElements,
+        resourceList,
+        setSelectAll
+    );
 
     const [sortField, setSortField] = useState("filename");
     const [sortDirection, setSortDirection] = useState("asc");
@@ -78,13 +102,23 @@ function YTDeletedFileTable() {
             page: filePage,
             limit: filePageLimit,
             search: searchTextPerm.toLocaleLowerCase(),
-            is_deleted: true
+            is_deleted: true,
         });
-    }, [filePage, filePageLimit, searchTextPerm, extensionTextPerm]);
+    }, [filePage, filePageLimit, searchTextPerm]);
 
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>YouTube Recycle Bin</h2>
+
+            {pageLimitGoToControl(
+                FormContainer,
+                filePageLimit,
+                handleLimitChange,
+                handleChangeNavPage,
+                pageSelected,
+                pageMax,
+                handleGoToPage
+            )}
 
             <div>
                 <MUIButton
@@ -155,7 +189,12 @@ function YTDeletedFileTable() {
                     <tbody>
                         {resourceList.results.map((videos) => (
                             <StyledRow key={videos.video_id}>
-                                {selectAllVideosCheckbox(StyledCell, setSelectedElements, videos, selectedElements)}
+                                {selectAllVideosCheckbox(
+                                    StyledCell,
+                                    setSelectedElements,
+                                    videos,
+                                    selectedElements
+                                )}
 
                                 <StyledCell>{videos.title}</StyledCell>
 
@@ -168,7 +207,10 @@ function YTDeletedFileTable() {
                                 <StyledCell>
                                     <IconButton
                                         onClick={() =>
-                                            deleteMulFiles([videos.video_id], false)
+                                            deleteMulFiles(
+                                                [videos.video_id],
+                                                false
+                                            )
                                         }
                                     >
                                         <RestoreFromTrashIcon />
@@ -181,6 +223,8 @@ function YTDeletedFileTable() {
             </StyledTable>
 
             <br />
+            
+            {pageNavigator(handlePageChange, filePage, getPageButtons, pageMax)}
         </div>
     );
 }
