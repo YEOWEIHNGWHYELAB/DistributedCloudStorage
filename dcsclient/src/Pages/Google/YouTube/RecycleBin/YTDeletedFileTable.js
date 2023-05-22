@@ -34,7 +34,7 @@ import {
     pageGoToNavigator,
     pageLimitGoToControl,
     pageNavigator,
-    paginationButtons
+    paginationButtons,
 } from "../../../../Windows/PageControl";
 import { fileTableStyle } from "../../../../Windows/TableStyle";
 import {
@@ -61,6 +61,12 @@ function YTDeletedFileTable() {
 
     const [searchText, setSearchText] = useState("");
     const [searchTextPerm, setSearchTextPerm] = useState("");
+    const handleSearchChange = (event) => {
+        setSearchText(event.target.value);
+    };
+    const handleSearch = () => {
+        setSearchTextPerm(searchText);
+    };
 
     const [filePage, setPage] = useState(1);
     const [filePageLimit, setPageLimit] = useState(100);
@@ -72,11 +78,20 @@ function YTDeletedFileTable() {
         setPageLimit(parseInt(event.target.value));
         setPage(1);
     };
-    const getPageButtons = paginationButtons(pageMax, filePage, handlePageChange);
+    const getPageButtons = paginationButtons(
+        pageMax,
+        filePage,
+        handlePageChange
+    );
     const handleChangeNavPage = (event) => {
         setGoToPageSelected(event.target.value);
     };
-    const handleGoToPage = pageGoToNavigator(pageSelected, filePage, pageMax, setPage);
+    const handleGoToPage = pageGoToNavigator(
+        pageSelected,
+        filePage,
+        pageMax,
+        setPage
+    );
 
     const [selectAll, setSelectAll] = useState(false);
     const [selectedElements, setSelectedElements] = useState([]);
@@ -87,7 +102,7 @@ function YTDeletedFileTable() {
         setSelectAll
     );
 
-    const [sortField, setSortField] = useState("filename");
+    const [sortField, setSortField] = useState("title");
     const [sortDirection, setSortDirection] = useState("asc");
     const handleSort = sortTableColumn(
         sortField,
@@ -109,6 +124,22 @@ function YTDeletedFileTable() {
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>YouTube Recycle Bin</h2>
+
+            <div className="search-container">
+                <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search by Title"
+                    style={{ width: "100%" }}
+                    value={searchText}
+                    onChange={handleSearchChange}
+                />
+
+                <AiOutlineSearch
+                    onClick={handleSearch}
+                    className="search-icon"
+                />
+            </div>
 
             {pageLimitGoToControl(
                 FormContainer,
@@ -154,11 +185,11 @@ function YTDeletedFileTable() {
 
                         <StyledHeaderCell
                             className={
-                                sortField === "filename"
+                                sortField === "title"
                                     ? `sortable ${sortDirection}`
                                     : "sortable"
                             }
-                            onClick={() => handleSort("filename")}
+                            onClick={() => handleSort("title")}
                             style={{ sortField }}
                         >
                             Video Title
@@ -223,7 +254,7 @@ function YTDeletedFileTable() {
             </StyledTable>
 
             <br />
-            
+
             {pageNavigator(handlePageChange, filePage, getPageButtons, pageMax)}
         </div>
     );
