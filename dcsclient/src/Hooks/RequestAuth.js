@@ -57,12 +57,26 @@ export default function useRequestAuth() {
             .catch(handleRequestError);
     }, [handleRequestError, setLoading, setIsAuthenticated]);
 
-    const forgotPasswordKickStart = useCallback((username) => {
+    const forgotPasswordKickStart = useCallback((values) => {
         setLoading(true);
 
-        axios.post("/auth/forgotpwd", username)
+        axios.post("/auth/forgotpwd", values)
             .then((res) => {
                 setLoading(false);
+            })
+            .catch(handleRequestError);
+    }, [handleRequestError, setLoading, setIsAuthenticated]);
+
+    const forgotPasswordConfirmation = useCallback((values, successCallback) => {
+        setLoading(true);
+
+        axios.post("/auth/confirmforgotpwd", values)
+            .then((res) => {
+                setLoading(false);
+
+                if (successCallback) {
+                    successCallback();
+                }
             })
             .catch(handleRequestError);
     }, [handleRequestError, setLoading, setIsAuthenticated]);
@@ -80,6 +94,7 @@ export default function useRequestAuth() {
         login,
         logout,
         forgotPasswordKickStart,
+        forgotPasswordConfirmation,
         logoutPending,
         loading,
         error,

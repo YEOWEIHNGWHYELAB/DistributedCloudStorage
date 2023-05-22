@@ -1,6 +1,7 @@
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import { LoadingButton } from "@mui/lab";
+import { Button as MUIButton } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -18,10 +19,20 @@ const validationSchema = yup.object({
 });
 
 export default function ForgotPassword() {
-    const { forgotPasswordKickStart, loading } = RequestAuth();
+    const { forgotPasswordKickStart, forgotPasswordConfirmation, loading } = RequestAuth();
+
+    const [readyOTP, setReadyOTP] = React.useState(false);
 
     const handleSubmitForgotPassword = (values) => {
-        forgotPasswordKickStart(values);
+        if (!readyOTP) {
+            forgotPasswordKickStart(values);
+        } else {
+            forgotPasswordConfirmation(values, () => {
+                window.location.href = '/auth/login';
+            });
+        }
+
+        setReadyOTP(true);
     };
 
     return (
@@ -48,6 +59,7 @@ export default function ForgotPassword() {
                     validateOnBlur={false}
                     initialValues={{
                         username: "",
+                        code: null
                     }}
                     onSubmit={handleSubmitForgotPassword}
                 >
@@ -66,7 +78,6 @@ export default function ForgotPassword() {
                                     id="username"
                                     label="Username"
                                     name="username"
-                                    autoFocus
                                     {...formik.getFieldProps("username")}
                                     error={
                                         formik.touched.username &&
@@ -77,6 +88,23 @@ export default function ForgotPassword() {
                                         formik.errors.username
                                     }
                                 />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="code"
+                                    label="OTP Code"
+                                    name="code"
+                                    {...formik.getFieldProps("code")}
+                                    error={
+                                        formik.touched.code &&
+                                        Boolean(formik.errors.code)
+                                    }
+                                    helperText={
+                                        formik.touched.code &&
+                                        formik.errors.code
+                                    }
+                                />
                                 <LoadingButton
                                     type="submit"
                                     fullWidth
@@ -84,8 +112,25 @@ export default function ForgotPassword() {
                                     loading={loading}
                                     sx={{ mt: 3, mb: 2 }}
                                 >
-                                    Enter Username
+                                    {readyOTP ? "Submit OTP" : "Enter Username"}
                                 </LoadingButton>
+
+                                <MUIButton 
+                                    type="button"
+                                    fullWidth
+                                    variant="contained"
+                                    sx={{ mt: 3, mb: 2 }}
+                                    onClick={() => {
+                                        formik.handleReset();
+                                        setReadyOTP(false);
+                                    }}
+                                    style={{
+                                        background: "red",
+                                        color: "white"
+                                    }}
+                                >
+                                    Reset
+                                </MUIButton>
 
                                 <Grid container>
                                     <Grid item>
