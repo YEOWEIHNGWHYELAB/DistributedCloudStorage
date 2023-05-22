@@ -292,7 +292,7 @@ exports.getVideosPag = async (req, res, pool) => {
         SELECT video_id, title, created_at
         FROM YouTubeVideos_${decoded.username}
         WHERE username = $1 
-            AND is_deleted = false 
+            AND is_deleted = ${req.body.is_deleted} 
     `;
 
     if (req.body.search && req.body.search.trim() !== "") {
