@@ -57,6 +57,16 @@ export default function useRequestAuth() {
             .catch(handleRequestError);
     }, [handleRequestError, setLoading, setIsAuthenticated]);
 
+    const forgotPasswordKickStart = useCallback((username) => {
+        setLoading(true);
+
+        axios.post("/auth/forgotpwd", username)
+            .then((res) => {
+                setLoading(false);
+            })
+            .catch(handleRequestError);
+    }, [handleRequestError, setLoading, setIsAuthenticated]);
+
     // There is no communication with DB if you logout
     const logout = useCallback(() => {
         setLogoutPending(true);
@@ -69,6 +79,7 @@ export default function useRequestAuth() {
         register,
         login,
         logout,
+        forgotPasswordKickStart,
         logoutPending,
         loading,
         error,

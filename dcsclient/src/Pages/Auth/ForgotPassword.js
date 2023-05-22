@@ -18,7 +18,11 @@ const validationSchema = yup.object({
 });
 
 export default function ForgotPassword() {
-    const { loading } = RequestAuth();
+    const { forgotPasswordKickStart, loading } = RequestAuth();
+
+    const handleSubmitForgotPassword = (values) => {
+        forgotPasswordKickStart(values);
+    };
 
     return (
         <Container component="main" maxWidth="sm">
@@ -45,6 +49,7 @@ export default function ForgotPassword() {
                     initialValues={{
                         username: "",
                     }}
+                    onSubmit={handleSubmitForgotPassword}
                 >
                     {(formik) => {
                         return (
