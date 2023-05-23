@@ -66,6 +66,15 @@ Promise.all([
     const emailRouter = require('./mailcontrol/routes/emailroutes')(pool, sgMail);
     app.use('/email', emailRouter);
 
+    
+    /**
+     * Cloud Stat Info DCS
+     */
+    const cloudStat = require('./cloudstat/routes/cloudfilesroutes')(pool);
+    app.use('/cloudstat', (req, res, next) => {
+        auth.isAuthenticated(req, res, next, pool);
+    }, cloudStat);
+
 
     /**
      * GitHub DCS

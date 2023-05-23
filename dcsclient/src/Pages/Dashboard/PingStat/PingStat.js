@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
-import ReactApexChart from 'react-apexcharts';
+import React, { useEffect, useState, useRef } from "react";
 
 const PingStat = () => {
     const [pingLatencyGH, setPingLatencyGH] = useState(null);
     const [pingLatency, setPingLatency] = useState(null);
+
+    const googleEndPoint = 'https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA';
+    const ghEndPoint = "https://api.github.com/";
 
     useEffect(() => {
         const ping = async () => {
@@ -11,9 +13,9 @@ const PingStat = () => {
 
             try {
                 // Make a dummy request to the GitHub API
-                await fetch('https://api.github.com/');
+                await fetch(ghEndPoint);
             } catch (error) {
-                console.error('Error:', error);
+                // console.error('Error:', error);
                 return;
             }
 
@@ -30,11 +32,13 @@ const PingStat = () => {
 
     useEffect(() => {
         const measurePingLatency = async () => {
-            const apiEndpoint = 'https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA';
-
             let startGoogle = window.performance.now();
 
-            const response = await fetch(apiEndpoint);
+            try {
+                await fetch(googleEndPoint);
+            } catch (error) {
+                return;
+            }
 
             let endGoogle = window.performance.now();
 
@@ -46,22 +50,6 @@ const PingStat = () => {
 
         return () => clearInterval(interval);
     }, []);
-
-    const [options, setOptions] = useState({
-        chart: {
-            id: 'basic-bar'
-        },
-        xaxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        }
-    });
-
-    const [series, setSeries] = useState([
-        {
-            name: 'Sales',
-            data: [30, 40, 45, 50, 49, 60, 70, 91, 76, 85, 90, 82]
-        }
-    ]);
 
     return (
         <div>
@@ -76,13 +64,12 @@ const PingStat = () => {
             </div>
             <div>
                 {pingLatency !== null ? (
-                    <p>Ping Google latency: {pingLatency.toFixed(1)} ms</p>
+                    <div>
+                        <p>Ping Google latency: {pingLatency.toFixed(1)} ms</p>
+                    </div>
                 ) : (
                     <p>Loading...</p>
                 )}
-            </div>
-            <div>
-                <ReactApexChart options={options} series={series} type="bar" height={350} />
             </div>
         </div>
     );
