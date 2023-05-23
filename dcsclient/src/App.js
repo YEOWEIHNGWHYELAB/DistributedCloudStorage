@@ -11,6 +11,9 @@ import RequireAuth from './Contexts/RequireAuth';
 import RequireNotAuth from './Contexts/RequireNotAuth';
 import BaseLayout from './BaseLayout';
 
+// Welcome Pages
+import MainLandingWelcome from "./Pages/Welcome/PageSection/MainLanding";
+
 // Authentication Pages
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
@@ -79,6 +82,10 @@ export default function App() {
                   </Route>
                 </Route>
                 <Route element={<RequireNotAuth />} >
+                  {/**
+                    * Welcome Landing Page
+                    */}
+                  <Route path="" element={<MainLandingWelcome />} />
                   {/**
                     * Authentication Manager
                     */}
