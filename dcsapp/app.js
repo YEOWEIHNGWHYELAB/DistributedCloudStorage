@@ -70,10 +70,17 @@ Promise.all([
     /**
      * Cloud Stat Info DCS
      */
-    const cloudStat = require('./cloudstat/routes/cloudfilesroutes')(pool);
+    // File Stat Info
+    const cloudStatFileStat = require('./cloudstat/routes/cloudfilesroutes')(pool);
     app.use('/cloudstat', (req, res, next) => {
         auth.isAuthenticated(req, res, next, pool);
-    }, cloudStat);
+    }, cloudStatFileStat);
+
+    // Performance Testing
+    const cloudStatPerformanceTest = require('./cloudstat/routes/performancetestroutes')(pool);
+    app.use('/cloudstat', (req, res, next) => {
+        auth.isAuthenticated(req, res, next, pool);
+    }, cloudStatPerformanceTest);
 
 
     /**
