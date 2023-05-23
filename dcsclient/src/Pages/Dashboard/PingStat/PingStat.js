@@ -81,6 +81,17 @@ const PingStat = () => {
 
     return (
         <div>
+            <h2 style={{ textAlign: "left" }}>Ping Latency</h2>
+
+            <div>
+                {pingLatencyDCS !== null ? (
+                    <div>
+                        <p>Ping SMCOverlord latency: {pingLatencyDCS.toFixed(1)} ms</p>
+                    </div>
+                ) : (
+                    <p>Loading...</p>
+                )}
+            </div>
             <div>
                 {pingLatencyGH !== null ? (
                     <div>
@@ -94,15 +105,6 @@ const PingStat = () => {
                 {pingLatency !== null ? (
                     <div>
                         <p>Ping Google latency: {pingLatency.toFixed(1)} ms</p>
-                    </div>
-                ) : (
-                    <p>Loading...</p>
-                )}
-            </div>
-            <div>
-                {pingLatencyDCS !== null ? (
-                    <div>
-                        <p>Ping SMCOverlord latency: {pingLatencyDCS.toFixed(1)} ms</p>
                     </div>
                 ) : (
                     <p>Loading...</p>
