@@ -22,7 +22,9 @@ const PingStat = () => {
             setPingLatencyGH(latencyGH);
         };
 
-        ping();
+        const interval = setInterval(ping, 1000); // Measure every second
+
+        return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
@@ -39,7 +41,9 @@ const PingStat = () => {
             setPingLatency(latency);
         };
 
-        measurePingLatency();
+        const interval = setInterval(measurePingLatency, 1000); // Measure every second
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
@@ -47,7 +51,7 @@ const PingStat = () => {
             <div>
                 {pingLatencyGH !== null ? (
                     <div>
-                        <p>Ping GitHub API latency: {pingLatencyGH.toFixed(2)} ms</p>
+                        <p>Ping GitHub latency: {pingLatencyGH.toFixed(1)} ms</p>
                     </div>
                 ) : (
                     <p>Loading...</p>
@@ -55,7 +59,7 @@ const PingStat = () => {
             </div>
             <div>
                 {pingLatency !== null ? (
-                    <p>Ping Google API latency: {pingLatency.toFixed(2)} ms</p>
+                    <p>Ping Google latency: {pingLatency.toFixed(1)} ms</p>
                 ) : (
                     <p>Loading...</p>
                 )}
