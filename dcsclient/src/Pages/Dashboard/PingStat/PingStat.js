@@ -29,11 +29,13 @@ const PingStat = () => {
         const measurePingLatency = async () => {
             const apiEndpoint = 'https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA';
 
-            const startTime = new Date().getTime();
-            const response = await fetch(apiEndpoint);
-            const endTime = new Date().getTime();
+            let startGoogle = window.performance.now();
 
-            const latency = endTime - startTime;
+            const response = await fetch(apiEndpoint);
+
+            let endGoogle = window.performance.now();
+
+            const latency = endGoogle - startGoogle;
             setPingLatency(latency);
         };
 
