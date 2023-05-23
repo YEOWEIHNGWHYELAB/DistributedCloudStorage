@@ -6,9 +6,13 @@ import { LoadingOverlayResourceContext } from "../Contexts/LoadingOverlayResourc
 import SetHeaderToken from "../Contexts/SetHeaderToken";
 
 
-export default function RequestCloudStat({ endpoint, resourceLabel }) {
-    const [statList, setStatList] = useState(null);
+export default function RequestCloudStat({ resourceLabel }) {
     const [error, setError] = useState(null);
+    const [numytvideo, setNumytvideo] = useState(0);
+    const [numytvideoDeleted, setNumytvideoDeleted] = useState(0);
+    const [numghfiles, setNumghfiles] = useState(0);
+    const [numGHFilesDeleted, setNumGHFilesDeleted] = useState(0);
+    const [isLoadingFileData, setIsLoadingFileData] = useState(true);
 
     const loadingOverlay = useContext(LoadingOverlayResourceContext);
     const { enqueueSnackbar } = useSnackbar();
@@ -21,27 +25,31 @@ export default function RequestCloudStat({ endpoint, resourceLabel }) {
         enqueueSnackbar(formattedError);
         window.location.href = '/auth/login';
     }, [enqueueSnackbar, setError, setLoading]);
-
-    const getFileStat = useCallback((successCallBack) => {
+    
+    const getFileStat = useCallback(() => {
         setLoading(true);
 
-        axios.get(`/${endpoint}`, SetHeaderToken())
+        axios.get(`/cloudstat/filestat`, SetHeaderToken())
             .then((res) => {
-                setLoading(false);
-
                 if (res.data) {
-                    setStatList(res.data);
-
-                    if (successCallBack) {
-                        successCallBack();
-                    }
+                    setNumytvideo(res.data.numytvideo);
+                    setNumytvideoDeleted(res.data.numytvideo_deleted);
+                    setNumghfiles(res.data.numghfiles);
+                    setNumGHFilesDeleted(res.data.numGHFilesDeleted);
+                    setIsLoadingFileData(false);
                 }
+
+                setLoading(false);
             })
             .catch(handleRequestResourceError);
-    }, [endpoint, handleRequestResourceError, setLoading]);
+    }, [handleRequestResourceError, setLoading]);
 
     return {
-        statList,
+        numytvideo,
+        numytvideoDeleted,
+        numghfiles,
+        numGHFilesDeleted,
+        isLoadingFileData,
         getFileStat,
         error
     }
