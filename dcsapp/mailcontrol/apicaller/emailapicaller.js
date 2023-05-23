@@ -3,8 +3,8 @@ exports.contactus = async (req, res, sgMail) => {
     const { name, email, message } = req.body;
 
     const msg = {
-        to: "", // Your company email
-        from: "", // Email address to send from
+        to: process.env.DCS_SERVICE_EMAIL, // Your company email
+        from: process.env.SENDGRID_SENDER, // Email address to send from
         subject: "Contact for DCS",
         text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
     };
