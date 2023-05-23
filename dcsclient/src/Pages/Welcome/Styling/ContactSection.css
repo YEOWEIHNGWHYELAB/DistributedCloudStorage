@@ -20,12 +20,12 @@
     margin-bottom: 20px;
 }
 
-label {
+.feature-label {
     font-weight: bold;
 }
 
-input,
-textarea {
+.feature-input,
+.feature-textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;

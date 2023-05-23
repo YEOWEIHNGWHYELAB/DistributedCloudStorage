@@ -25,16 +25,16 @@ const ContactSection = () => {
             <h2>Contact Us</h2>
             <form className="contact-form" onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="name">Name</label>
-                    <input type="text" id="name" name="name" required />
+                    <label className="feature-label" htmlFor="name">Name</label>
+                    <input className="feature-input" type="text" id="name" name="name" required />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input type="email" id="email" name="email" required />
+                    <label className="feature-label" htmlFor="email">Email</label>
+                    <input className="feature-input" type="email" id="email" name="email" required />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="message">Message</label>
-                    <textarea id="message" name="message" required></textarea>
+                    <label className="feature-label" htmlFor="message">Message</label>
+                    <textarea className="feature-textarea" id="message" name="message" required></textarea>
                 </div>
                 <button type="submit" className="submit-button">
                     Submit
