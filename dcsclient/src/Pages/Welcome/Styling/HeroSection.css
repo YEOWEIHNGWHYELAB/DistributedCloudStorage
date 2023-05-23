@@ -1,0 +1,30 @@
+/* Style the hero section */
+
+.mainwelcomehero {
+    /*background-image: url("path/to/hero-background.jpg");*/
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    text-align: center;
+    padding: 200px 0;
+}
+
+.mainwelcomehero h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.mainwelcomehero p {
+    font-size: 24px;
+    margin-bottom: 40px;
+}
+
+.cta-button {
+    font-size: 18px;
+    padding: 10px 20px;
+    background-color: #ff6600;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}

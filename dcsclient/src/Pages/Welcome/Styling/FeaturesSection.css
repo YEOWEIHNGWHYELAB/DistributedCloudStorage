@@ -1,28 +1,38 @@
+/* FeaturesSection.css */
+
 .features-section {
-    padding: 40px 0;
-}
-
-.features-list {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.feature-item {
+    padding: 60px 0;
     text-align: center;
+    background-color: #000;
 }
 
-.feature-icon {
-    font-size: 36px;
+.features-section h2 {
+    margin-bottom: 40px;
+    color: #fff;
+}
+
+.feature-card {
+    max-width: 300px;
+    margin: 0 auto 40px;
+    padding: 20px;
+    border-radius: 4px;
+    background-color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card img {
+    max-width: 100%;
+    height: auto;
     margin-bottom: 20px;
 }
 
-.feature-item h3 {
-    font-size: 24px;
+.feature-card h3 {
+    color: #fff;
     margin-bottom: 10px;
 }
 
-.feature-item p {
-    font-size: 16px;
-    color: #777;
+.feature-card p {
+    color: #ccc;
+    line-height: 1.5;
+    margin-bottom: 0;
 }

@@ -4,10 +4,10 @@ import "../Styling/Header.css";
 
 const Header = () => {
     return (
-        <header className="header">
-            <nav className="navigation">
-                <div className="logo">Your System Logo</div>
-                <ul className="menu">
+        <header className="headerwelcome">
+            <nav className="navigationwelcome">
+                <div className="logowelcome">Your System Logo</div>
+                <ul className="menuwelcome">
                     <li>
                         <a href="#features">Features</a>
                     </li>

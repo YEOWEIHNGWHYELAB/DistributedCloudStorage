@@ -1,34 +1,34 @@
 /* Header.css */
 
-.header {
+.headerwelcome {
     background-color: #333;
     color: #fff;
     padding: 20px;
 }
 
-.navigation {
+.navigationwelcome {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.logo {
+.logowelcome {
     font-size: 24px;
     font-weight: bold;
 }
 
-.menu li {
+.menuwelcome li {
     display: inline-block;
     margin-right: 10px;
 }
 
-.menu li a {
+.menuwelcome li a {
     color: #fff;
     text-decoration: none;
     font-size: 16px;
     padding: 10px;
 }
 
-.menu li a:hover {
+.menuwelcome li a:hover {
     text-decoration: underline;
 }
