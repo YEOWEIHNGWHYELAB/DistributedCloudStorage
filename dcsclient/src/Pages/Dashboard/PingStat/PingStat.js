@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ReactApexChart from 'react-apexcharts';
 
 const PingStat = () => {
     const [pingLatencyGH, setPingLatencyGH] = useState(null);
@@ -46,6 +47,22 @@ const PingStat = () => {
         return () => clearInterval(interval);
     }, []);
 
+    const [options, setOptions] = useState({
+        chart: {
+            id: 'basic-bar'
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        }
+    });
+
+    const [series, setSeries] = useState([
+        {
+            name: 'Sales',
+            data: [30, 40, 45, 50, 49, 60, 70, 91, 76, 85, 90, 82]
+        }
+    ]);
+
     return (
         <div>
             <div>
@@ -63,6 +80,9 @@ const PingStat = () => {
                 ) : (
                     <p>Loading...</p>
                 )}
+            </div>
+            <div>
+                <ReactApexChart options={options} series={series} type="bar" height={350} />
             </div>
         </div>
     );
