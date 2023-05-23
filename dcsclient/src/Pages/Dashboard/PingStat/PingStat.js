@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const PingStat = () => {
     const [pingLatencyGH, setPingLatencyGH] = useState(null);
+    const [pingLatency, setPingLatency] = useState(null);
 
     useEffect(() => {
         const ping = async () => {
@@ -24,15 +25,39 @@ const PingStat = () => {
         ping();
     }, []);
 
+    useEffect(() => {
+        const measurePingLatency = async () => {
+            const apiEndpoint = 'https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA';
+
+            const startTime = new Date().getTime();
+            const response = await fetch(apiEndpoint);
+            const endTime = new Date().getTime();
+
+            const latency = endTime - startTime;
+            setPingLatency(latency);
+        };
+
+        measurePingLatency();
+    }, []);
+
     return (
         <div>
-            {pingLatencyGH !== null ? (
-                <div>
-                    <p>Ping GitHub latency: {pingLatencyGH.toFixed(2)} milliseconds</p>
-                </div>
-            ) : (
-                <p>Loading...</p>
-            )}
+            <div>
+                {pingLatencyGH !== null ? (
+                    <div>
+                        <p>Ping GitHub API latency: {pingLatencyGH.toFixed(2)} ms</p>
+                    </div>
+                ) : (
+                    <p>Loading...</p>
+                )}
+            </div>
+            <div>
+                {pingLatency !== null ? (
+                    <p>Ping Google API latency: {pingLatency.toFixed(2)} ms</p>
+                ) : (
+                    <p>Loading...</p>
+                )}
+            </div>
         </div>
     );
 };
