@@ -6,7 +6,7 @@ const Header = () => {
     return (
         <header className="headerwelcome">
             <nav className="navigationwelcome">
-                <div className="logowelcome">Your System Logo</div>
+                <div className="logowelcome">Distributed Cloud Storage System</div>
                 <ul className="menuwelcome">
                     <li>
                         <a href="#features">Features</a>
