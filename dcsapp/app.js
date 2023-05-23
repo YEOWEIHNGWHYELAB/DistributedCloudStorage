@@ -61,6 +61,13 @@ Promise.all([
 
 
     /**
+     * Email management for DCS
+     */
+    const emailRouter = require('./mailcontrol/routes/emailroutes')(pool, sgMail);
+    app.use('/email', emailRouter);
+
+
+    /**
      * GitHub DCS
      */
     // GitHub Credential Routers
