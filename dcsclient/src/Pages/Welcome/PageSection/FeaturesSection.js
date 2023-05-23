@@ -1,4 +1,9 @@
 import React from "react";
+
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import ShareIcon from '@mui/icons-material/Share';
+import AdsClickIcon from '@mui/icons-material/AdsClick';
+
 import "../Styling/FeaturesSection.css";
 
 const FeaturesSection = () => {
@@ -7,27 +12,27 @@ const FeaturesSection = () => {
             <h2>Features</h2>
             <div className="feature-card-container">
                 <div className="feature-card">
-                    <img src="path/to/feature-1.png" alt="Feature 1" />
-                    <h3>Feature 1</h3>
+                    <CloudSyncIcon />
+                    <h3>Cloud Storage</h3>
                     <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Nullam rutrum tincidunt risus in fermentum.
+                        SMCO supports the storing of your data through our
+                        distributed cloud storage system.
                     </p>
                 </div>
                 <div className="feature-card">
-                    <img src="path/to/feature-2.png" alt="Feature 2" />
-                    <h3>Feature 2</h3>
+                    <ShareIcon />
+                    <h3>Multi-Platform Support</h3>
                     <p>
-                        Morbi et odio at nibh vestibulum interdum vitae id
-                        magna. Suspendisse potenti.
+                        DCS supports multiple social media platform inclduing 
+                        GitHub and YouTube.
                     </p>
                 </div>
                 <div className="feature-card">
-                    <img src="path/to/feature-3.png" alt="Feature 3" />
-                    <h3>Feature 3</h3>
+                    <AdsClickIcon />
+                    <h3>Ease of Use</h3>
                     <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Nullam rutrum tincidunt risus in fermentum.
+                        Load in your authentication access tokens and start 
+                        playing!
                     </p>
                 </div>
             </div>
