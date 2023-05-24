@@ -27,23 +27,21 @@ exports.getAllFiles = async (req, res, pool) => {
     const limit = parseInt(req.body.limit) || 10;
     const offset = (page - 1) * limit;
 
-    // let videoPaginatedQuery = `
-    //     (SELECT video_id AS id, title AS cloudtitle, title AS filename, created_at
-    //     FROM YouTubeVideos_${decoded.username}
-    //     WHERE username = $1 
-    //         AND is_deleted = ${req.body.is_deleted})
-    //     UNION ALL
-    //     (SELECT id, gh_filename AS cloudtitle, filename AS filename, created_at
-    //     FROM GitHubFiles_${decoded.username} 
-    //     WHERE username = $1 
-    //         AND is_deleted = ${req.body.is_deleted})
-    // `;
+    let videoPaginatedQuery = `
+        (SELECT CAST(id AS VARCHAR) AS id, filename, 'github' AS platform, created_at
+        FROM GitHubFiles_${decoded.username} 
+        WHERE is_deleted = ${req.body.is_deleted})
+        UNION ALL
+        (SELECT video_id AS id, title AS filename, 'youtube' AS platform, created_at
+        FROM YouTubeVideos_${decoded.username}
+        WHERE is_deleted = ${req.body.is_deleted})
+    `;
 
     // if (req.body.search && req.body.search.trim() !== "") {
     //     videoPaginatedQuery += `WHERE cloudtitle ILIKE '%${req.body.search.trim()}%' `;
     // }
 
-    // videoPaginatedQuery += `LIMIT $2 OFFSET $3`;
+    videoPaginatedQuery += `LIMIT $1 OFFSET $2`;
 
     const ghPartitionTable = `GitHubFiles_${decoded.username}`;
     const ytPartitionTable = `YouTubeVideos_${decoded.username}`;
@@ -60,11 +58,7 @@ exports.getAllFiles = async (req, res, pool) => {
     `;
 
     try {
-        // const filesPagResult = await pool.query(videoPaginatedQuery, [
-        //     decoded.username,
-        //     limit,
-        //     offset,
-        // ]);
+        const filesPagResult = await pool.query(videoPaginatedQuery, [limit, offset]);
 
         const queryPageCountResult = await pool.query(queryPageCount, []);
         const totalFilesCount = queryPageCountResult.rows[0].total_count;
@@ -72,7 +66,7 @@ exports.getAllFiles = async (req, res, pool) => {
         res.json({
             success: true,
             message: "Files obtained successfully",
-            // results: filesPagResult.rows,
+            results: filesPagResult.rows,
             maxpage: Math.ceil(totalFilesCount / limit),
             filecount: parseInt(totalFilesCount)
         });
