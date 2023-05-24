@@ -28,18 +28,21 @@ exports.getAllFiles = async (req, res, pool) => {
     const offset = (page - 1) * limit;
 
     let videoPaginatedQuery = `
-        (SELECT CAST(id AS VARCHAR) AS id, filename, 'github' AS platform, created_at
-        FROM GitHubFiles_${decoded.username} 
-        WHERE is_deleted = ${req.body.is_deleted})
-        UNION ALL
-        (SELECT video_id AS id, title AS filename, 'youtube' AS platform, created_at
-        FROM YouTubeVideos_${decoded.username}
-        WHERE is_deleted = ${req.body.is_deleted})
+        SELECT *
+        FROM (
+            (SELECT CAST(id AS VARCHAR) AS id, filename, 'github' AS platform, created_at
+            FROM GitHubFiles_${decoded.username} 
+            WHERE is_deleted = ${req.body.is_deleted})
+            UNION ALL
+            (SELECT video_id AS id, title AS filename, 'youtube' AS platform, created_at
+            FROM YouTubeVideos_${decoded.username}
+            WHERE is_deleted = ${req.body.is_deleted})
+        ) AS compiled_files
     `;
 
-    // if (req.body.search && req.body.search.trim() !== "") {
-    //     videoPaginatedQuery += `WHERE cloudtitle ILIKE '%${req.body.search.trim()}%' `;
-    // }
+    if (req.body.search && req.body.search.trim() !== "") {
+        videoPaginatedQuery += `WHERE filename ILIKE '%${req.body.search.trim()}%' `;
+    }
 
     videoPaginatedQuery += `LIMIT $1 OFFSET $2`;
 
