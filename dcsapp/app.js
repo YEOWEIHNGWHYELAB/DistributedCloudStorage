@@ -84,6 +84,16 @@ Promise.all([
 
 
     /**
+     * SMCOverlord DCS
+     */
+    // Files Routers
+    const smcoRouter = require('./smcoapi/routes/smcoroutes')(pool);
+    app.use('/smco', (req, res, next) => {
+        auth.isAuthenticated(req, res, next, pool);
+    }, smcoRouter);
+    
+
+    /**
      * GitHub DCS
      */
     // GitHub Credential Routers
