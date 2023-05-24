@@ -3,6 +3,7 @@ import axios from "axios";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 
 import setHeaderToken from "../../../Contexts/SetHeaderToken";
+import cloudlogo from './cloudlogo.svg';
 
 const MainLanding = () => {
     const [user, setUser] = useState("");
@@ -67,6 +68,16 @@ const MainLanding = () => {
                     </Col>
                 </Row>
             </Container>
+
+            <img src={cloudlogo} alt="Cloud Logo" 
+                style={{
+                    width: "25%",
+                    display: "block",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    margin: "auto"
+                }}
+            />
 
             <div
                 style={{
