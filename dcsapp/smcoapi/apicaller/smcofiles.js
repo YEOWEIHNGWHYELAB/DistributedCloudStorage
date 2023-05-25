@@ -30,11 +30,11 @@ exports.getAllFiles = async (req, res, pool) => {
     let videoPaginatedQuery = `
         SELECT *
         FROM (
-            (SELECT CAST(id AS VARCHAR) AS id, filename, path_dir, 'github' AS platform, created_at
+            (SELECT CONCAT('gh', '_', CAST(id AS VARCHAR)) AS id, filename, path_dir, 'github' AS platform, created_at
             FROM GitHubFiles_${decoded.username} 
             WHERE is_deleted = ${req.body.is_deleted})
             UNION ALL
-            (SELECT video_id AS id, title AS filename, path_dir, 'youtube' AS platform, created_at
+            (SELECT CONCAT('yt', '_', CAST(video_id AS VARCHAR)) AS id, title AS filename, path_dir, 'youtube' AS platform, created_at
             FROM YouTubeVideos_${decoded.username}
             WHERE is_deleted = ${req.body.is_deleted})
         ) AS compiled_files
