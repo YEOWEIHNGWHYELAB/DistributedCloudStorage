@@ -20,19 +20,6 @@ class BPlusTree {
         const file = { fileId, filename, directoryPath };
         let currentNode = this.findLeafNode(filename);
 
-        // Check if the file already exists
-        const existingFiles = currentNode.children.filter(
-            (child) => child.filename === filename
-        );
-        const existingFile = existingFiles.find(
-            (child) => child.directoryPath === directoryPath
-        );
-        if (existingFile) {
-            // File already exists with the same filename and directory path
-            return;
-        }
-
-        // File doesn't exist, insert it
         currentNode.keys.push(filename);
         currentNode.children.push(file);
         currentNode.keys.sort();
@@ -68,9 +55,11 @@ class BPlusTree {
     // Search for files with the given filename
     search(filename) {
         let currentNode = this.findLeafNode(filename);
+
         const files = currentNode.children.filter(
             (child) => child.filename === filename
         );
+        
         return files;
     }
 
@@ -231,6 +220,9 @@ const fileSystem = new BPlusTree(4);
 fileSystem.insert("gh_123", "file1.txt", "/documents");
 fileSystem.insert("gh_321", "file2.txt", "/documents");
 fileSystem.insert("yt_32", "file1.txt", "/photos");
+fileSystem.insert("yt_332", "file1.txt", "/photos");
+fileSystem.insert("yt_3332", "file1.txt", "/photos");
+fileSystem.insert("yt_312", "file1.txt", "/photos");
 fileSystem.insert("yt_21", "file3.txt", "/documents");
 
 // Search for files
