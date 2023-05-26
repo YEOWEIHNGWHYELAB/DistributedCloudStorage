@@ -8,7 +8,7 @@ class Node {
     }
 }
 
-class BPlusTree {
+class BPlusTreeFS {
     constructor(order) {
         this.root = new Node(true);
         this.order = order;
@@ -214,7 +214,7 @@ class BPlusTree {
 }
 
 // Create a new B+Tree with order 4
-const fileSystem = new BPlusTree(4);
+const fileSystem = new BPlusTreeFS(4);
 
 // Insert files into the file system
 fileSystem.insert("gh_123", "file1.txt", "/documents");
