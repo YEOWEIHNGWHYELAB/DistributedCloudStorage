@@ -12,12 +12,11 @@ class BPlusTree {
     constructor(order) {
         this.root = new Node(true);
         this.order = order;
-        this.fileIdCounter = 1; // Unique identifier counter for files
     }
 
     // Insert a file into the tree
-    insert(filename, directoryPath) {
-        const fileId = this.fileIdCounter++;
+    insert(fileID, filename, directoryPath) {
+        const fileId = fileID;
         const file = { fileId, filename, directoryPath };
         let currentNode = this.findLeafNode(filename);
 
@@ -229,20 +228,20 @@ class BPlusTree {
 const fileSystem = new BPlusTree(4);
 
 // Insert files into the file system
-fileSystem.insert("file1.txt", "/documents");
-fileSystem.insert("file2.txt", "/documents");
-fileSystem.insert("file1.txt", "/photos");
-fileSystem.insert("file3.txt", "/documents");
+fileSystem.insert("gh_123", "file1.txt", "/documents");
+fileSystem.insert("gh_321", "file2.txt", "/documents");
+fileSystem.insert("yt_32", "file1.txt", "/photos");
+fileSystem.insert("yt_21", "file3.txt", "/documents");
 
 // Search for files
 const filesWithFilename1 = fileSystem.search("file1.txt");
 console.log("Files with filename 'file1.txt':", filesWithFilename1);
 
 // Update the directory path of a file
-fileSystem.update("file1.txt", 3, "/newpath");
+fileSystem.update("file1.txt", "yt_32", "/newpath");
 
 // Delete a file
-fileSystem.delete("file1.txt", 1);
+fileSystem.delete("file1.txt", "gh_123", 1);
 
 // Search for files after deletion
 const filesWithFilename1Updated = fileSystem.search("file1.txt");
