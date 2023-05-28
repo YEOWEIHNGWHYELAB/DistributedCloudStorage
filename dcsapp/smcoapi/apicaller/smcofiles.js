@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const fileManager = require("./filemanager");
+const folderMnager = require("./pathmanager");
 
 
 function decodeAuthToken(dcsAuthToken, res) {
@@ -45,14 +46,14 @@ async function createDirectoryIfNotExist(rootID, pathArray, username, pool) {
 
     for (let pathLevel = 1; pathLevel < pathArray.length; pathLevel++) {
         // Check if the path already
-        const dirExist = await pool.query(checkIfDirExist, 
+        const dirExist = await pool.query(checkIfDirExist,
             [username, pathArray[pathLevel], pathLevel, currParentID]);
 
         if (dirExist.rows.length == 0) {
             // Path does not exist, so create it
-            const dirCreation = await pool.query(newDirQuery, 
+            const dirCreation = await pool.query(newDirQuery,
                 [username, pathArray[pathLevel], pathLevel, currParentID]);
-    
+
             currParentID = dirCreation.rows[0].id;
         } else {
             // Path already exist, keep traversing down the path tree
@@ -173,7 +174,7 @@ exports.getAllFiles = async (req, res, pool) => {
     }
 };
 
-exports.changeDir = async (req, res, pool) => {
+exports.changeFileDir = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         return res
@@ -198,16 +199,63 @@ exports.changeDir = async (req, res, pool) => {
 
     try {
         const idPathResult = await pool.query(queryIDPath, []);
-        
+
         if (idPathResult.rows.length != 0) {
             const targetID = idPathResult.rows[0].id;
 
             await fileManager.changeFileDirectory(req.body.id, targetID, pool, res);
         } else {
-            res.json({ success: false, message: "Directory does not exist!"});
+            res.json({ success: false, message: "Directory does not exist!" });
         }
-    } catch(error) {
+    } catch (error) {
         // console.log(error);
         res.json({ success: false, message: "Failure to change directory!" });
+    }
+}
+
+exports.changeFolderDir = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+    const token = authHeader.split(" ")[1];
+    let decoded = decodeAuthToken(token, res);
+
+    const oldPathFolder = req.body.old_path;
+    const oldPathArray = oldPathFolder.split("/");
+    const oldFolderName = oldPathArray[oldPathArray.length - 1];
+    const oldFolderDepth = oldPathArray.length - 1;
+
+    const newTargetPath = req.body.new_path;
+    const newPathArray = newTargetPath.split("/");
+    const newFolderName = newPathArray[newPathArray.length - 1];
+    const newFolderDepth = newPathArray.length - 1;
+
+    const queryIDOldPath = `
+        SELECT id, path_level
+        FROM FileSystemPaths
+        WHERE LOWER(path_name) = LOWER($1)
+            AND username = $2
+            AND path_level = $3
+    `;
+
+    try {
+        const idOldPathResult = await pool.query(queryIDOldPath, [oldFolderName, decoded.username, oldFolderDepth]);
+        const idNewPathResult = await pool.query(queryIDOldPath, [newFolderName, decoded.username, newFolderDepth]);
+        
+        if (idOldPathResult.rows.length != 0 && idNewPathResult.rows.length != 0) {
+            const oldPathID = idOldPathResult.rows[0].id;
+            const newPathID = idNewPathResult.rows[0].id;
+            const newPathLevel = idNewPathResult.rows[0].path_level + 1;
+
+            const resultChangeFolder = await folderMnager.changeFolderDirectory(pool, oldPathID, newPathID, newPathLevel, decoded.username, res);
+        } else {
+            res.json({ success: false, message: "Path does not exist!" });
+        }
+    } catch(error) {
+        console.log(error);
+        res.json({ success: false, message: "Failed to change folder directory" });
     }
 }

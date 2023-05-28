@@ -13,8 +13,12 @@ module.exports = (pool) => {
         smcoController.mkDir(req, res, pool);
     });
 
-    router.post("/cd", (req, res) => {
-        smcoController.changeDir(req, res, pool);
+    router.post("/cdfiles", (req, res) => {
+        smcoController.changeFileDir(req, res, pool);
+    });
+
+    router.post("/cdfolder", (req, res) => {
+        smcoController.changeFolderDir(req, res, pool);
     });
 
     return router;
