@@ -24,8 +24,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
+import FSManager from "./FSManager"
+
 
 function SMCO() {
+    const [fsManager] = useState(() => new FSManager());
 
     return (
         <div>

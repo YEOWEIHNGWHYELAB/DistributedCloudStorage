@@ -17,6 +17,14 @@ CREATE TABLE IF NOT EXISTS JWTBlackList (
     revoked_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+/* SMCOverlord Directories */
+CREATE TABLE FileSystemPaths (
+  id SERIAL,
+  username VARCHAR(255) REFERENCES Users(username),
+  path_dir VARCHAR(400) NOT NULL,
+  PRIMARY KEY (id, username)
+) PARTITION BY LIST (username);
+
 /* Google Tables */
 CREATE TABLE IF NOT EXISTS GoogleCredential (
     id SERIAL PRIMARY KEY,

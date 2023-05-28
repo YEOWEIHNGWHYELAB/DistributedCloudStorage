@@ -6,12 +6,28 @@ class Directory {
 }
 
 
-class FSManager {
+export default class FSManager {
     constructor() {
         this.root = new Directory();
     }
 
+    isValidDir(path) {
+        const pathArray = path.split('/');
+
+        for (let i = 1; i < pathArray.length; i++) {
+            if (pathArray[i] == "") {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     mkdir(path) {
+        if (!this.isValidDir(path)) {
+            return;
+        }
+
         let curr_dir = this.root;
 
         const pathArray = path.split('/');
@@ -52,8 +68,9 @@ class FSManager {
     }
 }
 
-/*
+
 // Mini Test
+/*
 let fsManager = new FSManager();
 
 fsManager.mkdir("/Documents/Photos");
