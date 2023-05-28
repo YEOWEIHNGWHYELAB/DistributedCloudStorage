@@ -13,5 +13,9 @@ module.exports = (pool) => {
         smcoController.mkDir(req, res, pool);
     });
 
+    router.post("/cd", (req, res) => {
+        smcoController.changeDir(req, res, pool);
+    });
+
     return router;
 };

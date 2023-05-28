@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS JWTBlackList (
 
 /* SMCOverlord Directories */
 CREATE TABLE IF NOT EXISTS FileSystemPaths (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     username VARCHAR(255) REFERENCES Users(username),
     path_name VARCHAR(400) NOT NULL,
     path_level INT NOT NULL DEFAULT 1,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS YouTubeVideos (
     google_account_id SERIAL REFERENCES GoogleCredential(id),
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    path_dir INT REFERENCES FileSystemPaths(id),
+    path_dir BIGINT REFERENCES FileSystemPaths(id),
     PRIMARY KEY (video_id, username)
 ) PARTITION BY LIST (username);
 
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS GitHubFiles (
     filename TEXT NOT NULL,
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    path_dir INT REFERENCES FileSystemPaths(id),
+    path_dir BIGINT REFERENCES FileSystemPaths(id),
     PRIMARY KEY (id, username)
 ) PARTITION BY LIST (username);
 

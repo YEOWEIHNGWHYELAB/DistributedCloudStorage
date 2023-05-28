@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const fileManager = require("./filemanager");
 
 
 function decodeAuthToken(dcsAuthToken, res) {
@@ -43,15 +44,18 @@ async function createDirectoryIfNotExist(rootID, pathArray, username, pool) {
     let currParentID = rootID;
 
     for (let pathLevel = 1; pathLevel < pathArray.length; pathLevel++) {
+        // Check if the path already
         const dirExist = await pool.query(checkIfDirExist, 
             [username, pathArray[pathLevel], pathLevel, currParentID]);
 
         if (dirExist.rows.length == 0) {
+            // Path does not exist, so create it
             const dirCreation = await pool.query(newDirQuery, 
                 [username, pathArray[pathLevel], pathLevel, currParentID]);
     
             currParentID = dirCreation.rows[0].id;
         } else {
+            // Path already exist, keep traversing down the path tree
             currParentID = dirExist.rows[0].id;
         }
     }
@@ -168,3 +172,42 @@ exports.getAllFiles = async (req, res, pool) => {
         res.json({ success: false, message: "Failed to get files" });
     }
 };
+
+exports.changeDir = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+    const token = authHeader.split(" ")[1];
+    let decoded = decodeAuthToken(token, res);
+
+    const pathTarget = req.body.new_path;
+    const pathArray = pathTarget.split("/");
+    const pathTargetName = pathArray[pathArray.length - 1];
+    const pathDepth = pathArray.length - 1;
+
+    const queryIDPath = `
+        SELECT id
+        FROM FileSystemPaths
+        WHERE LOWER(path_name) = LOWER('${pathTargetName}')
+            AND username = '${decoded.username}'
+            AND path_level = ${pathDepth}
+    `;
+
+    try {
+        const idPathResult = await pool.query(queryIDPath, []);
+        
+        if (idPathResult.rows.length != 0) {
+            const targetID = idPathResult.rows[0].id;
+
+            await fileManager.changeFileDirectory(req.body.id, targetID, pool, res);
+        } else {
+            res.json({ success: false, message: "Directory does not exist!"});
+        }
+    } catch(error) {
+        // console.log(error);
+        res.json({ success: false, message: "Failure to change directory!" });
+    }
+}
