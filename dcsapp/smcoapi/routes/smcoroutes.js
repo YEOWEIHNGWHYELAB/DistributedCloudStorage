@@ -21,5 +21,9 @@ module.exports = (pool) => {
         smcoController.changeFolderDir(req, res, pool);
     });
 
+    router.patch("/renamefolder", (req, res) => {
+        smcoController.renameFolderDir(req, res, pool);
+    });
+
     return router;
 };

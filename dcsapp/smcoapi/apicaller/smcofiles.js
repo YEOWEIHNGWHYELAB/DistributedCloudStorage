@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const fileManager = require("./filemanager");
-const folderMnager = require("./pathmanager");
+const folderManager = require("./pathmanager");
 
 
 function decodeAuthToken(dcsAuthToken, res) {
@@ -250,12 +250,36 @@ exports.changeFolderDir = async (req, res, pool) => {
             const newPathID = idNewPathResult.rows[0].id;
             const newPathLevel = idNewPathResult.rows[0].path_level + 1;
 
-            const resultChangeFolder = await folderMnager.changeFolderDirectory(pool, oldPathID, newPathID, newPathLevel, decoded.username, res);
+            const resultChangeFolder = await folderManager.changeFolderDirectory(pool, oldPathID, newPathID, newPathLevel, decoded.username, res);
         } else {
             res.json({ success: false, message: "Path does not exist!" });
         }
     } catch(error) {
         console.log(error);
         res.json({ success: false, message: "Failed to change folder directory" });
+    }
+}
+
+exports.renameFolderDir = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+    const token = authHeader.split(" ")[1];
+    let decoded = decodeAuthToken(token, res);
+
+    const pathToRename = req.body.path_rename;
+    const pathToRenameArray = pathToRename.split("/");
+    const oldFolderName = pathToRenameArray[pathToRenameArray.length - 1];
+    const pathDepthRename = pathToRenameArray.length - 1;
+
+    const newPathname = req.body.new_pathname;
+    
+    try {
+        await folderManager.renameFolder(res, pool, oldFolderName, pathDepthRename, decoded.username, newPathname);
+    } catch(error) {
+        res.status(401).json({ success: false, message: "Failed to rename folder!"});
     }
 }
