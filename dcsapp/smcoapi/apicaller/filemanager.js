@@ -10,7 +10,7 @@ exports.changeFileDirectory = async (idArray, targetPathID, pool, res) => {
         if (platform == "yt") {
             ytVideoID.push(fileID);
         } else if (platform == "gh") {
-            ghFilesID.push(fileID);
+            ghFilesID.push(parseInt(fileID));
         }
     }
 
