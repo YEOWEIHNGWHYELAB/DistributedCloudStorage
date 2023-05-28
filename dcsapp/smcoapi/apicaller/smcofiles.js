@@ -11,6 +11,39 @@ function decodeAuthToken(dcsAuthToken, res) {
     }
 }
 
+async function createDirectoryIfNotExist(rootID, pathArray, username, pool) {
+    const newDirQuery = `
+        INSERT INTO FileSystemPaths (username, path_name, path_level, path_parent) 
+            VALUES ($1, $2, $3, $4) 
+            RETURNING id
+    `;
+
+    const checkIfDirExist = `
+        SELECT id
+        FROM FileSystemPaths
+        WHERE username = $1 
+            AND LOWER(path_name) = LOWER($2)
+            AND path_level = $3
+            AND path_parent = $4
+    `;
+
+    let currParentID = rootID;
+
+    for (let pathLevel = 1; pathLevel < pathArray.length; pathLevel++) {
+        const dirExist = await pool.query(checkIfDirExist, 
+            [username, pathArray[pathLevel], pathLevel, currParentID]);
+
+        if (dirExist.rows.length == 0) {
+            const dirCreation = await pool.query(newDirQuery, 
+                [username, pathArray[pathLevel], pathLevel, currParentID]);
+    
+            currParentID = dirCreation.rows[0].id;
+        } else {
+            currParentID = dirExist.rows[0].id;
+        }
+    }
+}
+
 exports.mkDir = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -21,17 +54,28 @@ exports.mkDir = async (req, res, pool) => {
     const token = authHeader.split(" ")[1];
     let decoded = decodeAuthToken(token, res);
 
+    const dirToCreate = req.body.new_dir;
+
+    const getRootQuery = `
+        SELECT id
+        FROM FileSystemPaths
+        WHERE username = $1
+            AND path_level = 0
+    `;
+
     try {
-        const filesPagResult = await pool.query(videoPaginatedQuery, [limit, offset]);
+        const getRootID = await pool.query(getRootQuery, [decoded.username]);
+        const rootID = getRootID.rows[0].id;
 
-        const queryPageCountResult = await pool.query(queryPageCount, []);
-        const totalFilesCount = queryPageCountResult.rows[0].total_count;
+        await createDirectoryIfNotExist(rootID, dirToCreate.split("/"), decoded.username, pool);
 
+        /*
         res.json({
             success: true,
             message: "Directory successfully created!"
-        });
+        });*/
     } catch (error) {
+        console.log(error);
         res.json({ success: false, message: "Failed to make directory!" });
     }
 }
