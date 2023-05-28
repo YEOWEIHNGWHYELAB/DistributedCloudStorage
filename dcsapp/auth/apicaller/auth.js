@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const jwtManager = require('./jwtmanager');
-const createtTablePartition = require('../filemanager/createtable');
+const createTablePartition = require('../filemanager/createtable');
 const mailManager = require("./sendmail");
 const codeManger = require("./codegenerator");
 
@@ -36,8 +36,10 @@ exports.register = async (req, res, pool) => {
          * Note that we pass username without converting it to lower case as 
          * postgresql would do it automatically
          */
-        const createTableResult = await createtTablePartition.createRequiredFileTable(username, pool);
+        const createTableResult = await createTablePartition.createRequiredFileTable(username, pool);
         // console.log(createTableResult);
+
+        const createNewRootDirSMCO = await createTablePartition.createRequiredRootDirSMCO(username, pool);
 
         // Sign JWT token
         jwtManager.generateToken(pool, newUser, res, true);

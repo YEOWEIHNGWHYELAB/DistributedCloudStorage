@@ -21,3 +21,19 @@ exports.createRequiredFileTable = async function(username, pool) {
         return { success: false, message: error };
     }
 }
+
+exports.createRequiredRootDirSMCO = async function(username, pool) {
+    const createRootDir = `
+        INSERT INTO FileSystemPaths (username, path_name, path_level) 
+            VALUES ($1, $2, $3)
+    `;
+
+    try {
+        const newRootDir = await pool.query(createRootDir, [username, '', 0]);
+
+        return { success: true };
+    } catch (error) {
+        // console.log(error);
+        return { success: false, message: error };
+    }
+}

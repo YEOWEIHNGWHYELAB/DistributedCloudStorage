@@ -11,6 +11,31 @@ function decodeAuthToken(dcsAuthToken, res) {
     }
 }
 
+exports.mkDir = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+    const token = authHeader.split(" ")[1];
+    let decoded = decodeAuthToken(token, res);
+
+    try {
+        const filesPagResult = await pool.query(videoPaginatedQuery, [limit, offset]);
+
+        const queryPageCountResult = await pool.query(queryPageCount, []);
+        const totalFilesCount = queryPageCountResult.rows[0].total_count;
+
+        res.json({
+            success: true,
+            message: "Directory successfully created!"
+        });
+    } catch (error) {
+        res.json({ success: false, message: "Failed to make directory!" });
+    }
+}
+
 exports.getAllFiles = async (req, res, pool) => {
     // Authentication decode
     const authHeader = req.headers.authorization;
@@ -74,7 +99,7 @@ exports.getAllFiles = async (req, res, pool) => {
             filecount: parseInt(totalFilesCount)
         });
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: "Failed to get files" });
     }
 };
