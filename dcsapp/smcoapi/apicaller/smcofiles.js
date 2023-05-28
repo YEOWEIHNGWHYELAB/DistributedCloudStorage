@@ -283,3 +283,21 @@ exports.renameFolderDir = async (req, res, pool) => {
         res.status(401).json({ success: false, message: "Failed to rename folder!"});
     }
 }
+
+exports.deleteDir = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+    const token = authHeader.split(" ")[1];
+    let decoded = decodeAuthToken(token, res);
+
+    /**
+     * 1) We need to ensure that the deletion is not on root directory
+     * 2) Obtain all the files in that directory including nested directories,
+     *  then set all those files' path to be at the root directory
+     * 3) Delete that directory along with its nested directories
+     */
+}

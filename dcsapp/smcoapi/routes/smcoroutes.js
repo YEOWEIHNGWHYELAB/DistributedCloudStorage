@@ -25,5 +25,9 @@ module.exports = (pool) => {
         smcoController.renameFolderDir(req, res, pool);
     });
 
+    router.post("/deletedir", (req, res) => {
+        smcoController.deleteDir(req, res, pool);
+    });
+
     return router;
 };
