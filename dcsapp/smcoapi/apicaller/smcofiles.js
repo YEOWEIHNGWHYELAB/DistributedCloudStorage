@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 
+
 function decodeAuthToken(dcsAuthToken, res) {
     try {
         let decoded = jwt.verify(dcsAuthToken, process.env.JWT_SECRET, {
@@ -9,6 +10,18 @@ function decodeAuthToken(dcsAuthToken, res) {
     } catch (err) {
         res.status(401).json({ message: "Invalid token" });
     }
+}
+
+function pathArrayCheck(pathArray) {
+    for (let i = 1; i < pathArray.length; i++) {
+        let currPath = pathArray[i];
+
+        if (currPath == "") {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 async function createDirectoryIfNotExist(rootID, pathArray, username, pool) {
@@ -67,13 +80,21 @@ exports.mkDir = async (req, res, pool) => {
         const getRootID = await pool.query(getRootQuery, [decoded.username]);
         const rootID = getRootID.rows[0].id;
 
-        await createDirectoryIfNotExist(rootID, dirToCreate.split("/"), decoded.username, pool);
+        const pathArray = dirToCreate.split("/");
 
-        /*
-        res.json({
-            success: true,
-            message: "Directory successfully created!"
-        });*/
+        if (pathArrayCheck(pathArray)) {
+            await createDirectoryIfNotExist(rootID, pathArray, decoded.username, pool);
+
+            res.json({
+                success: true,
+                message: "Directory successfully created!"
+            });
+        } else {
+            res.json({
+                success: false,
+                message: "Invalid path!"
+            });
+        }
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Failed to make directory!" });

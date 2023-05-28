@@ -110,10 +110,19 @@ async function uploadVideoYT(youtube, req, videoStream, res, videoPath, thumbnai
             }
         });
 
+        const queryRootDir = `
+            SELECT id
+            FROM FileSystemPaths
+            WHERE path_level = 0
+                AND username = '${username}'
+        `;
+        const rootQueryResult = await pool.query(queryRootDir, []);
+        const rootID = rootQueryResult.rows[0].id;
+
         let videoID = responseInsert.data.id;
 
-        const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id) VALUES ($1, $2, $3, $4) RETURNING *`;
-        const values = [username, videoID, videoTitle, account_id];
+        const queryText = `INSERT INTO YouTubeVideos_${username} (username, video_id, title, google_account_id, path_dir) VALUES ($1, $2, $3, $4, $5) RETURNING *`;
+        const values = [username, videoID, videoTitle, account_id, rootID];
         const result = await pool.query(queryText, values);
 
         const ytUploadMeta = {

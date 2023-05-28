@@ -53,7 +53,7 @@ async function createNewRepoPgDb(pool, username, credID, new_repo_name) {
         credID,
         new_repo_name]);
 
-    return repoID.rows[0].id; 
+    return repoID.rows[0].id;
 }
 
 /**
@@ -86,13 +86,22 @@ async function uploadFileToGitHub(path, octokit, optimalGitHubCredUsername, opti
  * link to the remote github where it is at
  */
 async function recordFilePg(pool, username, originalFileName, gh_account_id, repoID, ghFileName) {
+    const queryRootDir = `
+        SELECT id
+        FROM FileSystemPaths
+        WHERE path_level = 0
+            AND username = '${username}'
+    `;
+    const rootQueryResult = await pool.query(queryRootDir, []);
+    const rootID = rootQueryResult.rows[0].id;
+
     const partitionName = `GitHubFiles_${username}`;
 
     const recordFileQuery = `
-        INSERT INTO ${partitionName} (username, filename, gh_account_id, gh_repo_id, gh_filename) 
-        VALUES ($1, $2, $3, $4, $5)`;
+        INSERT INTO ${partitionName} (username, filename, gh_account_id, gh_repo_id, gh_filename, path_dir) 
+        VALUES ($1, $2, $3, $4, $5, $6)`;
 
-    return await pool.query(recordFileQuery, [username, originalFileName, gh_account_id, repoID, ghFileName]);
+    return await pool.query(recordFileQuery, [username, originalFileName, gh_account_id, repoID, ghFileName, rootID]);
 }
 
 // Obtain latest repo from name
@@ -206,7 +215,7 @@ exports.createNewFile = async (file, req, res, pool) => {
         filename = req.file.filename;
         path = req.file.path;
     }
-    
+
     const octokit = new Octokit({
         auth: optimalGitHubCredAccessToken
     });
@@ -216,7 +225,7 @@ exports.createNewFile = async (file, req, res, pool) => {
         // Update the GitHub account's storage and performing checks
         const stats = fs.statSync(path);
         const fileSizeInBytes = stats.size;
-        const fileSizeInKB =  Math.round(fileSizeInBytes / 1024);
+        const fileSizeInKB = Math.round(fileSizeInBytes / 1024);
         const newAccountStorage = BigInt(currStorageOfOptimalAccount) + BigInt(fileSizeInKB);
         const newRepoStorage = BigInt(currStorageOfOptimalRepo) + BigInt(fileSizeInKB);
 
@@ -325,7 +334,7 @@ exports.getAllFiles = async (req, res, pool) => {
 exports.renameFile = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const token = checkAuthHeader(authHeader, res);
-    
+
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, {
             algorithms: ["HS256"],
@@ -356,7 +365,7 @@ exports.renameFile = async (req, res, pool) => {
 exports.deleteFiles = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     const token = checkAuthHeader(authHeader, res);
-    
+
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, {
             algorithms: ["HS256"],
