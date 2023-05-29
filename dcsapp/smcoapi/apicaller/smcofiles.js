@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 const fileManager = require("./filemanager");
 const folderManager = require("./pathmanager");
 
-
 function decodeAuthToken(dcsAuthToken, res) {
     try {
         let decoded = jwt.verify(dcsAuthToken, process.env.JWT_SECRET, {
@@ -46,13 +45,21 @@ async function createDirectoryIfNotExist(rootID, pathArray, username, pool) {
 
     for (let pathLevel = 1; pathLevel < pathArray.length; pathLevel++) {
         // Check if the path already
-        const dirExist = await pool.query(checkIfDirExist,
-            [username, pathArray[pathLevel], pathLevel, currParentID]);
+        const dirExist = await pool.query(checkIfDirExist, [
+            username,
+            pathArray[pathLevel],
+            pathLevel,
+            currParentID,
+        ]);
 
         if (dirExist.rows.length == 0) {
             // Path does not exist, so create it
-            const dirCreation = await pool.query(newDirQuery,
-                [username, pathArray[pathLevel], pathLevel, currParentID]);
+            const dirCreation = await pool.query(newDirQuery, [
+                username,
+                pathArray[pathLevel],
+                pathLevel,
+                currParentID,
+            ]);
 
             currParentID = dirCreation.rows[0].id;
         } else {
@@ -88,23 +95,28 @@ exports.mkDir = async (req, res, pool) => {
         const pathArray = dirToCreate.split("/");
 
         if (pathArrayCheck(pathArray)) {
-            await createDirectoryIfNotExist(rootID, pathArray, decoded.username, pool);
+            await createDirectoryIfNotExist(
+                rootID,
+                pathArray,
+                decoded.username,
+                pool
+            );
 
             res.json({
                 success: true,
-                message: "Directory successfully created!"
+                message: "Directory successfully created!",
             });
         } else {
             res.json({
                 success: false,
-                message: "Invalid path!"
+                message: "Invalid path!",
             });
         }
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Failed to make directory!" });
     }
-}
+};
 
 exports.getAllFiles = async (req, res, pool) => {
     // Authentication decode
@@ -156,7 +168,10 @@ exports.getAllFiles = async (req, res, pool) => {
     `;
 
     try {
-        const filesPagResult = await pool.query(videoPaginatedQuery, [limit, offset]);
+        const filesPagResult = await pool.query(videoPaginatedQuery, [
+            limit,
+            offset,
+        ]);
 
         const queryPageCountResult = await pool.query(queryPageCount, []);
         const totalFilesCount = queryPageCountResult.rows[0].total_count;
@@ -166,7 +181,7 @@ exports.getAllFiles = async (req, res, pool) => {
             message: "Files obtained successfully",
             results: filesPagResult.rows,
             maxpage: Math.ceil(totalFilesCount / limit),
-            filecount: parseInt(totalFilesCount)
+            filecount: parseInt(totalFilesCount),
         });
     } catch (error) {
         // console.log(error);
@@ -203,7 +218,12 @@ exports.changeFileDir = async (req, res, pool) => {
         if (idPathResult.rows.length != 0) {
             const targetID = idPathResult.rows[0].id;
 
-            await fileManager.changeFileDirectory(req.body.id, targetID, pool, res);
+            await fileManager.changeFileDirectory(
+                req.body.id,
+                targetID,
+                pool,
+                res
+            );
         } else {
             res.json({ success: false, message: "Directory does not exist!" });
         }
@@ -211,7 +231,7 @@ exports.changeFileDir = async (req, res, pool) => {
         // console.log(error);
         res.json({ success: false, message: "Failure to change directory!" });
     }
-}
+};
 
 exports.changeFolderDir = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
@@ -242,23 +262,45 @@ exports.changeFolderDir = async (req, res, pool) => {
     `;
 
     try {
-        const idOldPathResult = await pool.query(queryIDOldPath, [oldFolderName, decoded.username, oldFolderDepth]);
-        const idNewPathResult = await pool.query(queryIDOldPath, [newFolderName, decoded.username, newFolderDepth]);
-        
-        if (idOldPathResult.rows.length != 0 && idNewPathResult.rows.length != 0) {
+        const idOldPathResult = await pool.query(queryIDOldPath, [
+            oldFolderName,
+            decoded.username,
+            oldFolderDepth,
+        ]);
+        const idNewPathResult = await pool.query(queryIDOldPath, [
+            newFolderName,
+            decoded.username,
+            newFolderDepth,
+        ]);
+
+        if (
+            idOldPathResult.rows.length != 0 &&
+            idNewPathResult.rows.length != 0
+        ) {
             const oldPathID = idOldPathResult.rows[0].id;
             const newPathID = idNewPathResult.rows[0].id;
             const newPathLevel = idNewPathResult.rows[0].path_level + 1;
 
-            const resultChangeFolder = await folderManager.changeFolderDirectory(pool, oldPathID, newPathID, newPathLevel, decoded.username, res);
+            const resultChangeFolder =
+                await folderManager.changeFolderDirectory(
+                    pool,
+                    oldPathID,
+                    newPathID,
+                    newPathLevel,
+                    decoded.username,
+                    res
+                );
         } else {
             res.json({ success: false, message: "Path does not exist!" });
         }
-    } catch(error) {
+    } catch (error) {
         console.log(error);
-        res.json({ success: false, message: "Failed to change folder directory" });
+        res.json({
+            success: false,
+            message: "Failed to change folder directory",
+        });
     }
-}
+};
 
 exports.renameFolderDir = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
@@ -276,13 +318,23 @@ exports.renameFolderDir = async (req, res, pool) => {
     const pathDepthRename = pathToRenameArray.length - 1;
 
     const newPathname = req.body.new_pathname;
-    
+
     try {
-        await folderManager.renameFolder(res, pool, oldFolderName, pathDepthRename, decoded.username, newPathname);
-    } catch(error) {
-        res.status(401).json({ success: false, message: "Failed to rename folder!"});
+        await folderManager.renameFolder(
+            res,
+            pool,
+            oldFolderName,
+            pathDepthRename,
+            decoded.username,
+            newPathname
+        );
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message: "Failed to rename folder!",
+        });
     }
-}
+};
 
 exports.deleteDir = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
@@ -294,10 +346,54 @@ exports.deleteDir = async (req, res, pool) => {
     const token = authHeader.split(" ")[1];
     let decoded = decodeAuthToken(token, res);
 
-    /**
-     * 1) We need to ensure that the deletion is not on root directory
-     * 2) Obtain all the files in that directory including nested directories,
-     *  then set all those files' path to be at the root directory
-     * 3) Delete that directory along with its nested directories
-     */
-}
+    const pathToDelete = req.body.directory_name;
+    const pathToDeleteArray = pathToDelete.split("/");
+
+    if (!pathArrayCheck(pathToDeleteArray)) {
+        return res.status(401).json({ message: "Invalid directory!" });
+    }
+
+    const pathName = pathToDeleteArray[pathToDeleteArray.length - 1];
+    const pathDepth = pathToDeleteArray.length - 1;
+
+    const folderTargetIDquery = `
+        SELECT id
+        FROM FileSystemPaths
+        WHERE path_level = $1
+            AND LOWER(path_name) = LOWER($2)
+            AND username = $3
+    `;
+
+    try {
+        const folderTargetIDResult = await pool.query(folderTargetIDquery, [
+            pathDepth,
+            pathName,
+            decoded.username,
+        ]);
+        
+        /**
+         * 1) We need to ensure that the deletion is not on root directory
+         * 2) Obtain all the files in that directory including nested directories,
+         *  then set all those files' path to be at the root directory
+         * 3) Delete that directory along with its nested directories
+         * 4) Lastly delete this folder itself
+         *
+         * Do note that items deleted from a folder will be transfer to recycle
+         * bin, but then if that folder gets deleted, then that item needs to be
+         * thrown to root directory.
+         *
+         * To recursively get all files in a directory, we will perform a breadth
+         * first search to get all the files and folder inside.
+         */
+        if (folderTargetIDResult.rows.length > 0) {
+            const folderTargetID = folderTargetIDResult.rows[0].id;
+            
+            await folderManager.bfsFolderFileChildCascade(res, pool, folderTargetID);
+        } else {
+            res.json({ message: "Folder does not exist!" });
+        }
+    } catch (error) {
+        // console.log(error);
+        res.json({ message: "Failed to delete folder!" });
+    }
+};

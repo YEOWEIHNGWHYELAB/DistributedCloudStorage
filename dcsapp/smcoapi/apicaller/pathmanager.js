@@ -33,3 +33,11 @@ exports.renameFolder = async (res, pool, oldFolderName, pathDepthRename, usernam
         res.json({ success: false, message: "Failed to rename folder!" });
     }
 }
+
+exports.bfsFolderFileChildCascade = async(res, pool, folderTargetID) => {
+    const getChildDirQuery = `
+        SELECT id
+        FROM FileSystemPaths
+        WHERE 
+    `
+}
