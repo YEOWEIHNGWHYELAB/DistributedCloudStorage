@@ -1,3 +1,20 @@
+const Deque = require('collections/deque');
+
+
+async function deleteChildFiles(pool, idArray, platform) {
+    const deleteGHFilesInFolder = `
+        UPDATE ${platform}
+        SET is_deleted = true
+        WHERE ANY($1::BIGINT[]);
+    `;
+
+    try {
+        await pool.query(deleteGHFilesInFolder, [idArray]);
+    } catch (error) {
+        // console.log(error);
+    }
+}
+
 exports.changeFolderDirectory = async (pool, oldPathID, newPathID, newPathLevel, username, res) => {
     const changeFolderQuery = `
         UPDATE FileSystemPaths
@@ -34,10 +51,32 @@ exports.renameFolder = async (res, pool, oldFolderName, pathDepthRename, usernam
     }
 }
 
-exports.bfsFolderFileChildCascade = async(res, pool, folderTargetID) => {
+exports.bfsFolderFileChildCascade = async(res, pool, folderTargetID, pathDepth, username) => {
+    let folderAffectedID = [];
+
+    let ghFileID = [];
+    let ytFileID = [];
+
+    const folderQueue = new Deque();
+
+    folderQueue.push(folderTargetID);
+
+    // For each of this chil, you will need to delete all the 
+    // files within them also
     const getChildDirQuery = `
         SELECT id
         FROM FileSystemPaths
-        WHERE 
-    `
+        WHERE path_level = $1
+            AND path_parent = $2
+            AND username = $3
+    `;
+
+    for (let i = pathDepth; folderQueue.length === 0; i++) {
+        const affectedFolderResult = pool.query(getChildDirQuery, [i, folderTargetID, username]);
+
+        console.log(affectedFolderResult.rows);
+
+        folderAffectedID.push(folderQueue.shift());
+    }
+    
 }
