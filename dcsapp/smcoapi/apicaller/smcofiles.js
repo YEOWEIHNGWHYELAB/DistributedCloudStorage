@@ -388,12 +388,12 @@ exports.deleteDir = async (req, res, pool) => {
         if (folderTargetIDResult.rows.length > 0) {
             const folderTargetID = folderTargetIDResult.rows[0].id;
             
-            await folderManager.bfsFolderFileChildCascade(res, pool, folderTargetID, pathDepth + 1, username);
+            await folderManager.bfsFolderFileChildCascade(res, pool, folderTargetID, pathDepth + 1, decoded.username);
         } else {
             res.json({ message: "Folder does not exist!" });
         }
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         res.json({ message: "Failed to delete folder!" });
     }
 };
