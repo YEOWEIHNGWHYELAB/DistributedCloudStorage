@@ -1,11 +1,11 @@
 const Deque = require('collections/deque');
 
 
-async function deleteChildFiles(pool, idArray, platform, fileIDName, rootID, username, typeID) {
+async function deleteChildFiles(pool, idArray, platform, rootID, username) {
     const deleteGHFilesInFolder = `
         UPDATE ${platform}
         SET is_deleted = true, path_dir = ${rootID}
-        WHERE ${fileIDName} = ANY($1::${typeID}[])
+        WHERE path_dir = ANY($1::BIGINT[])
             AND username = '${username}'
     `;
 
@@ -16,16 +16,16 @@ async function deleteChildFiles(pool, idArray, platform, fileIDName, rootID, use
     }
 }
 
-async function deleteFolders(pool, idArray, username) {
+async function deleteFolders(pool, folderTargetID, username) {
     const deleteFolderQuery = `
         DELETE
         FROM FileSystemPaths 
-        WHERE id = ANY($1::BIGINT[])
+        WHERE id = $1
             AND username = '${username}'
     `;
 
     try {
-        await pool.query(deleteFolderQuery, [idArray]);
+        await pool.query(deleteFolderQuery, [folderTargetID]);
     } catch (error) {
         console.log(error);
     }
@@ -108,11 +108,11 @@ exports.bfsFolderFileChildCascade = async(res, pool, folderTargetID, pathDepth, 
 
     try {
         // Delete files first
-        await deleteChildFiles(pool, folderAffectedID, "GitHubFiles", "id", rootIDResult.rows[0].id, username, "BIGINT");
-        await deleteChildFiles(pool, folderAffectedID, "YouTubeVideos", "video_id", rootIDResult.rows[0].id, username, "VARCHAR");
+        await deleteChildFiles(pool, folderAffectedID, "GitHubFiles", rootIDResult.rows[0].id, username);
+        await deleteChildFiles(pool, folderAffectedID, "YouTubeVideos", rootIDResult.rows[0].id, username);
 
         // Delete the folders
-        await deleteFolders(pool, folderAffectedID, username);
+        await deleteFolders(pool, folderTargetID, username);
 
         res.json({ message: "Folder deleted" });
     } catch(error) {

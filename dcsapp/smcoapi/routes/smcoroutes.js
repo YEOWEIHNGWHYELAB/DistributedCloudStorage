@@ -8,7 +8,7 @@ module.exports = (pool) => {
         smcoController.getAllFiles(req, res, pool);
     });
 
-    // Add directories
+    // Make directories
     router.post("/mkdir", (req, res) => {
         smcoController.mkDir(req, res, pool);
     });
