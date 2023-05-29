@@ -67,7 +67,31 @@ exports.renameFolder = async (res, pool, oldFolderName, pathDepthRename, usernam
     }
 }
 
-exports.bfsFolderFileChildCascade = async(res, pool, folderTargetID, pathDepth, username) => {
+exports.getFullPath = async (pool, username, pathID) => {
+    const getPathFullQuery = `
+        SELECT path_parent, path_name, path_level
+        FROM FileSystemPaths
+        WHERE username = $1
+            AND id = $2
+    `;
+
+    let startID = pathID;
+    let pathsb = "";
+    let curr_path_level = Number.MAX_SAFE_INTEGER;
+
+    while (curr_path_level > 1) {
+        const changeFolderResult = await pool.query(getPathFullQuery, [username, startID]);
+
+        curr_path_level = changeFolderResult.rows[0].path_level;
+
+        pathsb = "/" + changeFolderResult.rows[0].path_name + pathsb;
+        startID = changeFolderResult.rows[0].path_parent;
+    }
+
+    return pathsb;
+}
+
+exports.bfsFolderFileChildCascade = async (res, pool, folderTargetID, pathDepth, username) => {
     let folderAffectedID = [];
 
     const folderQueue = new Deque();

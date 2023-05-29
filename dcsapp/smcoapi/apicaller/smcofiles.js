@@ -167,11 +167,30 @@ exports.getAllFiles = async (req, res, pool) => {
         ) AS total_count
     `;
 
+    let fileIDDIRhm = new Map();
+
     try {
-        const filesPagResult = await pool.query(videoPaginatedQuery, [
+        let filesPagResult = await pool.query(videoPaginatedQuery, [
             limit,
             offset,
         ]);
+
+        for (let i = 0; i < filesPagResult.rows.length; i++) {
+            let currPathID = parseInt(filesPagResult.rows[i].path_dir);
+
+            if (!fileIDDIRhm.has(currPathID)) {
+                filesPagResult.rows[i].full_pathname = (await folderManager.getFullPath(pool, decoded.username, parseInt(currPathID))).toString();
+                fileIDDIRhm.set(currPathID, filesPagResult.rows[i].full_pathname);
+            } else {
+                filesPagResult.rows[i].full_pathname = fileIDDIRhm.get(currPathID);
+            }
+        }
+
+        /*
+        for (const [key, value] of fileIDDIRhm.entries()) {
+            console.log("KEY: " + key + ' : VALUE: ' + value);
+        }
+        */
 
         const queryPageCountResult = await pool.query(queryPageCount, []);
         const totalFilesCount = queryPageCountResult.rows[0].total_count;
@@ -184,7 +203,7 @@ exports.getAllFiles = async (req, res, pool) => {
             filecount: parseInt(totalFilesCount),
         });
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         res.json({ success: false, message: "Failed to get files" });
     }
 };
@@ -370,7 +389,7 @@ exports.deleteDir = async (req, res, pool) => {
             pathName,
             decoded.username,
         ]);
-        
+
         /**
          * 1) We need to ensure that the deletion is not on root directory
          * 2) Obtain all the files in that directory including nested directories,
@@ -387,7 +406,7 @@ exports.deleteDir = async (req, res, pool) => {
          */
         if (folderTargetIDResult.rows.length > 0) {
             const folderTargetID = folderTargetIDResult.rows[0].id;
-            
+
             await folderManager.bfsFolderFileChildCascade(res, pool, folderTargetID, pathDepth + 1, decoded.username);
         } else {
             res.json({ message: "Folder does not exist!" });
