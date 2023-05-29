@@ -13,10 +13,12 @@ module.exports = (pool) => {
         smcoController.mkDir(req, res, pool);
     });
 
+    // Change file directory
     router.post("/cdfiles", (req, res) => {
         smcoController.changeFileDir(req, res, pool);
     });
 
+    // Change folder directory
     router.post("/cdfolder", (req, res) => {
         smcoController.changeFolderDir(req, res, pool);
     });
@@ -25,6 +27,7 @@ module.exports = (pool) => {
         smcoController.renameFolderDir(req, res, pool);
     });
 
+    // Delete a folder and all its content
     router.post("/deletedir", (req, res) => {
         smcoController.deleteDir(req, res, pool);
     });
