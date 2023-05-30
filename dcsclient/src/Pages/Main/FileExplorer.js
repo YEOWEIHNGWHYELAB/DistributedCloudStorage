@@ -3,6 +3,7 @@ import "./FileExplorerStyle.css";
 
 const FileExplorer = () => {
     const [selectedItems, setSelectedItems] = useState([]);
+
     const [folders, setFolders] = useState([
         { id: 1, name: 'Folder 1', isFolder: true, items: [] },
         { id: 2, name: 'Folder 2', isFolder: true, items: [] },
@@ -14,6 +15,7 @@ const FileExplorer = () => {
         { id: 4, name: 'File 5.png', isFolder: false },
         { id: 5, name: 'File 4.png', isFolder: false },
     ]);
+
     const [isCtrlKeyPressed, setIsCtrlKeyPressed] = useState(false);
     const [shiftStartIndex, setShiftStartIndex] = useState(null);
 
@@ -71,7 +73,7 @@ const FileExplorer = () => {
                 // Item not selected, add it to selectedItems
                 setSelectedItems([...selectedItems, item]);
             }
-        } else if (shiftStartIndex !== null) {
+        } else if (shiftStartIndex != null) {
             // Shift key is pressed
             const startIndex = shiftStartIndex;
             const endIndex = files.findIndex((file) => file.id === item.id);
@@ -88,7 +90,7 @@ const FileExplorer = () => {
                 setSelectedItems(updatedItems);
             } else {
                 // Item not selected, add it to selectedItems
-                setSelectedItems([...selectedItems, item]);
+                setSelectedItems([item]);
             }
         }
     };
@@ -98,6 +100,7 @@ const FileExplorer = () => {
 
         if (e.shiftKey) {
             // Shift key is pressed
+            console.log("FUCK")
             const startIndex = files.findIndex((file) => file.id === item.id);
 
             setShiftStartIndex(startIndex);
@@ -114,6 +117,7 @@ const FileExplorer = () => {
             <div className="file-explorer">
                 <div className="folders">
                     <h3>Folders</h3>
+
                     {folders.map((folder) => (
                         <div
                             key={folder.id}
@@ -136,8 +140,10 @@ const FileExplorer = () => {
                         </div>
                     ))}
                 </div>
+
                 <div className="files">
                     <h3>Files</h3>
+
                     {files.map((file, index) => (
                         <div
                             key={file.id}
