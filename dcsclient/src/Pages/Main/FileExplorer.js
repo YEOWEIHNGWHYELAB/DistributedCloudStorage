@@ -9,35 +9,53 @@ const FileExplorer = () => {
         { id: 2, name: 'Folder 2', isFolder: true, items: [] },
     ]);
     const [files, setFiles] = useState([
-        { id: 1, name: 'File 1.txt', isFolder: false },
-        { id: 2, name: 'File 2.png', isFolder: false },
-        { id: 3, name: 'File 3.png', isFolder: false },
-        { id: 4, name: 'File 5.png', isFolder: false },
-        { id: 5, name: 'File 4.png', isFolder: false },
+        { id: 0, name: 'File 1.txt', isFolder: false },
+        { id: 1, name: 'File 2.png', isFolder: false },
+        { id: 2, name: 'File 3.png', isFolder: false },
+        { id: 3, name: 'File 5.png', isFolder: false },
+        { id: 4, name: 'File 4.png', isFolder: false },
     ]);
 
     const [isCtrlKeyPressed, setIsCtrlKeyPressed] = useState(false);
-    const [shiftStartIndex, setShiftStartIndex] = useState(null);
+    const [isShiftKeyPressed, setIsShiftKeyPressed] = useState(false);
+
+    const [shiftStartIndex, setShiftStartIndex] = useState(0);
 
     useEffect(() => {
-        const handleKeyDown = (event) => {
+        const handleKeyDownCTRL = (event) => {
             if (event.key === 'Control') {
                 setIsCtrlKeyPressed(true);
             }
         };
 
-        const handleKeyUp = (event) => {
+        const handleKeyUpCTRL = (event) => {
             if (event.key === 'Control') {
                 setIsCtrlKeyPressed(false);
             }
         };
 
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
+        const handleKeyDownSHIFT = (event) => {
+            if (event.key === 'Shift') {
+                setIsShiftKeyPressed(true);
+            }
+        };
+
+        const handleKeyUpSHIFT = (event) => {
+            if (event.key === 'Shift') {
+                setIsShiftKeyPressed(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDownCTRL);
+        window.addEventListener('keyup', handleKeyUpCTRL);
+        window.addEventListener('keydown', handleKeyDownSHIFT);
+        window.addEventListener('keyup', handleKeyUpSHIFT);
 
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
+            window.removeEventListener('keydown', handleKeyDownCTRL);
+            window.removeEventListener('keyup', handleKeyUpCTRL);
+            window.removeEventListener('keydown', handleKeyDownSHIFT);
+            window.removeEventListener('keyup', handleKeyUpSHIFT);
         };
     }, []);
 
@@ -73,7 +91,7 @@ const FileExplorer = () => {
                 // Item not selected, add it to selectedItems
                 setSelectedItems([...selectedItems, item]);
             }
-        } else if (shiftStartIndex != null) {
+        } else if (isShiftKeyPressed) {
             // Shift key is pressed
             const startIndex = shiftStartIndex;
             const endIndex = files.findIndex((file) => file.id === item.id);
@@ -98,18 +116,14 @@ const FileExplorer = () => {
     const handleItemMouseDown = (e, item) => {
         e.stopPropagation();
 
-        if (e.shiftKey) {
-            // Shift key is pressed
-            console.log("FUCK")
+        if (!e.shiftKey) {
             const startIndex = files.findIndex((file) => file.id === item.id);
-
             setShiftStartIndex(startIndex);
         }
     };
 
     const handleItemMouseUp = (e) => {
         e.stopPropagation();
-        setShiftStartIndex(null);
     };
 
     return (
