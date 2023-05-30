@@ -25,6 +25,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import * as Yup from "yup";
 
 import FSManager from "./FSManager"
+import FileExplorer from "./FileExplorer";
 
 
 function SMCO() {
@@ -33,6 +34,8 @@ function SMCO() {
     return (
         <div>
             <h2 style={{ textAlign: "left" }}>SMCOverlord Files Manager</h2>
+
+            <FileExplorer />
         </div>
     );
 }
