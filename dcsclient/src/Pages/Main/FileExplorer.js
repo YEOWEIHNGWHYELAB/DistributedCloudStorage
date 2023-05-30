@@ -21,6 +21,8 @@ const FileExplorer = () => {
 
     const [shiftStartIndex, setShiftStartIndex] = useState(0);
 
+    const [selectedItemDragDrop, setSeletedItemDragDrop] = useState(null);
+
     useEffect(() => {
         const handleKeyDownCTRL = (event) => {
             if (event.key === 'Control') {
@@ -59,20 +61,44 @@ const FileExplorer = () => {
         };
     }, []);
 
-    const handleFolderDrop = (e, folderId) => {
-        e.preventDefault();
-        const folder = folders.find((f) => f.id === folderId);
-
-        const fileIds = e.dataTransfer.getData('text/plain').split(',');
-        const droppedFiles = files.filter((file) => fileIds.includes(file.id.toString()));
-
-        folder.items.push(...droppedFiles);
-        setFolders([...folders]);
-        setSelectedItems([...selectedItems, ...droppedFiles]);
+    const handleFileDragStart = (e, file) => {
+        setSeletedItemDragDrop(file);
     };
 
-    const handleFileDragStart = (e, fileId) => {
-        e.dataTransfer.setData('text/plain', fileId.toString());
+    const handleFolderDrop = (e, folderId) => {
+        e.preventDefault();
+
+        const folder = folders.find((f) => f.id === folderId);
+
+        let droppedFiles = [];
+
+        if (selectedItems.length != 0) {
+            let itemHS = new Set();
+
+            for (let itemSelected of selectedItems) {
+                if (!itemHS.has(itemSelected.id)) {
+                    itemHS.add(itemSelected.id);
+                }
+            }
+
+            
+
+            for (let itemLs of files) {
+                if (itemHS.has(itemLs.id)) {
+                    droppedFiles.push(itemLs);
+                }
+            }
+
+            folder.items.push(...droppedFiles);
+        } else {
+            droppedFiles.push(selectedItemDragDrop);
+            folder.items.push(...droppedFiles);
+        }
+
+        setFolders([...folders]);
+        setSelectedItems([...selectedItems, ...droppedFiles]);
+
+        setSeletedItemDragDrop(null);
     };
 
     const handleItemSelection = (e, item) => {
@@ -158,7 +184,7 @@ const FileExplorer = () => {
                             key={file.id}
                             className={`item ${selectedItems.includes(file) ? 'selected' : ''}`}
                             draggable
-                            onDragStart={(e) => handleFileDragStart(e, file.id)}
+                            onDragStart={(e) => handleFileDragStart(e, file)}
                             onClick={(e) => handleItemSelection(e, file)}
                             onMouseDown={(e) => handleItemMouseDown(e, file)}
                         >
