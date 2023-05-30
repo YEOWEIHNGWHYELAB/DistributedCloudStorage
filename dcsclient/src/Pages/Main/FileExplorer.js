@@ -1,111 +1,85 @@
 import React, { useState } from 'react';
 
 const FileExplorer = () => {
-    const initialFiles = [
-        { name: 'file1.txt', type: 'file' },
-        { name: 'file2.jpg', type: 'file' },
-        {
-            name: 'directory1', type: 'directory', files: [
-                { name: 'file3.png', type: 'file' },
-                {
-                    name: 'directory2', type: 'directory', files: [
-                        { name: 'file4.docx', type: 'file' },
-                        { name: 'file5.pdf', type: 'file' },
-                    ]
-                }
-            ]
-        }
-    ];
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [folders, setFolders] = useState([
+        { id: 1, name: 'Folder 1', isFolder: true, items: [] },
+        { id: 2, name: 'Folder 2', isFolder: true, items: [] },
+    ]);
+    const [files, setFiles] = useState([
+        { id: 1, name: 'File 1.txt', isFolder: false },
+        { id: 2, name: 'File 2.png', isFolder: false },
+    ]);
 
-    const [currentDirectory, setCurrentDirectory] = useState(initialFiles);
-    const [path, setPath] = useState([]);
+    const handleFolderDrop = (e, folderId) => {
+        e.preventDefault();
+        const folder = folders.find((f) => f.id === folderId);
 
-    const handleDrop = (event, targetDirectory) => {
-        event.preventDefault();
-        const droppedFiles = JSON.parse(event.dataTransfer.getData('text'));
+        const fileIds = e.dataTransfer.getData('text/plain').split(',');
+        const droppedFiles = files.filter((file) => fileIds.includes(file.id.toString()));
 
-        // Move the dropped files to the target directory
-        const updatedFiles = currentDirectory.map(file => {
-            if (file === targetDirectory) {
-                if (file.type === 'directory') {
-                    return {
-                        ...file,
-                        files: [...file.files, ...droppedFiles]
-                    };
-                }
-            } else if (file.type === 'directory' && file.files.includes(targetDirectory)) {
-                return {
-                    ...file,
-                    files: file.files.filter(f => !droppedFiles.includes(f))
-                };
-            }
-            return file;
-        });
-
-        setCurrentDirectory(updatedFiles);
+        folder.items.push(...droppedFiles);
+        setFolders([...folders]);
+        setSelectedItems([...selectedItems, ...droppedFiles]);
     };
 
-    const handleDragStart = (event, draggedFile) => {
-        event.dataTransfer.setData('text', JSON.stringify([draggedFile]));
+    const handleFileDragStart = (e, fileId) => {
+        e.dataTransfer.setData('text/plain', fileId.toString());
     };
 
-    const handleClick = (directory) => {
-        if (directory.type === 'directory') {
-            setCurrentDirectory(directory.files);
-            setPath([...path, directory]);
-        }
-    };
+    const handleItemSelection = (e, item) => {
+        e.stopPropagation();
+        const itemIndex = selectedItems.findIndex((selectedItem) => selectedItem.id === item.id);
 
-    const handleGoBack = () => {
-        if (path.length > 0) {
-            const newPath = path.slice(0, path.length - 1);
-            const prevDirectory = newPath[newPath.length - 1];
-            setCurrentDirectory(prevDirectory.files);
-            setPath(newPath);
+        if (itemIndex > -1) {
+            const updatedItems = [...selectedItems];
+            updatedItems.splice(itemIndex, 1);
+            setSelectedItems(updatedItems);
+        } else {
+            setSelectedItems([...selectedItems, item]);
         }
-    };
-
-    const renderFile = (file) => {
-        if (file.type === 'file') {
-            return (
-                <div
-                    key={file.name}
-                    className="file"
-                    draggable
-                    onDragStart={(event) => handleDragStart(event, file)}
-                >
-                    {file.name}
-                </div>
-            );
-        } else if (file.type === 'directory') {
-            return (
-                <div
-                    key={file.name}
-                    className="directory"
-                    onClick={() => handleClick(file)}
-                    onDragOver={(event) => event.preventDefault()} // Allow dropping onto the directory
-                    onDrop={(event) => handleDrop(event, file)}
-                >
-                    <strong>{file.name}</strong>
-                </div>
-            );
-        }
-        return null;
     };
 
     return (
-        <div className="file-explorer">
+        <div>
             <h2>File Explorer</h2>
-            <div className="file-path">
-                <button onClick={handleGoBack} disabled={path.length === 0}>
-                    Go Back
-                </button>
-                {path.map((directory, index) => (
-                    <span key={index}>{directory.name} / </span>
-                ))}
-            </div>
-            <div className="file-tree">
-                {currentDirectory.map(renderFile)}
+            <div className="file-explorer">
+                <div className="folders">
+                    <h3>Folders</h3>
+                    {folders.map((folder) => (
+                        <div
+                            key={folder.id}
+                            className="folder"
+                            onDrop={(e) => handleFolderDrop(e, folder.id)}
+                            onDragOver={(e) => e.preventDefault()}
+                        >
+                            {folder.name}
+                            {folder.items.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className={`item ${selectedItems.includes(item) ? 'selected' : ''}`}
+                                    onClick={(e) => handleItemSelection(e, item)}
+                                >
+                                    {item.name}
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+                <div className="files">
+                    <h3>Files</h3>
+                    {files.map((file) => (
+                        <div
+                            key={file.id}
+                            className={`item ${selectedItems.includes(file) ? 'selected' : ''}`}
+                            draggable
+                            onDragStart={(e) => handleFileDragStart(e, file.id)}
+                            onClick={(e) => handleItemSelection(e, file)}
+                        >
+                            {file.name}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
