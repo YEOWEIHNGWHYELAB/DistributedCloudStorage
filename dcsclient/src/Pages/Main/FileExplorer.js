@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+import "./FileExplorer.css"
 
 const FileExplorer = () => {
     const [selectedItems, setSelectedItems] = useState([]);
@@ -10,6 +12,29 @@ const FileExplorer = () => {
         { id: 1, name: 'File 1.txt', isFolder: false },
         { id: 2, name: 'File 2.png', isFolder: false },
     ]);
+    const [isCtrlKeyPressed, setIsCtrlKeyPressed] = useState(false);
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Control') {
+                setIsCtrlKeyPressed(true);
+            }
+        };
+
+        const handleKeyUp = (event) => {
+            if (event.key === 'Control') {
+                setIsCtrlKeyPressed(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, []);
 
     const handleFolderDrop = (e, folderId) => {
         e.preventDefault();
@@ -29,14 +54,23 @@ const FileExplorer = () => {
 
     const handleItemSelection = (e, item) => {
         e.stopPropagation();
-        const itemIndex = selectedItems.findIndex((selectedItem) => selectedItem.id === item.id);
 
-        if (itemIndex > -1) {
-            const updatedItems = [...selectedItems];
-            updatedItems.splice(itemIndex, 1);
-            setSelectedItems(updatedItems);
+        if (isCtrlKeyPressed) {
+            // CTRL key is pressed
+            const itemIndex = selectedItems.findIndex((selectedItem) => selectedItem.id === item.id);
+
+            if (itemIndex > -1) {
+                // Item already selected, remove it from selectedItems
+                const updatedItems = [...selectedItems];
+                updatedItems.splice(itemIndex, 1);
+                setSelectedItems(updatedItems);
+            } else {
+                // Item not selected, add it to selectedItems
+                setSelectedItems([...selectedItems, item]);
+            }
         } else {
-            setSelectedItems([...selectedItems, item]);
+            // CTRL key is not pressed, treat as single selection
+            setSelectedItems([item]);
         }
     };
 
