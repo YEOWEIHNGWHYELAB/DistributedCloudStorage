@@ -52,28 +52,17 @@ const FileExplorer = () => {
     const handleClick = (directory) => {
         if (directory.type === 'directory') {
             setCurrentDirectory(directory.files);
-            setPath([...path, directory.name]);
+            setPath([...path, directory]);
         }
     };
 
     const handleGoBack = () => {
-        const newPath = path.slice(0, path.length - 1);
-        const prevDirectory = findDirectoryByPath(newPath);
-        setCurrentDirectory(prevDirectory ? prevDirectory.files : initialFiles);
-        setPath(newPath);
-    };
-
-    const findDirectoryByPath = (searchPath) => {
-        let currentFiles = initialFiles;
-        for (const dirName of searchPath) {
-            const directory = currentFiles.find(file => file.type === 'directory' && file.name === dirName);
-            if (directory) {
-                currentFiles = directory.files;
-            } else {
-                return null;
-            }
+        if (path.length > 0) {
+            const newPath = path.slice(0, path.length - 1);
+            const prevDirectory = newPath[newPath.length - 1];
+            setCurrentDirectory(prevDirectory.files);
+            setPath(newPath);
         }
-        return currentFiles;
     };
 
     const renderFile = (file) => {
@@ -98,7 +87,6 @@ const FileExplorer = () => {
                     onDrop={(event) => handleDrop(event, file)}
                 >
                     <strong>{file.name}</strong>
-                    {file.files.map(renderFile)}
                 </div>
             );
         }
@@ -112,8 +100,8 @@ const FileExplorer = () => {
                 <button onClick={handleGoBack} disabled={path.length === 0}>
                     Go Back
                 </button>
-                {path.map((dir, index) => (
-                    <span key={index}>{dir} / </span>
+                {path.map((directory, index) => (
+                    <span key={index}>{directory.name} / </span>
                 ))}
             </div>
             <div className="file-tree">
