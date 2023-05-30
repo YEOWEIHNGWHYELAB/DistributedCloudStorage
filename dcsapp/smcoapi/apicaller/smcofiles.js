@@ -141,7 +141,7 @@ exports.getFolders = async (req, res, pool) => {
         const rootIDResult = await pool.query(getRootID, [decoded.username]);
 
         const folderQueue = new Deque();
-        folderQueue.push({ folderID: rootIDResult.rows[0].id, folderName: "root", parentName: null, childDepth: 1 });
+        folderQueue.push({ folderID: rootIDResult.rows[0].id, childDepth: 1 });
 
         let lvlOrderedDirBuild = [];
 
@@ -157,12 +157,12 @@ exports.getFolders = async (req, res, pool) => {
         while (folderQueue.length !== 0) {
             let currTarget = folderQueue.shift();
 
-            lvlOrderedDirBuild.push({ node_name: currTarget.folderName, parent_name: currTarget.parentName, path_level: currTarget.childDepth - 1 });
+            lvlOrderedDirBuild.push((await folderManager.getFullPath(pool, decoded.username, parseInt(currTarget.folderID))).toString());
 
             const affectedFolderResult = await pool.query(getChildDirQuery, [currTarget.childDepth, currTarget.folderID, decoded.username]);
-            
+
             for (let currChildDir of affectedFolderResult.rows) {
-                folderQueue.push({ folderID: currChildDir.id, folderName: currChildDir.path_name, parentName: currTarget.folderName, childDepth: (currChildDir.path_level + 1) });
+                folderQueue.push({ folderID: currChildDir.id, childDepth: (currChildDir.path_level + 1) });
             }
         }
 
