@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const fileManager = require("./filemanager");
 const folderManager = require("./pathmanager");
+const Deque = require('collections/deque');
+
 
 function decodeAuthToken(dcsAuthToken, res) {
     try {
@@ -117,6 +119,62 @@ exports.mkDir = async (req, res, pool) => {
         res.json({ success: false, message: "Failed to make directory!" });
     }
 };
+
+exports.getFolders = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+    const token = authHeader.split(" ")[1];
+    let decoded = decodeAuthToken(token, res);
+
+    try {
+        // Get root directory ID
+            const getRootID = `
+            SELECT id
+            FROM FileSystemPaths
+            WHERE path_level = 0
+                AND username = $1
+        `;
+        const rootIDResult = await pool.query(getRootID, [decoded.username]);
+
+        const folderQueue = new Deque();
+        folderQueue.push({ folderID: rootIDResult.rows[0].id, folderName: "root", parentName: null, childDepth: 1 });
+
+        let lvlOrderedDirBuild = [];
+
+        const getChildDirQuery = `
+            SELECT id, path_name, path_level
+            FROM FileSystemPaths
+            WHERE path_level = $1
+                AND path_parent = $2
+                AND username = $3
+        `;
+
+        // Using BFS to get all the path that are nested
+        while (folderQueue.length !== 0) {
+            let currTarget = folderQueue.shift();
+
+            lvlOrderedDirBuild.push({ node_name: currTarget.folderName, parent_name: currTarget.parentName, path_level: currTarget.childDepth - 1 });
+
+            const affectedFolderResult = await pool.query(getChildDirQuery, [currTarget.childDepth, currTarget.folderID, decoded.username]);
+            
+            for (let currChildDir of affectedFolderResult.rows) {
+                folderQueue.push({ folderID: currChildDir.id, folderName: currChildDir.path_name, parentName: currTarget.folderName, childDepth: (currChildDir.path_level + 1) });
+            }
+        }
+
+        res.json({
+            message: "Successfully obtain directory builder!",
+            lvlorderdir: lvlOrderedDirBuild
+        });
+    } catch(error) {
+        // console.log(error);
+        res.json({ message: "Failed to get directory builder"});
+    }
+}
 
 exports.getAllFiles = async (req, res, pool) => {
     // Authentication decode

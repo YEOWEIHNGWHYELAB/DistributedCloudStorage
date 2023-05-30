@@ -3,6 +3,11 @@ const router = express.Router();
 const smcoController = require("../apicaller/smcofiles");
 
 module.exports = (pool) => {
+    // Get all folders
+    router.get("/filespag", (req, res) => {
+        smcoController.getFolders(req, res, pool);
+    });
+
     // Get all user's file paginated
     router.post("/filespag", (req, res) => {
         smcoController.getAllFiles(req, res, pool);
