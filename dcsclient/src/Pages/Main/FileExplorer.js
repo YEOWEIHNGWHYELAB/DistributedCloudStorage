@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import "./FileExplorerStyle.css";
 
 const FileExplorer = () => {
-    const [selectedItems, setSelectedItems] = useState([]);
-
     const [folders, setFolders] = useState([
         { id: 1, name: 'Folder 1', isFolder: true, items: [] },
         { id: 2, name: 'Folder 2', isFolder: true, items: [] },
@@ -15,6 +13,8 @@ const FileExplorer = () => {
         { id: 3, name: 'File 5.png', isFolder: false },
         { id: 4, name: 'File 4.png', isFolder: false },
     ]);
+
+    const [selectedItems, setSelectedItems] = useState([]);
 
     const [isCtrlKeyPressed, setIsCtrlKeyPressed] = useState(false);
     const [isShiftKeyPressed, setIsShiftKeyPressed] = useState(false);
@@ -122,10 +122,6 @@ const FileExplorer = () => {
         }
     };
 
-    const handleItemMouseUp = (e) => {
-        e.stopPropagation();
-    };
-
     return (
         <div>
             <div className="file-explorer">
@@ -146,7 +142,6 @@ const FileExplorer = () => {
                                     className={`item ${selectedItems.includes(item) ? 'selected' : ''}`}
                                     onClick={(e) => handleItemSelection(e, item)}
                                     onMouseDown={(e) => handleItemMouseDown(e, item)}
-                                    onMouseUp={handleItemMouseUp}
                                 >
                                     {item.name}
                                 </div>
@@ -166,7 +161,6 @@ const FileExplorer = () => {
                             onDragStart={(e) => handleFileDragStart(e, file.id)}
                             onClick={(e) => handleItemSelection(e, file)}
                             onMouseDown={(e) => handleItemMouseDown(e, file)}
-                            onMouseUp={handleItemMouseUp}
                         >
                             {file.name}
                         </div>
