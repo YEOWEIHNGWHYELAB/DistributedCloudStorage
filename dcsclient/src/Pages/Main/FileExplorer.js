@@ -111,6 +111,11 @@ const FileExplorer = () => {
     const handleItemSelection = (e, item) => {
         e.stopPropagation();
 
+        if (!e.shiftKey) {
+            const startIndex = files.findIndex((file) => file.id === item.id);
+            setShiftStartIndex(startIndex);
+        }
+
         if (isCtrlKeyPressed) {
             // CTRL key is pressed
             const itemIndex = selectedItems.findIndex(
@@ -155,12 +160,9 @@ const FileExplorer = () => {
     };
 
     const handleItemMouseDown = (e, item) => {
-        e.stopPropagation();
+        //e.stopPropagation();
 
-        if (!e.shiftKey) {
-            const startIndex = files.findIndex((file) => file.id === item.id);
-            setShiftStartIndex(startIndex);
-        }
+        
     };
 
     return (
@@ -176,15 +178,10 @@ const FileExplorer = () => {
                         {files.map((file, index) => (
                             <StyledRow
                                 key={file.id}
-                                className={`item ${
-                                    selectedItems.includes(file)
-                                        ? "selected"
-                                        : ""
-                                }`}
+                                className={`item ${selectedItems.includes(file) ? 'selected' : ""}`}
                                 draggable
                                 onDragStart={(e) =>handleFileDragStart(e, file)}
                                 onClick={(e) => handleItemSelection(e, file)}
-                                onMouseDown={(e) =>handleItemMouseDown(e, file)}
                                 onDrop={(e) => handleFolderDrop(e, file.id)}
                                 onDragOver={(e) => e.preventDefault()}
                             >
