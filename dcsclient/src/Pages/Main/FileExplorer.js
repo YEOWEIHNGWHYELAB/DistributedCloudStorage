@@ -74,7 +74,7 @@ const FileExplorer = () => {
 
         let droppedFiles = [];
 
-        if (selectedItems.length != 0) {
+        if (selectedItems.length > 1) {
             let itemHS = new Set();
 
             for (let itemSelected of selectedItems) {
@@ -91,7 +91,7 @@ const FileExplorer = () => {
 
             folder.items.push(...droppedFiles);
         } else {
-            droppedFiles.push(selectedItemDragDrop);
+            droppedFiles.push(...selectedItems);
             folder.items.push(...droppedFiles);
         }
 
@@ -135,14 +135,11 @@ const FileExplorer = () => {
             setSelectedItems(range);
         } else {
             // CTRL and Shift keys are not pressed, treat as single selection
-            const isSelected = selectedItems.includes(item);
+            const itemIndex = selectedItems.findIndex(
+                (selectedItem) => selectedItem.id === item.id
+            );
 
-            if (isSelected) {
-                // Item already selected, remove it from selectedItems
-                const updatedItems = selectedItems.filter(
-                    (selectedItem) => selectedItem.id !== item.id
-                );
-
+            if (itemIndex > -1) {
                 setSelectedItems([]);
             } else {
                 // Item not selected, add it to selectedItems
