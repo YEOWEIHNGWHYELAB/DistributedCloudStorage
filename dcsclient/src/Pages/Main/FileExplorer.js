@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import "./FileExplorerStyle.css";
 
 const FileExplorer = () => {
     const [files, setFiles] = useState([
-        { id: 0, name: 'File 1.txt', isFolder: false },
-        { id: 1, name: 'File 2.png', isFolder: false },
-        { id: 2, name: 'File 3.png', isFolder: false },
-        { id: 3, name: 'File 5.png', isFolder: false },
-        { id: 4, name: 'File 4.png', isFolder: false },
-        { id: 5, name: 'Folder 2', isFolder: true, items: [] },
-        { id: 6, name: 'Folder 1', isFolder: true, items: [] },
+        { id: 0, name: "File 1.txt", isFolder: false },
+        { id: 1, name: "File 2.png", isFolder: false },
+        { id: 2, name: "File 3.png", isFolder: false },
+        { id: 3, name: "File 5.png", isFolder: false },
+        { id: 4, name: "File 4.png", isFolder: false },
+        { id: 5, name: "Folder 2", isFolder: true, items: [] },
+        { id: 6, name: "Folder 1", isFolder: true, items: [] },
     ]);
 
     const [selectedItems, setSelectedItems] = useState([]);
@@ -23,39 +23,39 @@ const FileExplorer = () => {
 
     useEffect(() => {
         const handleKeyDownCTRL = (event) => {
-            if (event.key === 'Control') {
+            if (event.key === "Control") {
                 setIsCtrlKeyPressed(true);
             }
         };
 
         const handleKeyUpCTRL = (event) => {
-            if (event.key === 'Control') {
+            if (event.key === "Control") {
                 setIsCtrlKeyPressed(false);
             }
         };
 
         const handleKeyDownSHIFT = (event) => {
-            if (event.key === 'Shift') {
+            if (event.key === "Shift") {
                 setIsShiftKeyPressed(true);
             }
         };
 
         const handleKeyUpSHIFT = (event) => {
-            if (event.key === 'Shift') {
+            if (event.key === "Shift") {
                 setIsShiftKeyPressed(false);
             }
         };
 
-        window.addEventListener('keydown', handleKeyDownCTRL);
-        window.addEventListener('keyup', handleKeyUpCTRL);
-        window.addEventListener('keydown', handleKeyDownSHIFT);
-        window.addEventListener('keyup', handleKeyUpSHIFT);
+        window.addEventListener("keydown", handleKeyDownCTRL);
+        window.addEventListener("keyup", handleKeyUpCTRL);
+        window.addEventListener("keydown", handleKeyDownSHIFT);
+        window.addEventListener("keyup", handleKeyUpSHIFT);
 
         return () => {
-            window.removeEventListener('keydown', handleKeyDownCTRL);
-            window.removeEventListener('keyup', handleKeyUpCTRL);
-            window.removeEventListener('keydown', handleKeyDownSHIFT);
-            window.removeEventListener('keyup', handleKeyUpSHIFT);
+            window.removeEventListener("keydown", handleKeyDownCTRL);
+            window.removeEventListener("keyup", handleKeyUpCTRL);
+            window.removeEventListener("keydown", handleKeyDownSHIFT);
+            window.removeEventListener("keyup", handleKeyUpSHIFT);
         };
     }, []);
 
@@ -103,7 +103,9 @@ const FileExplorer = () => {
 
         if (isCtrlKeyPressed) {
             // CTRL key is pressed
-            const itemIndex = selectedItems.findIndex((selectedItem) => selectedItem.id === item.id);
+            const itemIndex = selectedItems.findIndex(
+                (selectedItem) => selectedItem.id === item.id
+            );
 
             if (itemIndex > -1) {
                 // Item already selected, remove it from selectedItems
@@ -118,7 +120,10 @@ const FileExplorer = () => {
             // Shift key is pressed
             const startIndex = shiftStartIndex;
             const endIndex = files.findIndex((file) => file.id === item.id);
-            const range = files.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1);
+            const range = files.slice(
+                Math.min(startIndex, endIndex),
+                Math.max(startIndex, endIndex) + 1
+            );
 
             setSelectedItems(range);
         } else {
@@ -127,7 +132,9 @@ const FileExplorer = () => {
 
             if (isSelected) {
                 // Item already selected, remove it from selectedItems
-                const updatedItems = selectedItems.filter((selectedItem) => selectedItem.id !== item.id);
+                const updatedItems = selectedItems.filter(
+                    (selectedItem) => selectedItem.id !== item.id
+                );
                 setSelectedItems(updatedItems);
             } else {
                 // Item not selected, add it to selectedItems
@@ -147,14 +154,14 @@ const FileExplorer = () => {
 
     return (
         <div>
-            <div className="file-explorer">
-                <div className="files">
-                    <h3>Files</h3>
-
+            <table className="file-explorer">
+                <tbody>
                     {files.map((file, index) => (
-                        <div
+                        <tr
                             key={file.id}
-                            className={`item ${selectedItems.includes(file) ? 'selected' : ''}`}
+                            className={`item ${
+                                selectedItems.includes(file) ? "selected" : ""
+                            }`}
                             draggable
                             onDragStart={(e) => handleFileDragStart(e, file)}
                             onClick={(e) => handleItemSelection(e, file)}
@@ -162,11 +169,11 @@ const FileExplorer = () => {
                             onDrop={(e) => handleFolderDrop(e, file.id)}
                             onDragOver={(e) => e.preventDefault()}
                         >
-                            {file.name}
-                        </div>
+                            <td>{file.name}</td>
+                        </tr>
                     ))}
-                </div>
-            </div>
+                </tbody>
+            </table>
         </div>
     );
 };

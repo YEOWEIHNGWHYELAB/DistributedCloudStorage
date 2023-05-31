@@ -1,4 +1,30 @@
+.file-explorer {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.item {
+    cursor: pointer;
+}
+
+.item:hover {
+    background-color: #e1e1e1;
+}
+
 .selected {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    background-color: #bfbfbf;
+    color: #fff;
+}
+
+.item:active {
+    background-color: #9a9a9a;
+}
+
+.item td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.item:last-child td {
+    border-bottom: none;
 }
