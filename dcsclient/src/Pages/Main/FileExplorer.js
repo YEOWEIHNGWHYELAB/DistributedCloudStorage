@@ -2,16 +2,14 @@ import React, { useState, useEffect } from 'react';
 import "./FileExplorerStyle.css";
 
 const FileExplorer = () => {
-    const [folders, setFolders] = useState([
-        { id: 1, name: 'Folder 1', isFolder: true, items: [] },
-        { id: 2, name: 'Folder 2', isFolder: true, items: [] },
-    ]);
     const [files, setFiles] = useState([
         { id: 0, name: 'File 1.txt', isFolder: false },
         { id: 1, name: 'File 2.png', isFolder: false },
         { id: 2, name: 'File 3.png', isFolder: false },
         { id: 3, name: 'File 5.png', isFolder: false },
         { id: 4, name: 'File 4.png', isFolder: false },
+        { id: 5, name: 'Folder 2', isFolder: true, items: [] },
+        { id: 6, name: 'Folder 1', isFolder: true, items: [] },
     ]);
 
     const [selectedItems, setSelectedItems] = useState([]);
@@ -68,7 +66,7 @@ const FileExplorer = () => {
     const handleFolderDrop = (e, folderId) => {
         e.preventDefault();
 
-        const folder = folders.find((f) => f.id === folderId);
+        const folder = files.find((f) => f.id === folderId);
 
         let droppedFiles = [];
 
@@ -80,8 +78,6 @@ const FileExplorer = () => {
                     itemHS.add(itemSelected.id);
                 }
             }
-
-            
 
             for (let itemLs of files) {
                 if (itemHS.has(itemLs.id)) {
@@ -95,7 +91,8 @@ const FileExplorer = () => {
             folder.items.push(...droppedFiles);
         }
 
-        setFolders([...folders]);
+        console.log(folder);
+
         setSelectedItems([...selectedItems, ...droppedFiles]);
 
         setSeletedItemDragDrop(null);
@@ -151,31 +148,6 @@ const FileExplorer = () => {
     return (
         <div>
             <div className="file-explorer">
-                <div className="folders">
-                    <h3>Folders</h3>
-
-                    {folders.map((folder) => (
-                        <div
-                            key={folder.id}
-                            className="folder"
-                            onDrop={(e) => handleFolderDrop(e, folder.id)}
-                            onDragOver={(e) => e.preventDefault()}
-                        >
-                            {folder.name}
-                            {folder.items.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className={`item ${selectedItems.includes(item) ? 'selected' : ''}`}
-                                    onClick={(e) => handleItemSelection(e, item)}
-                                    onMouseDown={(e) => handleItemMouseDown(e, item)}
-                                >
-                                    {item.name}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-
                 <div className="files">
                     <h3>Files</h3>
 
@@ -187,6 +159,8 @@ const FileExplorer = () => {
                             onDragStart={(e) => handleFileDragStart(e, file)}
                             onClick={(e) => handleItemSelection(e, file)}
                             onMouseDown={(e) => handleItemMouseDown(e, file)}
+                            onDrop={(e) => handleFolderDrop(e, file.id)}
+                            onDragOver={(e) => e.preventDefault()}
                         >
                             {file.name}
                         </div>
