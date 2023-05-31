@@ -29,8 +29,6 @@ const FileExplorer = () => {
 
     const [shiftStartIndex, setShiftStartIndex] = useState(0);
 
-    const [selectedItemDragDrop, setSeletedItemDragDrop] = useState(null);
-
     useEffect(() => {
         const handleKeyDownCTRL = (event) => {
             if (event.key === "Control") {
@@ -69,10 +67,6 @@ const FileExplorer = () => {
         };
     }, []);
 
-    const handleFileDragStart = (e, file) => {
-        setSeletedItemDragDrop(file);
-    };
-
     const handleFolderDrop = (e, folderId) => {
         e.preventDefault();
 
@@ -104,8 +98,6 @@ const FileExplorer = () => {
         console.log(folder);
 
         setSelectedItems([...selectedItems, ...droppedFiles]);
-
-        setSeletedItemDragDrop(null);
     };
 
     const handleItemSelection = (e, item) => {
@@ -174,7 +166,6 @@ const FileExplorer = () => {
                                 key={file.id}
                                 className={`item ${selectedItems.includes(file) ? 'selected' : ""}`}
                                 draggable
-                                onDragStart={(e) =>handleFileDragStart(e, file)}
                                 onClick={(e) => handleItemSelection(e, file)}
                                 onDrop={(e) => {
                                     if (file.isFolder) {
