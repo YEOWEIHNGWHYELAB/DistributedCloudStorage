@@ -12,7 +12,7 @@ const FileExplorer = ({fsManager}) => {
         StyledCell,
     } = fileTableStyle();
 
-    const [files, setFiles] = useState([
+    const [currFileDir, setCurrFileDir] = useState([
         { id: 0, name: "File 1.txt", isFolder: false },
         { id: 1, name: "File 2.png", isFolder: false },
         { id: 2, name: "File 3.png", isFolder: false },
@@ -70,7 +70,7 @@ const FileExplorer = ({fsManager}) => {
     const handleFolderDrop = (e, folderId) => {
         e.preventDefault();
 
-        const folder = files.find((f) => f.id === folderId);
+        const folder = currFileDir.find((f) => f.id === folderId);
 
         let droppedFiles = [];
 
@@ -83,7 +83,7 @@ const FileExplorer = ({fsManager}) => {
                 }
             }
 
-            for (let itemLs of files) {
+            for (let itemLs of currFileDir) {
                 if (itemHS.has(itemLs.id)) {
                     droppedFiles.push(itemLs);
                 }
@@ -120,7 +120,7 @@ const FileExplorer = ({fsManager}) => {
         );
 
         if (!e.shiftKey) {
-            const startIndex = files.findIndex(
+            const startIndex = currFileDir.findIndex(
                 (file) => file.id === item.id
             );
             setShiftStartIndex(startIndex);
@@ -145,8 +145,8 @@ const FileExplorer = ({fsManager}) => {
             } else if (isShiftKeyPressed) {
                 // Shift key is pressed
                 const startIndex = shiftStartIndex;
-                const endIndex = files.findIndex((file) => file.id === item.id);
-                const range = files.slice(
+                const endIndex = currFileDir.findIndex((file) => file.id === item.id);
+                const range = currFileDir.slice(
                     Math.min(startIndex, endIndex),
                     Math.max(startIndex, endIndex) + 1
                 );
@@ -178,7 +178,7 @@ const FileExplorer = ({fsManager}) => {
                 </thead>
                 {
                     <tbody>
-                        {files.map((file, index) => (
+                        {currFileDir.map((file, index) => (
                             <StyledRow
                                 key={file.id}
                                 className={`item ${
