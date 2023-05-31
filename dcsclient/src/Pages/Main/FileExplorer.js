@@ -176,8 +176,16 @@ const FileExplorer = () => {
                                 draggable
                                 onDragStart={(e) =>handleFileDragStart(e, file)}
                                 onClick={(e) => handleItemSelection(e, file)}
-                                onDrop={(e) => handleFolderDrop(e, file.id)}
-                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={(e) => {
+                                    if (file.isFolder) {
+                                        handleFolderDrop(e, file.id);
+                                    }
+                                }}
+                                onDragOver={(e) => {
+                                    if (file.isFolder) {
+                                        e.preventDefault();
+                                    }
+                                }}
                             >
                                 <StyledCell>{file.name}</StyledCell>
                             </StyledRow>
