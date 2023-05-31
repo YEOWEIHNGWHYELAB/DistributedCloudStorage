@@ -159,12 +159,6 @@ const FileExplorer = () => {
         }
     };
 
-    const handleItemMouseDown = (e, item) => {
-        //e.stopPropagation();
-
-        
-    };
-
     return (
         <div>
             <StyledTable>
