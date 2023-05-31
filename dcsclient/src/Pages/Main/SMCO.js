@@ -27,7 +27,6 @@ import * as Yup from "yup";
 import FSManager from "./FSManager"
 import FileExplorer from "./FileExplorer";
 
-
 function SMCO() {
     const [fsManager] = useState(() => new FSManager());
 
@@ -35,7 +34,7 @@ function SMCO() {
         <div>
             <h2 style={{ textAlign: "left" }}>SMCOverlord Files Manager</h2>
 
-            <FileExplorer />
+            <FileExplorer fsManager={fsManager} />
         </div>
     );
 }

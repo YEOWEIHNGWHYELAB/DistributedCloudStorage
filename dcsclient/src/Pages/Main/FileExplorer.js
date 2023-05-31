@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { fileTableStyle } from "../../Windows/TableStyle";
 import "./FileExplorerStyle.css";
 
-const FileExplorer = () => {
+const FileExplorer = ({fsManager}) => {
     const {
         StyledTable,
         StyledHeaderRow,
