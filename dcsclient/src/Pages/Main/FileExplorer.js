@@ -145,7 +145,8 @@ const FileExplorer = () => {
                 const updatedItems = selectedItems.filter(
                     (selectedItem) => selectedItem.id !== item.id
                 );
-                setSelectedItems(updatedItems);
+
+                setSelectedItems([]);
             } else {
                 // Item not selected, add it to selectedItems
                 setSelectedItems([item]);
@@ -181,13 +182,9 @@ const FileExplorer = () => {
                                         : ""
                                 }`}
                                 draggable
-                                onDragStart={(e) =>
-                                    handleFileDragStart(e, file)
-                                }
+                                onDragStart={(e) =>handleFileDragStart(e, file)}
                                 onClick={(e) => handleItemSelection(e, file)}
-                                onMouseDown={(e) =>
-                                    handleItemMouseDown(e, file)
-                                }
+                                onMouseDown={(e) =>handleItemMouseDown(e, file)}
                                 onDrop={(e) => handleFolderDrop(e, file.id)}
                                 onDragOver={(e) => e.preventDefault()}
                             >

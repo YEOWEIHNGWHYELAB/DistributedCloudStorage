@@ -1,19 +1,15 @@
-.file-explorer {
-    width: 100%;
-    border-collapse: collapse;
-}
-
 .item {
     cursor: pointer;
 }
 
 .item:hover {
-    background-color: #e1e1e1;
+    background-color: #013397;
+    color: #ffffff;
 }
 
 .selected {
-    background-color: #bfbfbf;
-    color: #fff;
+    background-color: #00640c;
+    color: #ffffff;
 }
 
 .item:active {
