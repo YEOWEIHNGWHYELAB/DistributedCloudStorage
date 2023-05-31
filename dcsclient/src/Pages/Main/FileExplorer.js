@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
+
+import { fileTableStyle } from "../../Windows/TableStyle";
 import "./FileExplorerStyle.css";
 
 const FileExplorer = () => {
+    const {
+        StyledTable,
+        StyledHeaderRow,
+        StyledHeaderCell,
+        StyledRow,
+        StyledCell,
+    } = fileTableStyle();
+
     const [files, setFiles] = useState([
         { id: 0, name: "File 1.txt", isFolder: false },
         { id: 1, name: "File 2.png", isFolder: false },
@@ -154,26 +164,39 @@ const FileExplorer = () => {
 
     return (
         <div>
-            <table className="file-explorer">
-                <tbody>
-                    {files.map((file, index) => (
-                        <tr
-                            key={file.id}
-                            className={`item ${
-                                selectedItems.includes(file) ? "selected" : ""
-                            }`}
-                            draggable
-                            onDragStart={(e) => handleFileDragStart(e, file)}
-                            onClick={(e) => handleItemSelection(e, file)}
-                            onMouseDown={(e) => handleItemMouseDown(e, file)}
-                            onDrop={(e) => handleFolderDrop(e, file.id)}
-                            onDragOver={(e) => e.preventDefault()}
-                        >
-                            <td>{file.name}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <StyledTable>
+                <thead>
+                    <StyledHeaderRow>
+                        <StyledHeaderCell>Filename</StyledHeaderCell>
+                    </StyledHeaderRow>
+                </thead>
+                {
+                    <tbody>
+                        {files.map((file, index) => (
+                            <StyledRow
+                                key={file.id}
+                                className={`item ${
+                                    selectedItems.includes(file)
+                                        ? "selected"
+                                        : ""
+                                }`}
+                                draggable
+                                onDragStart={(e) =>
+                                    handleFileDragStart(e, file)
+                                }
+                                onClick={(e) => handleItemSelection(e, file)}
+                                onMouseDown={(e) =>
+                                    handleItemMouseDown(e, file)
+                                }
+                                onDrop={(e) => handleFolderDrop(e, file.id)}
+                                onDragOver={(e) => e.preventDefault()}
+                            >
+                                <StyledCell>{file.name}</StyledCell>
+                            </StyledRow>
+                        ))}
+                    </tbody>
+                }
+            </StyledTable>
         </div>
     );
 };
