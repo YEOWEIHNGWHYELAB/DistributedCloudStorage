@@ -192,6 +192,9 @@ const FileExplorer = () => {
                                 onMouseUp={(e) => {
                                     handleItemSelectAgain(e, file)
                                 }}
+                                onDoubleClick={(e) => {
+                                    console.log("Double Click")
+                                }}
                                 draggable
                                 onDrop={(e) => {
                                     if (file.isFolder) {
