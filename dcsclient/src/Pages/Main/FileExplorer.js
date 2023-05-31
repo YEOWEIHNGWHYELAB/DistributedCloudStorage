@@ -100,50 +100,70 @@ const FileExplorer = () => {
         setSelectedItems([...selectedItems, ...droppedFiles]);
     };
 
+    const handleItemSelectAgain = (e, item) => {
+        e.stopPropagation();
+
+        const currSelect = selectedItems.findIndex(
+            (file) => file.id === item.id
+        );
+        
+        if (selectedItems.length > 1 && !isCtrlKeyPressed && !isShiftKeyPressed) {
+            setSelectedItems([item]);
+        }
+    }
+
     const handleItemSelection = (e, item) => {
         e.stopPropagation();
 
+        const currSelect = selectedItems.findIndex(
+            (file) => file.id === item.id
+        );
+
         if (!e.shiftKey) {
-            const startIndex = files.findIndex((file) => file.id === item.id);
+            const startIndex = files.findIndex(
+                (file) => file.id === item.id
+            );
             setShiftStartIndex(startIndex);
         }
 
-        if (isCtrlKeyPressed) {
-            // CTRL key is pressed
-            const itemIndex = selectedItems.findIndex(
-                (selectedItem) => selectedItem.id === item.id
-            );
+        if (currSelect <= -1 || isCtrlKeyPressed || isShiftKeyPressed) {
+            if (isCtrlKeyPressed) {
+                // CTRL key is pressed
+                const itemIndex = selectedItems.findIndex(
+                    (selectedItem) => selectedItem.id === item.id
+                );
 
-            if (itemIndex > -1) {
-                // Item already selected, remove it from selectedItems
-                const updatedItems = [...selectedItems];
-                updatedItems.splice(itemIndex, 1);
-                setSelectedItems(updatedItems);
+                if (itemIndex > -1) {
+                    // Item already selected, remove it from selectedItems
+                    const updatedItems = [...selectedItems];
+                    updatedItems.splice(itemIndex, 1);
+                    setSelectedItems(updatedItems);
+                } else {
+                    // Item not selected, add it to selectedItems
+                    setSelectedItems([...selectedItems, item]);
+                }
+            } else if (isShiftKeyPressed) {
+                // Shift key is pressed
+                const startIndex = shiftStartIndex;
+                const endIndex = files.findIndex((file) => file.id === item.id);
+                const range = files.slice(
+                    Math.min(startIndex, endIndex),
+                    Math.max(startIndex, endIndex) + 1
+                );
+
+                setSelectedItems(range);
             } else {
-                // Item not selected, add it to selectedItems
-                setSelectedItems([...selectedItems, item]);
-            }
-        } else if (isShiftKeyPressed) {
-            // Shift key is pressed
-            const startIndex = shiftStartIndex;
-            const endIndex = files.findIndex((file) => file.id === item.id);
-            const range = files.slice(
-                Math.min(startIndex, endIndex),
-                Math.max(startIndex, endIndex) + 1
-            );
+                // CTRL and Shift keys are not pressed, treat as single selection
+                const itemIndex = selectedItems.findIndex(
+                    (selectedItem) => selectedItem.id === item.id
+                );
 
-            setSelectedItems(range);
-        } else {
-            // CTRL and Shift keys are not pressed, treat as single selection
-            const itemIndex = selectedItems.findIndex(
-                (selectedItem) => selectedItem.id === item.id
-            );
-
-            if (itemIndex > -1) {
-                setSelectedItems([]);
-            } else {
-                // Item not selected, add it to selectedItems
-                setSelectedItems([item]);
+                if (itemIndex > -1) {
+                    setSelectedItems([]);
+                } else {
+                    // Item not selected, add it to selectedItems
+                    setSelectedItems([item]);
+                }
             }
         }
     };
@@ -161,9 +181,18 @@ const FileExplorer = () => {
                         {files.map((file, index) => (
                             <StyledRow
                                 key={file.id}
-                                className={`item ${selectedItems.includes(file) ? 'selected' : ""}`}
+                                className={`item ${
+                                    selectedItems.includes(file)
+                                        ? "selected"
+                                        : ""
+                                }`}
+                                onMouseDown={(e) =>
+                                    handleItemSelection(e, file)
+                                }
+                                onMouseUp={(e) => {
+                                    handleItemSelectAgain(e, file)
+                                }}
                                 draggable
-                                onClick={(e) => handleItemSelection(e, file)}
                                 onDrop={(e) => {
                                     if (file.isFolder) {
                                         handleFolderDrop(e, file.id);
