@@ -165,9 +165,11 @@ export default class FSManager {
             }
 
             if (curr_dir.files.has(path_array[path_array.length - 1])) {
+                // If target is a file
                 files_directories.push(path_array[path_array.length - 1]);
                 return files_directories;
             } else {
+                // The target is not a file but a directory
                 curr_dir = curr_dir.directories.get(
                     path_array[path_array.length - 1]
                 );

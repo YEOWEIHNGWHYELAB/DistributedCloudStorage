@@ -59,8 +59,9 @@ const FileExplorer = ({ fsManager }) => {
             }
 
             for (let currFile of resourceList.results) {
-                console.log(currFile);
+                fsManager.mkfile(currFile.full_pathname + "/" + currFile.filename, currFile.id);
             }
+            console.log(fsManager.ls("/test"));
         }
     }, [buildDirList, resourceList]);
 
