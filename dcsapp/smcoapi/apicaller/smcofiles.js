@@ -269,7 +269,7 @@ exports.getAllFiles = async (req, res, pool) => {
             filecount: parseInt(totalFilesCount),
         });
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: "Failed to get files" });
     }
 };
@@ -379,7 +379,7 @@ exports.changeFolderDir = async (req, res, pool) => {
             res.json({ success: false, message: "Path does not exist!" });
         }
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({
             success: false,
             message: "Failed to change folder directory",
@@ -478,7 +478,7 @@ exports.deleteDir = async (req, res, pool) => {
             res.json({ message: "Folder does not exist!" });
         }
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ message: "Failed to delete folder!" });
     }
 };
