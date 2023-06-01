@@ -14,14 +14,10 @@ const FileExplorer = ({ fsManager }) => {
         StyledCell,
     } = fileTableStyle();
 
-    const {
-        resourceList,
-        buildDirList,
-        getAllDirBuilder,
-        getAllFiles
-    } = RequestSMCO({
-        resourceLabel: "Files",
-    });
+    const { resourceList, buildDirList, getAllDirBuilder, getAllFiles } =
+        RequestSMCO({
+            resourceLabel: "Files",
+        });
 
     const [currFileDir, setCurrFileDir] = useState([
         { id: "gh_6", name: "File 1.txt", isFolder: false },
@@ -48,9 +44,25 @@ const FileExplorer = ({ fsManager }) => {
         getAllFiles({
             search: searchTextPerm.toLocaleLowerCase(),
             is_deleted: false,
-            is_paginated: false
+            is_paginated: false,
         });
-    }, [searchTextPerm]);
+    }, []);
+
+    // Building Directories on the TRIE and Files by inserting 
+    // it to FileManager
+    useEffect(() => {
+        if (buildDirList.buildDir.length !== 0 && resourceList.results.length !== 0){
+            for (let currDir of buildDirList.buildDir) {
+                if (currDir !== "/") {
+                    fsManager.mkdir(currDir);
+                }
+            }
+
+            for (let currFile of resourceList.results) {
+                console.log(currFile);
+            }
+        }
+    }, [buildDirList, resourceList]);
 
     useEffect(() => {
         const handleKeyDownCTRL = (event) => {
@@ -119,8 +131,6 @@ const FileExplorer = ({ fsManager }) => {
         }
 
         console.log(folder);
-        console.log(buildDirList);
-        console.log(resourceList);
 
         setSelectedItems([...selectedItems, ...droppedFiles]);
     };

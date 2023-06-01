@@ -35,7 +35,7 @@ export default function RequestSMCO({ resourceLabel }) {
         window.location.href = '/auth/login';
     }, [enqueueSnackbar, setError, setLoading]);
 
-    const getAllDirBuilder = useCallback(() => {
+    const getAllDirBuilder = useCallback((successCallback) => {
         setLoading(true);
 
         axios.get(`/smco/filespag`, SetHeaderToken())
@@ -46,11 +46,15 @@ export default function RequestSMCO({ resourceLabel }) {
                     setBuildDirList({
                         buildDir: res.data.lvlorderdir
                     });
+
+                    if (successCallback) {
+                        successCallback();
+                    }
                 }
             }).catch(handleRequestResourceError);
     }, [handleRequestResourceError, setLoading]);
 
-    const getAllFiles = useCallback((values) => {
+    const getAllFiles = useCallback((values, successCallback) => {
         setLoading(true);
 
         axios.post(`/smco/filespag`, values, SetHeaderToken())
@@ -62,6 +66,10 @@ export default function RequestSMCO({ resourceLabel }) {
                         results: res.data.results,
                         numFile: res.data.filecount
                     });
+
+                    if (successCallback) {
+                        successCallback();
+                    }
                 }
             }).catch(handleRequestResourceError);
     }, [handleRequestResourceError, setLoading]);
