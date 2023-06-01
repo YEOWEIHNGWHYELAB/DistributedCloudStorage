@@ -13,13 +13,13 @@ const FileExplorer = ({fsManager}) => {
     } = fileTableStyle();
 
     const [currFileDir, setCurrFileDir] = useState([
-        { id: 0, name: "File 1.txt", isFolder: false },
-        { id: 1, name: "File 2.png", isFolder: false },
-        { id: 2, name: "File 3.png", isFolder: false },
-        { id: 3, name: "File 5.png", isFolder: false },
-        { id: 4, name: "File 4.png", isFolder: false },
-        { id: 5, name: "Folder 2", isFolder: true, items: [] },
-        { id: 6, name: "Folder 1", isFolder: true, items: [] },
+        { id: "gh_6", name: "File 1.txt", isFolder: false },
+        { id: "yt_gewg", name: "File 2.png", isFolder: false },
+        { id: "gh_4", name: "File 3.png", isFolder: false },
+        { id: "gh_6", name: "File 5.png", isFolder: false },
+        { id: "gh_gewg", name: "File 4.png", isFolder: false },
+        { id: "fd_1", name: "Folder 2", isFolder: true, items: [] },
+        { id: "fd_2", name: "Folder 1", isFolder: true, items: [] }
     ]);
 
     const [selectedItems, setSelectedItems] = useState([]);
