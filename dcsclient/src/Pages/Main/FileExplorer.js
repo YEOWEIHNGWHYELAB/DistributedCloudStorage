@@ -16,7 +16,7 @@ const FileExplorer = ({fsManager}) => {
         { id: "gh_6", name: "File 1.txt", isFolder: false },
         { id: "yt_gewg", name: "File 2.png", isFolder: false },
         { id: "gh_4", name: "File 3.png", isFolder: false },
-        { id: "gh_6", name: "File 5.png", isFolder: false },
+        { id: "gh_2", name: "File 5.png", isFolder: false },
         { id: "gh_gewg", name: "File 4.png", isFolder: false },
         { id: "fd_1", name: "Folder 2", isFolder: true, items: [] },
         { id: "fd_2", name: "Folder 1", isFolder: true, items: [] }

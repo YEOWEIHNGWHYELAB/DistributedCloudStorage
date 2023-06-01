@@ -31,7 +31,7 @@ export default class FSManager {
                     curr_dir.directories.set(newName, new Directory());
                 }
             } else {
-                return console.log("Path does not exist!");
+                return alert("Path does not exist!");
             }
         } else {
             if (curr_dir.files.has(fileID)) {
@@ -41,7 +41,7 @@ export default class FSManager {
                     curr_dir.files.set(fileID, newName);
                 }
             } else {
-                return console.log("File does not exist!");
+                return alert("File does not exist!");
             }
         }
     }
@@ -75,7 +75,7 @@ export default class FSManager {
 
         for (let i = 1; i < pathArray.length - 1; i++) {
             if (!curr_dir.directories.has(pathArray[i])) {
-                return console.log("Path does not exist!");
+                return alert("Path does not exist!");
             }
 
             curr_dir = curr_dir.directories.get(pathArray[i]);
@@ -91,7 +91,7 @@ export default class FSManager {
 
         for (let i = 1; i < pathArray.length - 1; i++) {
             if (!curr_dir.directories.has(pathArray[i])) {
-                return console.log("Path does not exist!");
+                return alert("Path does not exist!");
             }
 
             curr_dir = curr_dir.directories.get(pathArray[i]);
@@ -127,7 +127,7 @@ export default class FSManager {
 
         for (let i = 1; i < pathArray.length - 1; i++) {
             if (!curr_dir.directories.has(pathArray[i])) {
-                return console.log("Invalid file path!");
+                return alert("Invalid file path!");
             }
 
             curr_dir = curr_dir.directories.get(pathArray[i]);
@@ -143,7 +143,7 @@ export default class FSManager {
 
         for (let i = 1; i < pathArray.length - 1; i++) {
             if (!curr_dir.directories.has(pathArray[i])) {
-                return console.log("Invalid file path!");
+                return alert("Invalid file path!");
             }
 
             curr_dir = curr_dir.directories.get(pathArray[i]);

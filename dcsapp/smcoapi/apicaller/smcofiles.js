@@ -115,7 +115,7 @@ exports.mkDir = async (req, res, pool) => {
             });
         }
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: "Failed to make directory!" });
     }
 };
@@ -209,7 +209,9 @@ exports.getAllFiles = async (req, res, pool) => {
         videoPaginatedQuery += `WHERE filename ILIKE '%${req.body.search.trim()}%' `;
     }
 
-    videoPaginatedQuery += `LIMIT $1 OFFSET $2`;
+    if (req.body.is_paginated) {
+        videoPaginatedQuery += `LIMIT $1 OFFSET $2`;
+    }
 
     const ghPartitionTable = `GitHubFiles_${decoded.username}`;
     const ytPartitionTable = `YouTubeVideos_${decoded.username}`;
@@ -228,10 +230,16 @@ exports.getAllFiles = async (req, res, pool) => {
     let fileIDDIRhm = new Map();
 
     try {
-        let filesPagResult = await pool.query(videoPaginatedQuery, [
-            limit,
-            offset,
-        ]);
+        let filesPagResult 
+        
+        if (req.body.is_paginated) {
+            filesPagResult = await pool.query(videoPaginatedQuery, [
+                limit,
+                offset,
+            ]);
+        } else {
+            filesPagResult = await pool.query(videoPaginatedQuery, []);
+        }
 
         for (let i = 0; i < filesPagResult.rows.length; i++) {
             let currPathID = parseInt(filesPagResult.rows[i].path_dir);
@@ -257,7 +265,7 @@ exports.getAllFiles = async (req, res, pool) => {
             success: true,
             message: "Files obtained successfully",
             results: filesPagResult.rows,
-            maxpage: Math.ceil(totalFilesCount / limit),
+            maxpage: req.body.is_paginated ? Math.ceil(totalFilesCount / limit) : 0,
             filecount: parseInt(totalFilesCount),
         });
     } catch (error) {
