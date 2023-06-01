@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 
+import RequestSMCO from "../../Hooks/RequestSMCO";
+
 import { fileTableStyle } from "../../Windows/TableStyle";
 import "./FileExplorerStyle.css";
 
-const FileExplorer = ({fsManager}) => {
+const FileExplorer = ({ fsManager }) => {
     const {
         StyledTable,
         StyledHeaderRow,
@@ -12,6 +14,15 @@ const FileExplorer = ({fsManager}) => {
         StyledCell,
     } = fileTableStyle();
 
+    const {
+        resourceList,
+        buildDirList,
+        getAllDirBuilder,
+        getAllFiles
+    } = RequestSMCO({
+        resourceLabel: "Files",
+    });
+
     const [currFileDir, setCurrFileDir] = useState([
         { id: "gh_6", name: "File 1.txt", isFolder: false },
         { id: "yt_gewg", name: "File 2.png", isFolder: false },
@@ -19,8 +30,10 @@ const FileExplorer = ({fsManager}) => {
         { id: "gh_2", name: "File 5.png", isFolder: false },
         { id: "gh_gewg", name: "File 4.png", isFolder: false },
         { id: "fd_1", name: "Folder 2", isFolder: true, items: [] },
-        { id: "fd_2", name: "Folder 1", isFolder: true, items: [] }
+        { id: "fd_2", name: "Folder 1", isFolder: true, items: [] },
     ]);
+
+    const [searchTextPerm, setSearchTextPerm] = useState("");
 
     const [selectedItems, setSelectedItems] = useState([]);
 
@@ -28,6 +41,16 @@ const FileExplorer = ({fsManager}) => {
     const [isShiftKeyPressed, setIsShiftKeyPressed] = useState(false);
 
     const [shiftStartIndex, setShiftStartIndex] = useState(0);
+
+    useEffect(() => {
+        getAllDirBuilder();
+
+        getAllFiles({
+            search: searchTextPerm.toLocaleLowerCase(),
+            is_deleted: false,
+            is_paginated: false
+        });
+    }, [searchTextPerm]);
 
     useEffect(() => {
         const handleKeyDownCTRL = (event) => {
@@ -96,6 +119,8 @@ const FileExplorer = ({fsManager}) => {
         }
 
         console.log(folder);
+        console.log(buildDirList);
+        console.log(resourceList);
 
         setSelectedItems([...selectedItems, ...droppedFiles]);
     };
@@ -106,11 +131,15 @@ const FileExplorer = ({fsManager}) => {
         const currSelect = selectedItems.findIndex(
             (file) => file.id === item.id
         );
-        
-        if (selectedItems.length > 1 && !isCtrlKeyPressed && !isShiftKeyPressed) {
+
+        if (
+            selectedItems.length > 1 &&
+            !isCtrlKeyPressed &&
+            !isShiftKeyPressed
+        ) {
             setSelectedItems([item]);
         }
-    }
+    };
 
     const handleItemSelection = (e, item) => {
         e.stopPropagation();
@@ -145,7 +174,9 @@ const FileExplorer = ({fsManager}) => {
             } else if (isShiftKeyPressed) {
                 // Shift key is pressed
                 const startIndex = shiftStartIndex;
-                const endIndex = currFileDir.findIndex((file) => file.id === item.id);
+                const endIndex = currFileDir.findIndex(
+                    (file) => file.id === item.id
+                );
                 const range = currFileDir.slice(
                     Math.min(startIndex, endIndex),
                     Math.max(startIndex, endIndex) + 1
@@ -190,10 +221,10 @@ const FileExplorer = ({fsManager}) => {
                                     handleItemSelection(e, file)
                                 }
                                 onMouseUp={(e) => {
-                                    handleItemSelectAgain(e, file)
+                                    handleItemSelectAgain(e, file);
                                 }}
                                 onDoubleClick={(e) => {
-                                    console.log("Double Click")
+                                    console.log("Double Click");
                                 }}
                                 draggable
                                 onDrop={(e) => {
