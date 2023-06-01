@@ -14,10 +14,12 @@ const FileExplorer = ({ fsManager }) => {
         StyledCell,
     } = fileTableStyle();
 
-    const { resourceList, buildDirList, getAllDirBuilder, getAllFiles } =
-        RequestSMCO({
-            resourceLabel: "Files",
-        });
+    const { 
+        resourceList, 
+        buildDirList, 
+        getAllDirBuilder, 
+        getAllFiles 
+    } = RequestSMCO({ resourceLabel: "Files" });
 
     const [currFileDir, setCurrFileDir] = useState([
         { id: "gh_6", name: "File 1.txt", isFolder: false },
@@ -59,9 +61,12 @@ const FileExplorer = ({ fsManager }) => {
             }
 
             for (let currFile of resourceList.results) {
-                fsManager.mkfile(currFile.full_pathname + "/" + currFile.filename, currFile.id);
+                if (currFile.full_pathname !== "/") {
+                    fsManager.mkfile(currFile.full_pathname + "/" + currFile.filename, currFile.id, currFile.created_at);
+                } else {
+                    fsManager.mkfile(currFile.full_pathname + currFile.filename, currFile.id, currFile.created_at);
+                }
             }
-            console.log(fsManager.ls("/test"));
         }
     }, [buildDirList, resourceList]);
 
@@ -220,36 +225,36 @@ const FileExplorer = ({ fsManager }) => {
                 </thead>
                 {
                     <tbody>
-                        {currFileDir.map((file, index) => (
+                        {resourceList.results.map((fileDir) => (
                             <StyledRow
-                                key={file.id}
+                                key={fileDir.id}
                                 className={`item ${
-                                    selectedItems.includes(file)
+                                    selectedItems.includes(fileDir)
                                         ? "selected"
                                         : ""
                                 }`}
                                 onMouseDown={(e) =>
-                                    handleItemSelection(e, file)
+                                    handleItemSelection(e, fileDir)
                                 }
                                 onMouseUp={(e) => {
-                                    handleItemSelectAgain(e, file);
+                                    handleItemSelectAgain(e, fileDir);
                                 }}
                                 onDoubleClick={(e) => {
                                     console.log("Double Click");
                                 }}
                                 draggable
                                 onDrop={(e) => {
-                                    if (file.isFolder) {
-                                        handleFolderDrop(e, file.id);
+                                    if (fileDir.isFolder) {
+                                        handleFolderDrop(e, fileDir.id);
                                     }
                                 }}
                                 onDragOver={(e) => {
-                                    if (file.isFolder) {
+                                    if (typeof fileDir === "string") {
                                         e.preventDefault();
                                     }
                                 }}
                             >
-                                <StyledCell>{file.name}</StyledCell>
+                                <StyledCell>{(typeof fileDir === "string") ? fileDir : fileDir.filename}</StyledCell>
                             </StyledRow>
                         ))}
                     </tbody>

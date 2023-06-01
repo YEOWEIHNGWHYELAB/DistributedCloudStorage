@@ -100,7 +100,7 @@ export default class FSManager {
         this.filefoldermod(curr_dir, pathArray, true, true, null, null);
     }
 
-    mkfile(path, fileID) {
+    mkfile(path, fileID, created_at) {
         if (!this.isValidDir(path)) {
             return;
         }
@@ -117,7 +117,7 @@ export default class FSManager {
             curr_dir = curr_dir.directories.get(pathArray[i]);
         }
 
-        curr_dir.files.set(fileID, pathArray[pathArray.length - 1]);
+        curr_dir.files.set(fileID, {id: fileID, filename: pathArray[pathArray.length - 1], created_at: created_at});
     }
 
     renamefile(path, fileID, fileName) {
