@@ -22,17 +22,11 @@ const FileExplorer = ({ fsManager }) => {
         getAllFiles 
     } = RequestSMCO({ resourceLabel: "Files" });
     
-    const [currFileDir, setCurrFileDir] = useState([
-        { id: "gh_6", name: "File 1.txt", isFolder: false },
-        { id: "yt_gewg", name: "File 2.png", isFolder: false },
-        { id: "gh_4", name: "File 3.png", isFolder: false },
-        { id: "gh_2", name: "File 5.png", isFolder: false },
-        { id: "gh_gewg", name: "File 4.png", isFolder: false },
-        { id: "fd_1", name: "Folder 2", isFolder: true, items: [] },
-        { id: "fd_2", name: "Folder 1", isFolder: true, items: [] },
-    ]);
-
+    // Directory navigation management
     const [dequeDir] = useState(() => new DirectoryDeque());
+
+    // Current directory manager
+    const [fileDirList, setFileDirList] = useState([]);
 
     const [searchTextPerm, setSearchTextPerm] = useState("");
 
@@ -70,6 +64,8 @@ const FileExplorer = ({ fsManager }) => {
                     fsManager.mkfile(currFile.full_pathname + currFile.filename, currFile.id, currFile.created_at);
                 }
             }
+
+            setFileDirList([...fsManager.ls("/")]);
         }
     }, [buildDirList, resourceList]);
 
@@ -114,7 +110,7 @@ const FileExplorer = ({ fsManager }) => {
     const handleFolderDrop = (e, folderId) => {
         e.preventDefault();
 
-        const folder = currFileDir.find((f) => f.id === folderId);
+        const folder = fileDirList.find((f) => f.id === folderId);
 
         let droppedFiles = [];
 
@@ -127,7 +123,7 @@ const FileExplorer = ({ fsManager }) => {
                 }
             }
 
-            for (let itemLs of currFileDir) {
+            for (let itemLs of fileDirList) {
                 if (itemHS.has(itemLs.id)) {
                     droppedFiles.push(itemLs);
                 }
@@ -168,7 +164,7 @@ const FileExplorer = ({ fsManager }) => {
         );
 
         if (!e.shiftKey) {
-            const startIndex = currFileDir.findIndex(
+            const startIndex = fileDirList.findIndex(
                 (file) => file.id === item.id
             );
             setShiftStartIndex(startIndex);
@@ -193,10 +189,10 @@ const FileExplorer = ({ fsManager }) => {
             } else if (isShiftKeyPressed) {
                 // Shift key is pressed
                 const startIndex = shiftStartIndex;
-                const endIndex = currFileDir.findIndex(
+                const endIndex = fileDirList.findIndex(
                     (file) => file.id === item.id
                 );
-                const range = currFileDir.slice(
+                const range = fileDirList.slice(
                     Math.min(startIndex, endIndex),
                     Math.max(startIndex, endIndex) + 1
                 );
@@ -229,7 +225,7 @@ const FileExplorer = ({ fsManager }) => {
                 </thead>
                 {
                     <tbody>
-                        {resourceList.results.map((fileDir) => (
+                        {fileDirList.map((fileDir) => (
                             <StyledRow
                                 key={fileDir.id}
                                 className={`item ${
