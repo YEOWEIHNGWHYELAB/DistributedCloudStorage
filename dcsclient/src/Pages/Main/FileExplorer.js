@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+import DirectoryDeque from "./DirectoryDeque";
 import RequestSMCO from "../../Hooks/RequestSMCO";
 
 import { fileTableStyle } from "../../Windows/TableStyle";
@@ -20,7 +21,7 @@ const FileExplorer = ({ fsManager }) => {
         getAllDirBuilder, 
         getAllFiles 
     } = RequestSMCO({ resourceLabel: "Files" });
-
+    
     const [currFileDir, setCurrFileDir] = useState([
         { id: "gh_6", name: "File 1.txt", isFolder: false },
         { id: "yt_gewg", name: "File 2.png", isFolder: false },
@@ -30,6 +31,8 @@ const FileExplorer = ({ fsManager }) => {
         { id: "fd_1", name: "Folder 2", isFolder: true, items: [] },
         { id: "fd_2", name: "Folder 1", isFolder: true, items: [] },
     ]);
+
+    const [dequeDir] = useState(() => new DirectoryDeque());
 
     const [searchTextPerm, setSearchTextPerm] = useState("");
 
@@ -44,7 +47,7 @@ const FileExplorer = ({ fsManager }) => {
         getAllDirBuilder();
 
         getAllFiles({
-            search: searchTextPerm.toLocaleLowerCase(),
+            search: "",
             is_deleted: false,
             is_paginated: false,
         });
@@ -221,6 +224,7 @@ const FileExplorer = ({ fsManager }) => {
                 <thead>
                     <StyledHeaderRow>
                         <StyledHeaderCell>Filename</StyledHeaderCell>
+                        <StyledHeaderCell>Date Created</StyledHeaderCell>
                     </StyledHeaderRow>
                 </thead>
                 {
@@ -255,6 +259,8 @@ const FileExplorer = ({ fsManager }) => {
                                 }}
                             >
                                 <StyledCell>{(typeof fileDir === "string") ? fileDir : fileDir.filename}</StyledCell>
+
+                                <StyledCell>{(typeof fileDir === "string") ? "" : fileDir.created_at}</StyledCell>
                             </StyledRow>
                         ))}
                     </tbody>

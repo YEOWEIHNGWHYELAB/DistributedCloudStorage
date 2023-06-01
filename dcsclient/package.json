@@ -25,6 +25,7 @@
     "chartjs-plugin-annotation": "^3.0.1",
     "chartjs-plugin-streaming": "^2.0.0",
     "child_process": "^1.0.2",
+    "collections": "^5.1.13",
     "date-fns": "^2.0.0",
     "formik": "^2.2.9",
     "lodash": "^4.17.21",
