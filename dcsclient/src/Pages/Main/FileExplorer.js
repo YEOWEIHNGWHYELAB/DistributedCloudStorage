@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { AiOutlineSearch } from "react-icons/ai";
 import FolderIcon from '@mui/icons-material/Folder';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
@@ -31,6 +32,7 @@ const FileExplorer = ({ fsManager }) => {
     const [fileDirList, setFileDirList] = useState([]);
 
     const [searchTextPerm, setSearchTextPerm] = useState("");
+    const [searchText, setSearchText] = useState("");
 
     const [selectedItems, setSelectedItems] = useState([]);
 
@@ -216,6 +218,21 @@ const FileExplorer = ({ fsManager }) => {
         }
     };
 
+    const handleSearchChange = (event) => {
+        setSearchText(event.target.value);
+    };
+
+    const handleSearch = () => {
+        setSearchTextPerm(searchText);
+    };
+
+    const handleGoToDir = (e, goToFolder) => {
+        dequeDir.addRear(goToFolder);
+        const newTargetDir = dequeDir.getDirectoryString();
+
+        setFileDirList([...fsManager.ls(newTargetDir)]);
+    };
+
     function FileOrFolderIcon({ isFile }) {
         return (
             <span>
@@ -226,6 +243,21 @@ const FileExplorer = ({ fsManager }) => {
 
     return (
         <div>
+            <div className="search-container">
+                <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search by Filename"
+                    value={searchText}
+                    onChange={handleSearchChange}
+                />
+
+                <AiOutlineSearch
+                    onClick={handleSearch}
+                    className="search-icon"
+                />
+            </div>
+
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
@@ -237,10 +269,10 @@ const FileExplorer = ({ fsManager }) => {
                     <tbody>
                         {fileDirList.map((fileDir) => (
                             <StyledRow
-                                key={fileDir.id}
+                                key={typeof fileDir === "string" ? (fileDir) : fileDir.id }
                                 className={`item ${selectedItems.includes(fileDir)
-                                        ? "selected"
-                                        : ""
+                                    ? "selected"
+                                    : ""
                                     }`}
                                 onMouseDown={(e) =>
                                     handleItemSelection(e, fileDir)
@@ -249,7 +281,9 @@ const FileExplorer = ({ fsManager }) => {
                                     handleItemSelectAgain(e, fileDir);
                                 }}
                                 onDoubleClick={(e) => {
-                                    console.log("Double Click");
+                                    if (typeof fileDir === "string") {
+                                        handleGoToDir(e, fileDir);
+                                    }
                                 }}
                                 draggable
                                 onDrop={(e) => {
