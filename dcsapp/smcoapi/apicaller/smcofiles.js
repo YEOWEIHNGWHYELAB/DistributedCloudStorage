@@ -284,10 +284,18 @@ exports.changeFileDir = async (req, res, pool) => {
     const token = authHeader.split(" ")[1];
     let decoded = decodeAuthToken(token, res);
 
-    const pathTarget = req.body.new_path;
-    const pathArray = pathTarget.split("/");
-    const pathTargetName = pathArray[pathArray.length - 1];
-    const pathDepth = pathArray.length - 1;
+    let pathArray;
+    let pathTargetName;
+    let pathDepth;
+
+    if (req.body.new_path != "/") {
+        pathArray = pathTarget.split("/");
+        pathTargetName = pathArray[pathArray.length - 1];
+        pathDepth = pathArray.length - 1;
+    } else {
+        pathTargetName = "";
+        pathDepth = 0;
+    }
 
     const queryIDPath = `
         SELECT id
