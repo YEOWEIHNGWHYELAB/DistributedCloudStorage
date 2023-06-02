@@ -265,7 +265,7 @@ const FileExplorer = ({ fsManager }) => {
                             >
                                 <StyledCell>
                                     <FileOrFolderIcon isFile={typeof fileDir !== "string"} />
-                                    {(typeof fileDir === "string") ? fileDir : fileDir.filename}
+                                    {(typeof fileDir === "string") ? (" " + fileDir) : (" " + fileDir.filename)}
                                 </StyledCell>
 
                                 <StyledCell>
