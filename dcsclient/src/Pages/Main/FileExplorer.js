@@ -123,37 +123,19 @@ const FileExplorer = ({ fsManager }) => {
         };
     }, []);
 
-    const handleFolderDrop = (e, folderId) => {
+    // Drag and drop
+    const handleFolderDrop = (e, folderTargetName) => {
         e.preventDefault();
 
-        const folder = fileDirList.find((f) => f.id === folderId);
+        const fullTargetFolderPath = myCurrDir + folderTargetName;
 
-        let droppedFiles = [];
-
-        if (selectedItems.length > 1) {
-            let itemHS = new Set();
-
-            for (let itemSelected of selectedItems) {
-                if (!itemHS.has(itemSelected.id)) {
-                    itemHS.add(itemSelected.id);
-                }
+        for (let currItem of selectedItems) {
+            if (typeof currItem !== "string") {
+                console.log(currItem);
+            } else if (currItem !== folderTargetName) {
+                console.log(currItem);
             }
-
-            for (let itemLs of fileDirList) {
-                if (itemHS.has(itemLs.id)) {
-                    droppedFiles.push(itemLs);
-                }
-            }
-
-            folder.items.push(...droppedFiles);
-        } else {
-            droppedFiles.push(...selectedItems);
-            folder.items.push(...droppedFiles);
         }
-
-        console.log(folder);
-
-        setSelectedItems([...selectedItems, ...droppedFiles]);
     };
 
     const handleItemSelectAgain = (e, item) => {
@@ -189,9 +171,20 @@ const FileExplorer = ({ fsManager }) => {
         if (currSelect <= -1 || isCtrlKeyPressed || isShiftKeyPressed) {
             if (isCtrlKeyPressed) {
                 // CTRL key is pressed
-                const itemIndex = selectedItems.findIndex(
-                    (selectedItem) => selectedItem.id === item.id
-                );
+                let itemIndex;
+                
+                if (typeof item === "string") {
+                    for (let i = 0; i < selectedItems.length; i++) {
+                        if (typeof selectedItems[i] === "string" && selectedItems[i] === item) {
+                            itemIndex = i;
+                            break;
+                        }
+                    }
+                } else {
+                    itemIndex = selectedItems.findIndex(
+                        (selectedItem) => selectedItem.id === item.id
+                    );
+                }
 
                 if (itemIndex > -1) {
                     // Item already selected, remove it from selectedItems
@@ -370,8 +363,8 @@ const FileExplorer = ({ fsManager }) => {
                                 }}
                                 draggable
                                 onDrop={(e) => {
-                                    if (fileDir.isFolder) {
-                                        handleFolderDrop(e, fileDir.id);
+                                    if (typeof fileDir === "string") {
+                                        handleFolderDrop(e, fileDir);
                                     }
                                 }}
                                 onDragOver={(e) => {
@@ -395,6 +388,8 @@ const FileExplorer = ({ fsManager }) => {
                     </tbody>
                 }
             </StyledTable>
+
+            <br/>
         </div>
     );
 };
