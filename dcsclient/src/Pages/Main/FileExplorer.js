@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import FolderIcon from '@mui/icons-material/Folder';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
 import DirectoryDeque from "./DirectoryDeque";
 import RequestSMCO from "../../Hooks/RequestSMCO";
@@ -15,13 +17,13 @@ const FileExplorer = ({ fsManager }) => {
         StyledCell,
     } = fileTableStyle();
 
-    const { 
-        resourceList, 
-        buildDirList, 
-        getAllDirBuilder, 
-        getAllFiles 
+    const {
+        resourceList,
+        buildDirList,
+        getAllDirBuilder,
+        getAllFiles
     } = RequestSMCO({ resourceLabel: "Files" });
-    
+
     // Directory navigation management
     const [dequeDir] = useState(() => new DirectoryDeque());
 
@@ -50,7 +52,7 @@ const FileExplorer = ({ fsManager }) => {
     // Building Directories on the TRIE and Files by inserting 
     // it to FileManager
     useEffect(() => {
-        if (buildDirList.buildDir.length !== 0 && resourceList.results.length !== 0){
+        if (buildDirList.buildDir.length !== 0 && resourceList.results.length !== 0) {
             for (let currDir of buildDirList.buildDir) {
                 if (currDir !== "/") {
                     fsManager.mkdir(currDir);
@@ -214,6 +216,14 @@ const FileExplorer = ({ fsManager }) => {
         }
     };
 
+    function FileOrFolderIcon({ isFile }) {
+        return (
+            <span>
+                {isFile ? <TextSnippetIcon /> : <FolderIcon />}
+            </span>
+        );
+    }
+
     return (
         <div>
             <StyledTable>
@@ -228,11 +238,10 @@ const FileExplorer = ({ fsManager }) => {
                         {fileDirList.map((fileDir) => (
                             <StyledRow
                                 key={fileDir.id}
-                                className={`item ${
-                                    selectedItems.includes(fileDir)
+                                className={`item ${selectedItems.includes(fileDir)
                                         ? "selected"
                                         : ""
-                                }`}
+                                    }`}
                                 onMouseDown={(e) =>
                                     handleItemSelection(e, fileDir)
                                 }
@@ -254,9 +263,14 @@ const FileExplorer = ({ fsManager }) => {
                                     }
                                 }}
                             >
-                                <StyledCell>{(typeof fileDir === "string") ? fileDir : fileDir.filename}</StyledCell>
+                                <StyledCell>
+                                    <FileOrFolderIcon isFile={typeof fileDir !== "string"} />
+                                    {(typeof fileDir === "string") ? fileDir : fileDir.filename}
+                                </StyledCell>
 
-                                <StyledCell>{(typeof fileDir === "string") ? "" : fileDir.created_at}</StyledCell>
+                                <StyledCell>
+                                    {(typeof fileDir === "string") ? ("Folder") : fileDir.created_at}
+                                </StyledCell>
                             </StyledRow>
                         ))}
                     </tbody>
