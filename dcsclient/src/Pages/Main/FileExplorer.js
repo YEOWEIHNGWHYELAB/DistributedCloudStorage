@@ -28,7 +28,8 @@ const FileExplorer = ({ fsManager }) => {
         buildDirList,
         getAllDirBuilder,
         getAllFiles,
-        moveFiles
+        moveFiles,
+        moveFolder
     } = RequestSMCO({ resourceLabel: "Files" });
 
     // Directory navigation management
@@ -128,8 +129,13 @@ const FileExplorer = ({ fsManager }) => {
     const handleFolderDrop = (e, folderTargetName) => {
         e.preventDefault();
 
-        const fullTargetFolderPath = myCurrDir + folderTargetName;
-        console.log(selectedItems);
+        let fullTargetFolderPath;
+
+        if (myCurrDir !== "/") {
+            fullTargetFolderPath = myCurrDir + "/" + folderTargetName;
+        } else {
+            fullTargetFolderPath = myCurrDir + folderTargetName;
+        }
 
         let fileIDList = [];
         let folderPathList = [];
@@ -139,11 +145,10 @@ const FileExplorer = ({ fsManager }) => {
                 fileIDList.push(currItem.id);
             } else if (currItem !== folderTargetName) {
                 // To make sure that the selected folder don't get moved into itself
-                folderPathList.push(myCurrDir + currItem);
+                folderPathList.push(currItem);
             }
         }
 
-        /*
         moveFiles({ id: fileIDList, new_path: fullTargetFolderPath}, () => {
             for (let currItem of selectedItems) {
                 if (typeof currItem !== "string") {
@@ -151,12 +156,25 @@ const FileExplorer = ({ fsManager }) => {
                     fsManager.mkfile(fullTargetFolderPath, currItem.id);
                 }
             }
-        });*/
+        });
 
         for (let currFolder of folderPathList) {
-            console.log(currFolder);
+            let newDir = (fullTargetFolderPath === "/") ? fullTargetFolderPath + currFolder : fullTargetFolderPath + "/" + currFolder;
+
+            moveFolder({ 
+                old_path: (myCurrDir === "/") ? myCurrDir + currFolder : myCurrDir + "/" + currFolder,
+                new_path: fullTargetFolderPath
+            }, () => {
+                setFileDirList(fileDirList.filter((folder) => {
+                    return currFolder !== folder
+                }));
+
+                fsManager.deldir(currFolder);
+                fsManager.mkdir(newDir);
+            });
         }
 
+        // Remove all the selected item...
         setSelectedItems([]);
     };
 
