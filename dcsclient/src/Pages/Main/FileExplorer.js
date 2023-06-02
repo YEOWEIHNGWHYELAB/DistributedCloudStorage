@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
+import {
+    Button as MUIButton
+} from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
@@ -30,7 +33,8 @@ const FileExplorer = ({ fsManager }) => {
 
     // Current directory manager
     const [fileDirList, setFileDirList] = useState([]);
-    const [poppedDir, setPoppedDir] = useState("/");
+    const [poppedDir, setPoppedDir] = useState("");
+    const [myCurrDir, setMyCurrDir] = useState(null);
 
     const [searchTextPerm, setSearchTextPerm] = useState("");
     const [searchText, setSearchText] = useState("");
@@ -70,6 +74,7 @@ const FileExplorer = ({ fsManager }) => {
                 }
             }
 
+            setMyCurrDir("/");
             setFileDirList([...fsManager.ls("/")]);
         }
     }, [buildDirList, resourceList]);
@@ -228,20 +233,32 @@ const FileExplorer = ({ fsManager }) => {
     };
 
     const handleGoToDir = (e, goToFolder) => {
+        setPoppedDir(dequeDir.getDirectoryString());
         dequeDir.addRear(goToFolder);
         const newTargetDir = dequeDir.getDirectoryString();
-
+        setMyCurrDir(newTargetDir);
         setFileDirList([...fsManager.ls(newTargetDir)]);
     };
 
     const handlePopBackToDir = () => {
         dequeDir.removeRear();
         const newTargetDir = dequeDir.getDirectoryString();
-
+        setMyCurrDir(newTargetDir);
         setFileDirList([...fsManager.ls(newTargetDir)]);
-    }
 
-    const [directories, setDirectories] = useState("/Documents/Photos".split('/').filter(Boolean));
+        const lastIndex = newTargetDir.lastIndexOf("/");
+        let resultPopped;
+
+        if (lastIndex > 0) {
+            resultPopped = newTargetDir.substring(0, lastIndex);
+        } else if (lastIndex === 0 && dequeDir.getSize() >= 1) {
+            resultPopped = "/"
+        } else {
+            resultPopped = "";
+        }
+        
+        setPoppedDir(resultPopped);
+    }
 
     function FileOrFolderIcon({ isFile }) {
         return (
@@ -267,18 +284,30 @@ const FileExplorer = ({ fsManager }) => {
                     className="search-icon"
                 />
             </div>
+            
+            <br/>
+
+            <span>PWD: {myCurrDir}</span>
+            
+            <br/>
+            <br/>
 
             <div>
-                {directories.map((directory, index) => (
-                    <span key={directory}>
-                        {index > 0 && <span>{'>'}</span>}
-                        <span
-                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                        >
-                            {directory}
-                        </span>
-                    </span>
-                ))}
+                <MUIButton
+                    style={{
+                        border: "2px solid #555",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        boxSizing: "border-box"
+                    }}
+                    disabled={
+                        poppedDir === ""
+                    }
+                    onClick={handlePopBackToDir}
+                >
+                    Go Back To: {poppedDir}
+                </MUIButton>
             </div>
 
             <StyledTable>
