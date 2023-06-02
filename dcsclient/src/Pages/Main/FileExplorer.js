@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
+import moment from "moment";
 import {
     Button as MUIButton
 } from "@mui/material";
@@ -10,6 +11,7 @@ import DirectoryDeque from "./DirectoryDeque";
 import RequestSMCO from "../../Hooks/RequestSMCO";
 
 import { fileTableStyle } from "../../Windows/TableStyle";
+import { sortSMCOList, sortTableColumn } from "../../Windows/TableControl";
 import "./FileExplorerStyle.css";
 
 const FileExplorer = ({ fsManager }) => {
@@ -35,6 +37,10 @@ const FileExplorer = ({ fsManager }) => {
     const [fileDirList, setFileDirList] = useState([]);
     const [poppedDir, setPoppedDir] = useState("");
     const [myCurrDir, setMyCurrDir] = useState(null);
+
+    // Sorting files
+    const [sortField, setSortField] = useState("filename");
+    const [sortDirection, setSortDirection] = useState("asc");
 
     const [searchTextPerm, setSearchTextPerm] = useState("");
     const [searchText, setSearchText] = useState("");
@@ -224,6 +230,10 @@ const FileExplorer = ({ fsManager }) => {
         }
     };
 
+    const handleSort = sortTableColumn(sortField, setSortDirection, sortDirection, setSortField);
+
+    sortSMCOList(fileDirList, sortField, sortDirection, false);
+
     const handleSearchChange = (event) => {
         setSearchText(event.target.value);
     };
@@ -256,7 +266,7 @@ const FileExplorer = ({ fsManager }) => {
         } else {
             resultPopped = "";
         }
-        
+
         setPoppedDir(resultPopped);
     }
 
@@ -284,13 +294,13 @@ const FileExplorer = ({ fsManager }) => {
                     className="search-icon"
                 />
             </div>
-            
-            <br/>
+
+            <br />
 
             <span>PWD: {myCurrDir}</span>
-            
-            <br/>
-            <br/>
+
+            <br />
+            <br />
 
             <div>
                 <MUIButton
@@ -313,8 +323,29 @@ const FileExplorer = ({ fsManager }) => {
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
-                        <StyledHeaderCell>Filename</StyledHeaderCell>
-                        <StyledHeaderCell>Date Created</StyledHeaderCell>
+                        <StyledHeaderCell
+                            className={
+                                sortField === "filename"
+                                    ? `sortable ${sortDirection}`
+                                    : "sortable"
+                            }
+                            onClick={() => handleSort("filename")}
+                            style={{ sortField }}
+                        >
+                            Filename
+                        </StyledHeaderCell>
+
+                        <StyledHeaderCell
+                            className={
+                                sortField === "created_at"
+                                    ? `sortable ${sortDirection}`
+                                    : "sortable"
+                            }
+                            onClick={() => handleSort("created_at")}
+                            style={{ sortField }}
+                        >
+                            Date Created
+                        </StyledHeaderCell>
                     </StyledHeaderRow>
                 </thead>
                 {
@@ -355,7 +386,9 @@ const FileExplorer = ({ fsManager }) => {
                                 </StyledCell>
 
                                 <StyledCell>
-                                    {(typeof fileDir === "string") ? ("Folder") : fileDir.created_at}
+                                    {(typeof fileDir === "string") 
+                                        ? ("Folder") 
+                                        : moment(fileDir.created_at).format("hh:mm A DD-MMM-YYYY")}
                                 </StyledCell>
                             </StyledRow>
                         ))}

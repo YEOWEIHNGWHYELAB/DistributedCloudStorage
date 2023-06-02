@@ -17,6 +17,25 @@ export function sortResourceList(resourceList, sortField, sortDirection, isRetur
     }
 }
 
+export function sortSMCOList(fileDir, sortField, sortDirection, isReturned = false) {
+    const sortedList = fileDir.sort((a, b) => {
+        const aValue = (typeof a === "string") ? a : a[sortField];
+        const bValue = (typeof b === "string") ? b : b[sortField];
+
+        if (aValue < bValue) {
+            return sortDirection === "asc" ? -1 : 1;
+        } else if (aValue > bValue) {
+            return sortDirection === "asc" ? 1 : -1;
+        } else {
+            return 0;
+        }
+    });
+
+    if (isReturned) {
+        return sortedList;
+    }
+}
+
 export function sortTableColumn(sortField, setSortDirection, sortDirection, setSortField) {
     return (field) => {
         if (field === sortField) {
