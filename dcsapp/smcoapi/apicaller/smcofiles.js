@@ -38,7 +38,7 @@ async function createDirectoryIfNotExist(rootID, pathArray, username, pool) {
         SELECT id
         FROM FileSystemPaths
         WHERE username = $1 
-            AND LOWER(path_name) = LOWER($2)
+            AND path_name = $2
             AND path_level = $3
             AND path_parent = $4
     `;
@@ -292,7 +292,7 @@ exports.changeFileDir = async (req, res, pool) => {
     const queryIDPath = `
         SELECT id
         FROM FileSystemPaths
-        WHERE LOWER(path_name) = LOWER('${pathTargetName}')
+        WHERE path_name = '${pathTargetName}'
             AND username = '${decoded.username}'
             AND path_level = ${pathDepth}
     `;
@@ -341,7 +341,7 @@ exports.changeFolderDir = async (req, res, pool) => {
     const queryIDOldPath = `
         SELECT id, path_level
         FROM FileSystemPaths
-        WHERE LOWER(path_name) = LOWER($1)
+        WHERE path_name = $1
             AND username = $2
             AND path_level = $3
     `;
@@ -445,7 +445,7 @@ exports.deleteDir = async (req, res, pool) => {
         SELECT id
         FROM FileSystemPaths
         WHERE path_level = $1
-            AND LOWER(path_name) = LOWER($2)
+            AND path_name = $2
             AND username = $3
     `;
 

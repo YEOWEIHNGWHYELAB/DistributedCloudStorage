@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS FileSystemPaths (
     username VARCHAR(255) REFERENCES Users(username),
     path_name VARCHAR(400) NOT NULL,
     path_level INT NOT NULL DEFAULT 1,
-    path_parent BIGINT REFERENCES FileSystemPaths(id) ON DELETE CASCADE
+    path_parent BIGINT REFERENCES FileSystemPaths(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 /* Google Tables */
