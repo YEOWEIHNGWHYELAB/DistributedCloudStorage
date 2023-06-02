@@ -129,13 +129,20 @@ const FileExplorer = ({ fsManager }) => {
 
         const fullTargetFolderPath = myCurrDir + folderTargetName;
 
+        let fileIDList = [];
+        let folderPathList = [];
+
         for (let currItem of selectedItems) {
             if (typeof currItem !== "string") {
-                console.log(currItem);
+                fileIDList.push(currItem.id);
             } else if (currItem !== folderTargetName) {
-                console.log(currItem);
+                // To make sure that the selected folder don't get moved into itself
+                folderPathList.push(myCurrDir + currItem);
             }
         }
+
+        console.log(fileIDList);
+        console.log(folderPathList);
     };
 
     const handleItemSelectAgain = (e, item) => {

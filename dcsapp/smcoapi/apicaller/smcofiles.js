@@ -334,10 +334,19 @@ exports.changeFolderDir = async (req, res, pool) => {
     const oldFolderDepth = oldPathArray.length - 1;
 
     const newTargetPath = req.body.new_path;
-    const newPathArray = newTargetPath.split("/");
-    const newFolderName = newPathArray[newPathArray.length - 1];
-    const newFolderDepth = newPathArray.length - 1;
+    let newPathArray; 
+    let newFolderName; 
+    let newFolderDepth;
 
+    if (newTargetPath != "/") {
+        newPathArray = newTargetPath.split("/");
+        newFolderName = newPathArray[newPathArray.length - 1];
+        newFolderDepth = newPathArray.length - 1;
+    } else {
+        newFolderName = "";
+        newFolderDepth = 0;
+    }
+    
     const queryIDOldPath = `
         SELECT id, path_level
         FROM FileSystemPaths
