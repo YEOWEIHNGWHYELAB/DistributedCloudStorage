@@ -149,36 +149,57 @@ const FileExplorer = ({ fsManager }) => {
             }
         }
 
-        moveFiles({ id: fileIDList, new_path: fullTargetFolderPath}, () => {
+        moveFiles({ id: fileIDList, new_path: fullTargetFolderPath }, () => {
             for (let currItem of selectedItems) {
                 if (typeof currItem !== "string") {
                     fsManager.delfile((myCurrDir === "/") ? myCurrDir + currItem.filename : myCurrDir + "/" + currItem.filename, currItem.id);
-                    fsManager.mkfile(fullTargetFolderPath, currItem.id);
+                    fsManager.mkfile((fullTargetFolderPath === "/") ? fullTargetFolderPath + currItem.filename : fullTargetFolderPath + "/" + currItem.filename, currItem.id);
+                }
+                
+                if (folderPathList.length == 0) {
+                    const fileIDSet = new Set(fileIDList);
+                    setFileDirList(fileDirList.filter(fileDir => (typeof fileDir === "string") || !fileIDSet.has(fileDir.id)));
                 }
             }
+
+            let countFolderCount = 0;
+
+            for (let currFolder of folderPathList) {
+                countFolderCount++;
+
+                let oldDir = (myCurrDir === "/") ? myCurrDir + currFolder : myCurrDir + "/" + currFolder;
+                let newDir = (fullTargetFolderPath === "/") ? fullTargetFolderPath + currFolder : fullTargetFolderPath + "/" + currFolder;
+
+                moveFolder({
+                    old_path: oldDir,
+                    new_path: fullTargetFolderPath
+                }, () => {
+                    fsManager.deldir(oldDir);
+                    fsManager.mkdir(newDir);
+
+                    if (countFolderCount === folderPathList.length) {
+                        const folderNameSet = new Set(folderPathList);
+                        const fileIDSet = new Set(fileIDList);
+
+                        let newList = [];
+
+                        for (let currFileDir of fileDirList) {
+                            if (typeof currFileDir !== "string") {
+                                if (!fileIDSet.has(currFileDir.id)) {
+                                    newList.push(currFileDir);
+                                }
+                            } else {
+                                if (!folderNameSet.has(currFileDir)) {
+                                    newList.push(currFileDir)
+                                }
+                            }
+                        }
+
+                        setFileDirList(newList);
+                    }
+                });
+            }
         });
-
-        let countFolderCount = 0;
-
-        for (let currFolder of folderPathList) {
-            countFolderCount++;
-
-            let oldDir = (myCurrDir === "/") ? myCurrDir + currFolder : myCurrDir + "/" + currFolder;
-            let newDir = (fullTargetFolderPath === "/") ? fullTargetFolderPath + currFolder : fullTargetFolderPath + "/" + currFolder;
-            
-            moveFolder({ 
-                old_path: oldDir,
-                new_path: fullTargetFolderPath
-            }, () => {
-                fsManager.deldir(oldDir);
-                fsManager.mkdir(newDir);
-                
-                if (countFolderCount === folderPathList.length) {
-                    const folderNameSet = new Set(folderPathList);
-                    setFileDirList(fileDirList.filter(fileDir => (typeof fileDir !== "string") || !folderNameSet.has(fileDir)));
-                }
-            });
-        }
 
         // Remove all the selected item...
         setSelectedItems([]);
@@ -203,8 +224,8 @@ const FileExplorer = ({ fsManager }) => {
     const handleItemSelection = (e, item) => {
         e.stopPropagation();
 
-        let currSelect; 
-        
+        let currSelect;
+
         if (typeof item !== "string") {
             currSelect = selectedItems.findIndex(
                 (file) => file.id === item.id
@@ -224,7 +245,7 @@ const FileExplorer = ({ fsManager }) => {
                 currSelect = -1;
             }
         }
-        
+
         if (!e.shiftKey) {
             let startIndex;
 
@@ -248,7 +269,7 @@ const FileExplorer = ({ fsManager }) => {
             if (isCtrlKeyPressed) {
                 // CTRL key is pressed
                 let itemIndex;
-                
+
                 if (typeof item === "string") {
                     for (let i = 0; i < selectedItems.length; i++) {
                         if (typeof selectedItems[i] === "string" && selectedItems[i] === item) {
@@ -289,7 +310,7 @@ const FileExplorer = ({ fsManager }) => {
                         (file) => file.id === item.id
                     );
                 }
-                
+
                 const range = fileDirList.slice(
                     Math.min(startIndex, endIndex),
                     Math.max(startIndex, endIndex) + 1
@@ -319,7 +340,7 @@ const FileExplorer = ({ fsManager }) => {
                         (selectedItem) => selectedItem.id === item.id
                     );
                 }
-                
+
                 if (itemIndex > -1) {
                     setSelectedItems([]);
                 } else {
@@ -486,8 +507,8 @@ const FileExplorer = ({ fsManager }) => {
                                 </StyledCell>
 
                                 <StyledCell>
-                                    {(typeof fileDir === "string") 
-                                        ? ("Folder") 
+                                    {(typeof fileDir === "string")
+                                        ? ("Folder")
                                         : moment(fileDir.created_at).format("hh:mm A DD-MMM-YYYY")}
                                 </StyledCell>
                             </StyledRow>
@@ -496,7 +517,7 @@ const FileExplorer = ({ fsManager }) => {
                 }
             </StyledTable>
 
-            <br/>
+            <br />
         </div>
     );
 };
