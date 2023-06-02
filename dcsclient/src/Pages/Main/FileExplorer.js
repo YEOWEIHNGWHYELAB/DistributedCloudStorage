@@ -30,6 +30,7 @@ const FileExplorer = ({ fsManager }) => {
 
     // Current directory manager
     const [fileDirList, setFileDirList] = useState([]);
+    const [poppedDir, setPoppedDir] = useState("/");
 
     const [searchTextPerm, setSearchTextPerm] = useState("");
     const [searchText, setSearchText] = useState("");
@@ -233,6 +234,15 @@ const FileExplorer = ({ fsManager }) => {
         setFileDirList([...fsManager.ls(newTargetDir)]);
     };
 
+    const handlePopBackToDir = () => {
+        dequeDir.removeRear();
+        const newTargetDir = dequeDir.getDirectoryString();
+
+        setFileDirList([...fsManager.ls(newTargetDir)]);
+    }
+
+    const [directories, setDirectories] = useState("/Documents/Photos".split('/').filter(Boolean));
+
     function FileOrFolderIcon({ isFile }) {
         return (
             <span>
@@ -258,6 +268,19 @@ const FileExplorer = ({ fsManager }) => {
                 />
             </div>
 
+            <div>
+                {directories.map((directory, index) => (
+                    <span key={directory}>
+                        {index > 0 && <span>{'>'}</span>}
+                        <span
+                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                        >
+                            {directory}
+                        </span>
+                    </span>
+                ))}
+            </div>
+
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
@@ -269,7 +292,7 @@ const FileExplorer = ({ fsManager }) => {
                     <tbody>
                         {fileDirList.map((fileDir) => (
                             <StyledRow
-                                key={typeof fileDir === "string" ? (fileDir) : fileDir.id }
+                                key={typeof fileDir === "string" ? (fileDir) : fileDir.id}
                                 className={`item ${selectedItems.includes(fileDir)
                                     ? "selected"
                                     : ""
