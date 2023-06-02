@@ -288,9 +288,6 @@ exports.changeFileDir = async (req, res, pool) => {
     let pathArray;
     let pathTargetName;
     let pathDepth;
-    
-    console.log(pathTarget);
-    console.log(req.body.old_path);
 
     if (pathTarget != "/") {
         pathArray = pathTarget.split("/");
