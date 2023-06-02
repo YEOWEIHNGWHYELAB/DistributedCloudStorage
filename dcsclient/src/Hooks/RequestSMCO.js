@@ -74,11 +74,40 @@ export default function RequestSMCO({ resourceLabel }) {
             }).catch(handleRequestResourceError);
     }, [handleRequestResourceError, setLoading]);
 
+    const moveFiles = useCallback((fileToMove, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/smco/cdfiles`, fileToMove, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+                enqueueSnackbar(`${resourceLabel} Moved!`);
+
+                if (successCallback) {
+                    successCallback();
+                }
+            }).catch(handleRequestResourceError);
+    }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
+    const moveFolder = useCallback((folderToMove, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/smco/cdfolder`, folderToMove, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+
+                if (successCallback) {
+                    successCallback();
+                }
+            }).catch(handleRequestResourceError);
+    }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]); 
+
     return {
         resourceList,
         buildDirList,
         getAllFiles,
         getAllDirBuilder,
+        moveFiles,
+        moveFolder,
         error
     }
 }

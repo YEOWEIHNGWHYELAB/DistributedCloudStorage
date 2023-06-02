@@ -27,7 +27,8 @@ const FileExplorer = ({ fsManager }) => {
         resourceList,
         buildDirList,
         getAllDirBuilder,
-        getAllFiles
+        getAllFiles,
+        moveFiles
     } = RequestSMCO({ resourceLabel: "Files" });
 
     // Directory navigation management
@@ -128,6 +129,7 @@ const FileExplorer = ({ fsManager }) => {
         e.preventDefault();
 
         const fullTargetFolderPath = myCurrDir + folderTargetName;
+        console.log(selectedItems);
 
         let fileIDList = [];
         let folderPathList = [];
@@ -141,8 +143,21 @@ const FileExplorer = ({ fsManager }) => {
             }
         }
 
-        console.log(fileIDList);
-        console.log(folderPathList);
+        /*
+        moveFiles({ id: fileIDList, new_path: fullTargetFolderPath}, () => {
+            for (let currItem of selectedItems) {
+                if (typeof currItem !== "string") {
+                    fsManager.delfile((myCurrDir === "/") ? myCurrDir + currItem.filename : myCurrDir + "/" + currItem.filename, currItem.id);
+                    fsManager.mkfile(fullTargetFolderPath, currItem.id);
+                }
+            }
+        });*/
+
+        for (let currFolder of folderPathList) {
+            console.log(currFolder);
+        }
+
+        setSelectedItems([]);
     };
 
     const handleItemSelectAgain = (e, item) => {
@@ -164,14 +179,44 @@ const FileExplorer = ({ fsManager }) => {
     const handleItemSelection = (e, item) => {
         e.stopPropagation();
 
-        const currSelect = selectedItems.findIndex(
-            (file) => file.id === item.id
-        );
-
-        if (!e.shiftKey) {
-            const startIndex = fileDirList.findIndex(
+        let currSelect; 
+        
+        if (typeof item !== "string") {
+            currSelect = selectedItems.findIndex(
                 (file) => file.id === item.id
             );
+        } else {
+            let hasSelect = false;
+
+            for (let i = 0; i < selectedItems.length; i++) {
+                if (typeof selectedItems[i] === "string" && item === selectedItems[i]) {
+                    currSelect = i;
+                    hasSelect = true;
+                    break;
+                }
+            }
+
+            if (!hasSelect) {
+                currSelect = -1;
+            }
+        }
+        
+        if (!e.shiftKey) {
+            let startIndex;
+
+            if (typeof item === "string") {
+                for (let i = 0; i < fileDirList.length; i++) {
+                    if (typeof fileDirList[i] === "string" && fileDirList[i] === item) {
+                        startIndex = i;
+                        break;
+                    }
+                }
+            } else {
+                startIndex = fileDirList.findIndex(
+                    (file) => file.id === item.id
+                );
+            }
+
             setShiftStartIndex(startIndex);
         }
 
@@ -205,9 +250,22 @@ const FileExplorer = ({ fsManager }) => {
             } else if (isShiftKeyPressed) {
                 // Shift key is pressed
                 const startIndex = shiftStartIndex;
-                const endIndex = fileDirList.findIndex(
-                    (file) => file.id === item.id
-                );
+
+                let endIndex;
+
+                if (typeof item === "string") {
+                    for (let i = 0; i < fileDirList.length; i++) {
+                        if (typeof fileDirList[i] === "string" && fileDirList[i] === item) {
+                            endIndex = i;
+                            break;
+                        }
+                    }
+                } else {
+                    endIndex = fileDirList.findIndex(
+                        (file) => file.id === item.id
+                    );
+                }
+                
                 const range = fileDirList.slice(
                     Math.min(startIndex, endIndex),
                     Math.max(startIndex, endIndex) + 1
@@ -216,10 +274,28 @@ const FileExplorer = ({ fsManager }) => {
                 setSelectedItems(range);
             } else {
                 // CTRL and Shift keys are not pressed, treat as single selection
-                const itemIndex = selectedItems.findIndex(
-                    (selectedItem) => selectedItem.id === item.id
-                );
+                let itemIndex;
 
+                if (typeof item === "string") {
+                    let hasSelect = false;
+
+                    for (let i = 0; i < selectedItems.length; i++) {
+                        if (typeof selectedItems[i] === "string" && selectedItems[i] === item) {
+                            itemIndex = i;
+                            hasSelect = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasSelect) {
+                        itemIndex = -1;
+                    }
+                } else {
+                    itemIndex = selectedItems.findIndex(
+                        (selectedItem) => selectedItem.id === item.id
+                    );
+                }
+                
                 if (itemIndex > -1) {
                     setSelectedItems([]);
                 } else {
