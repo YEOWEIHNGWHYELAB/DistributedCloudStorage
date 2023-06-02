@@ -158,19 +158,25 @@ const FileExplorer = ({ fsManager }) => {
             }
         });
 
-        for (let currFolder of folderPathList) {
-            let newDir = (fullTargetFolderPath === "/") ? fullTargetFolderPath + currFolder : fullTargetFolderPath + "/" + currFolder;
+        let countFolderCount = 0;
 
+        for (let currFolder of folderPathList) {
+            countFolderCount++;
+
+            let oldDir = (myCurrDir === "/") ? myCurrDir + currFolder : myCurrDir + "/" + currFolder;
+            let newDir = (fullTargetFolderPath === "/") ? fullTargetFolderPath + currFolder : fullTargetFolderPath + "/" + currFolder;
+            
             moveFolder({ 
-                old_path: (myCurrDir === "/") ? myCurrDir + currFolder : myCurrDir + "/" + currFolder,
+                old_path: oldDir,
                 new_path: fullTargetFolderPath
             }, () => {
-                setFileDirList(fileDirList.filter((folder) => {
-                    return currFolder !== folder
-                }));
-
-                fsManager.deldir(currFolder);
+                fsManager.deldir(oldDir);
                 fsManager.mkdir(newDir);
+                
+                if (countFolderCount === folderPathList.length) {
+                    const folderNameSet = new Set(folderPathList);
+                    setFileDirList(fileDirList.filter(fileDir => (typeof fileDir !== "string") || !folderNameSet.has(fileDir)));
+                }
             });
         }
 
