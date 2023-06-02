@@ -84,6 +84,38 @@ export default class FSManager {
         this.filefoldermod(curr_dir, pathArray, true, false, folderName, null);
     }
 
+    mvdir(path_target, new_path_target) {
+        let curr_dir = this.root;
+
+        const path_array = path_target.split("/");
+
+        for (let i = 1; i < path_array.length; i++) {
+            curr_dir = curr_dir.directories.get(path_array[i]);
+        }
+
+        let curr_dir_map = curr_dir.directories;
+        let curr_file_map = curr_dir.files;
+
+        let new_path = this.root;
+        
+        const new_path_array = new_path_target.split("/");
+
+        for (let i = 1; i < new_path_array.length; i++) {
+            new_path = new_path.directories.get(new_path_array[i]);
+        }
+
+        new_path.directories.set(path_array[path_array.length - 1], new Directory());
+        new_path = new_path.directories.get(path_array[path_array.length - 1]);
+
+        for (const [key, value] of curr_dir_map) {
+            new_path.directories.set(key, value);
+        }
+
+        for (const [key, value] of curr_file_map) {
+            new_path.files.set(key, value);
+        }
+    }
+
     deldir(path) {
         let curr_dir = this.root;
 
@@ -117,7 +149,7 @@ export default class FSManager {
             curr_dir = curr_dir.directories.get(pathArray[i]);
         }
 
-        curr_dir.files.set(fileID, {id: fileID, filename: pathArray[pathArray.length - 1], created_at: created_at});
+        curr_dir.files.set(fileID, { id: fileID, filename: pathArray[pathArray.length - 1], created_at: created_at });
     }
 
     renamefile(path, fileID, fileName) {
@@ -209,4 +241,21 @@ console.log(fsManager.ls("/"));
 
 fsManager.deldir("/Test");
 console.log(fsManager.ls("/"));
+*/
+
+// Testing nested files and folder when moving folders
+/*
+let fsManager = new FSManager();
+
+fsManager.mkdir("/Documents/lalala");
+fsManager.mkdir("/Documents/lalala/vids");
+fsManager.mkfile("/Documents/lalala/vids/note213.txt", "gh_42");
+fsManager.mkfile("/Documents/lalala/note.txt", "gh_4");
+fsManager.mkfile("/Documents/lalala/video.mp4", "yt_inwg");
+fsManager.mkdir("/Documents/nick");
+console.log(fsManager.ls("/Documents/lalala"));
+fsManager.mvdir("/Documents/lalala", "/Documents/nick");
+console.log(fsManager.ls("/Documents/nick"));
+console.log(fsManager.ls("/Documents/nick/lalala"));
+console.log(fsManager.ls("/Documents/nick/lalala/vids"));
 */

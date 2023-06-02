@@ -174,8 +174,7 @@ const FileExplorer = ({ fsManager }) => {
                     old_path: oldDir,
                     new_path: fullTargetFolderPath
                 }, () => {
-                    fsManager.deldir(oldDir);
-                    fsManager.mkdir(newDir);
+                    fsManager.mvdir(oldDir, newDir);
 
                     if (countFolderCount === folderPathList.length) {
                         const folderNameSet = new Set(folderPathList);
@@ -190,7 +189,7 @@ const FileExplorer = ({ fsManager }) => {
                                 }
                             } else {
                                 if (!folderNameSet.has(currFileDir)) {
-                                    newList.push(currFileDir)
+                                    newList.push(currFileDir);
                                 }
                             }
                         }
