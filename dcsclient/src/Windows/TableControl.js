@@ -22,12 +22,18 @@ export function sortSMCOList(fileDir, sortField, sortDirection, isReturned = fal
         const aValue = (typeof a === "string") ? a : a[sortField];
         const bValue = (typeof b === "string") ? b : b[sortField];
 
-        if (aValue < bValue) {
-            return sortDirection === "asc" ? -1 : 1;
-        } else if (aValue > bValue) {
-            return sortDirection === "asc" ? 1 : -1;
+        if (typeof a === "string" && typeof b !== "string") {
+            return -1; // a is a folder, b is a file, so a should come first
+        } else if (typeof a !== "string" && typeof b === "string") {
+            return 1; // a is a file, b is a folder, so b should come first
         } else {
-            return 0;
+            if (aValue < bValue) {
+                return sortDirection === "asc" ? -1 : 1;
+            } else if (aValue > bValue) {
+                return sortDirection === "asc" ? 1 : -1;
+            } else {
+                return 0;
+            }
         }
     });
 
