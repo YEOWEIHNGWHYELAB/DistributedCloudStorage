@@ -207,10 +207,6 @@ const FileExplorer = ({ fsManager }) => {
     const handleItemSelectAgain = (e, item) => {
         e.stopPropagation();
 
-        const currSelect = selectedItems.findIndex(
-            (file) => file.id === item.id
-        );
-
         if (
             selectedItems.length > 1 &&
             !isCtrlKeyPressed &&
