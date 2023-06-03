@@ -168,13 +168,13 @@ const FileExplorer = ({ fsManager }) => {
                 countFolderCount++;
 
                 let oldDir = (myCurrDir === "/") ? myCurrDir + currFolder : myCurrDir + "/" + currFolder;
-                let newDir = (fullTargetFolderPath === "/") ? fullTargetFolderPath + currFolder : fullTargetFolderPath + "/" + currFolder;
 
                 moveFolder({
                     old_path: oldDir,
                     new_path: fullTargetFolderPath
                 }, () => {
-                    fsManager.mvdir(oldDir, newDir);
+                    fsManager.mvdir(oldDir, fullTargetFolderPath);
+                    fsManager.deldir(oldDir);
 
                     if (countFolderCount === folderPathList.length) {
                         const folderNameSet = new Set(folderPathList);
