@@ -155,7 +155,7 @@ const FileExplorer = ({ fsManager }) => {
                     fsManager.delfile((myCurrDir === "/") ? myCurrDir + currItem.filename : myCurrDir + "/" + currItem.filename, currItem.id);
                     fsManager.mkfile((fullTargetFolderPath === "/") ? fullTargetFolderPath + currItem.filename : fullTargetFolderPath + "/" + currItem.filename, currItem.id);
                 }
-                
+
                 if (folderPathList.length == 0) {
                     const fileIDSet = new Set(fileIDList);
                     setFileDirList(fileDirList.filter(fileDir => (typeof fileDir === "string") || !fileIDSet.has(fileDir.id)));
@@ -439,7 +439,7 @@ const FileExplorer = ({ fsManager }) => {
                     Go Back To: {poppedDir}
                 </MUIButton>
             </div>
-
+                    
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>

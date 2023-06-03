@@ -80,7 +80,7 @@ export default function RequestSMCO({ resourceLabel }) {
         axios.post(`/smco/cdfiles`, fileToMove, SetHeaderToken())
             .then(() => {
                 setLoading(false);
-                enqueueSnackbar(`${resourceLabel} Moved!`);
+                enqueueSnackbar(`Items moved!`);
 
                 if (successCallback) {
                     successCallback();
