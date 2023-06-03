@@ -125,10 +125,43 @@ const FileExplorer = ({ fsManager }) => {
         };
     }, []);
 
+    // Handle scrolling while dragging
+    const dragThreshold = 100;
+
+    const handleDragStart = () => {
+        // Add any necessary logic for the drag start event
+        // Disable scroll on the parent container
+        document.body.style.overflow = 'hidden';
+    };
+
+    const handleDrag = (event) => {
+        const dragY = event.clientY;
+
+        if (dragY < dragThreshold) {
+            // Dragging near the top, scroll up
+            window.scrollBy({
+                top: -10,
+                behavior: 'smooth',
+            });
+        } else if (dragY > window.innerHeight - dragThreshold) {
+            // Dragging near the bottom, scroll down
+            window.scrollBy({
+                top: 10,
+                behavior: 'smooth',
+            });
+        }
+    };
+
+    const handleDragEnd = () => {
+        document.body.style.overflow = 'auto';
+    };
+
     // Drag and drop
     const handleFolderDrop = (e, folderTargetName) => {
         e.preventDefault();
-
+        
+        document.body.style.overflow = 'auto';
+        
         let fullTargetFolderPath;
 
         if (myCurrDir !== "/") {
@@ -435,7 +468,7 @@ const FileExplorer = ({ fsManager }) => {
                     Go Back To: {poppedDir}
                 </MUIButton>
             </div>
-                    
+
             <StyledTable>
                 <thead>
                     <StyledHeaderRow>
@@ -485,6 +518,9 @@ const FileExplorer = ({ fsManager }) => {
                                     }
                                 }}
                                 draggable
+                                onDragStart={handleDragStart}
+                                onDrag={handleDrag}
+                                onDragEnd={handleDragEnd}
                                 onDrop={(e) => {
                                     if (typeof fileDir === "string") {
                                         handleFolderDrop(e, fileDir);
