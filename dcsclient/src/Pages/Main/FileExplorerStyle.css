@@ -2,11 +2,6 @@
     cursor: pointer;
 }
 
-.item:hover {
-    background-color: #013397;
-    color: #ffffff;
-}
-
 .selected {
     background-color: #00640c;
     color: #ffffff;
