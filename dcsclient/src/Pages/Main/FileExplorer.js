@@ -126,13 +126,7 @@ const FileExplorer = ({ fsManager }) => {
     }, []);
 
     // Handle scrolling while dragging
-    const dragThreshold = 100;
-
-    const handleDragStart = () => {
-        // Add any necessary logic for the drag start event
-        // Disable scroll on the parent container
-        document.body.style.overflow = 'hidden';
-    };
+    const dragThreshold = 250;
 
     const handleDrag = (event) => {
         const dragY = event.clientY;
@@ -152,15 +146,9 @@ const FileExplorer = ({ fsManager }) => {
         }
     };
 
-    const handleDragEnd = () => {
-        document.body.style.overflow = 'auto';
-    };
-
     // Drag and drop
     const handleFolderDrop = (e, folderTargetName) => {
         e.preventDefault();
-        
-        document.body.style.overflow = 'auto';
         
         let fullTargetFolderPath;
 
@@ -518,9 +506,7 @@ const FileExplorer = ({ fsManager }) => {
                                     }
                                 }}
                                 draggable
-                                onDragStart={handleDragStart}
                                 onDrag={handleDrag}
-                                onDragEnd={handleDragEnd}
                                 onDrop={(e) => {
                                     if (typeof fileDir === "string") {
                                         handleFolderDrop(e, fileDir);
