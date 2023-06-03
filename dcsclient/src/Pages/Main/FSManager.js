@@ -85,6 +85,7 @@ export default class FSManager {
     }
 
     mvdir(path_target, new_path_target) {
+        // Parse old path
         let curr_dir = this.root;
 
         const path_array = path_target.split("/");
@@ -96,16 +97,26 @@ export default class FSManager {
         let curr_dir_map = curr_dir.directories;
         let curr_file_map = curr_dir.files;
 
+        // Parsing new path
         let new_path = this.root;
-        
-        const new_path_array = new_path_target.split("/");
 
-        for (let i = 1; i < new_path_array.length; i++) {
-            new_path = new_path.directories.get(new_path_array[i]);
+        if (new_path_target != "/") {
+            // If you are not moving the folder to the root directory
+            const new_path_array = new_path_target.split("/");
+
+            for (let i = 1; i < new_path_array.length; i++) {
+                new_path = new_path.directories.get(new_path_array[i]);
+            }
         }
-
-        new_path.directories.set(path_array[path_array.length - 1], new Directory());
-        new_path = new_path.directories.get(path_array[path_array.length - 1]);
+        
+        if (new_path.directories.has(path_array[path_array.length - 1])) {
+            // If the directory already have the same folder name 
+            // as the one you are moving to
+            new_path = new_path.directories.get(path_array[path_array.length - 1]);
+        } else {
+            new_path.directories.set(path_array[path_array.length - 1], new Directory());
+            new_path = new_path.directories.get(path_array[path_array.length - 1]);
+        }
 
         for (const [key, value] of curr_dir_map) {
             new_path.directories.set(key, value);
