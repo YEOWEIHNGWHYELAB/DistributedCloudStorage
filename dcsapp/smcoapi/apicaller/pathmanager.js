@@ -143,3 +143,47 @@ exports.bfsFolderFileChildCascade = async (res, pool, folderTargetID, pathDepth,
         res.json({ message: "Failed to delete files in folder" });
     }
 }
+
+exports.setAllFileFolderDir = async (res, pool, oldFolderID, folderTargetID, username, pathLevelTarget) => {
+    const setFileToNewFolderQueryGH = `
+        UPDATE GitHubFiles_${username}
+        SET path_dir = $1
+        WHERE path_dir = $2
+    `;
+
+    const setFileToNewFolderQueryYT = `
+        UPDATE YouTubeVideos_${username}
+        SET path_dir = $1
+        WHERE path_dir = $2
+    `;
+
+    const setFolderToNewFolderQuery = `
+        UPDATE FileSystemPaths
+        SET path_parent = $1, path_level = $4
+        WHERE path_parent = $2
+            AND username = $3
+    `;
+
+    const deleteFolderQuery = `
+        DELETE 
+        FROM FileSystemPaths 
+        WHERE id = $1; 
+    `;
+
+    try {
+        await pool.query(setFolderToNewFolderQuery, [folderTargetID, oldFolderID, username, pathLevelTarget]);
+
+        await pool.query(setFileToNewFolderQueryYT, [folderTargetID, oldFolderID]);
+
+        await pool.query(setFileToNewFolderQueryGH, [folderTargetID, oldFolderID]);
+
+        await pool.query(deleteFolderQuery, [oldFolderID]);
+
+        res.json({
+            message: "Successfully merged folder!"
+        });
+    } catch(err) {
+        console.log(err);
+        res.json({ message: "Failed to merge folder!" });
+    }
+}

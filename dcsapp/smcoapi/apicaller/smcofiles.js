@@ -364,35 +364,56 @@ exports.changeFolderDir = async (req, res, pool) => {
             AND path_level = $3
     `;
 
+    const queryTargetPathFolders = `
+        SELECT id, path_level
+        FROM FileSystemPaths
+        WHERE username = $1
+            AND path_parent = $2
+            AND path_name = $3
+    `;
+
     try {
         const idOldPathResult = await pool.query(queryIDOldPath, [
             oldFolderName,
             decoded.username,
             oldFolderDepth,
         ]);
+
         const idNewPathResult = await pool.query(queryIDOldPath, [
             newFolderName,
             decoded.username,
             newFolderDepth,
         ]);
 
-        if (
-            idOldPathResult.rows.length != 0 &&
-            idNewPathResult.rows.length != 0
-        ) {
+        if (idOldPathResult.rows.length != 0 && idNewPathResult.rows.length != 0) {
             const oldPathID = idOldPathResult.rows[0].id;
             const newPathID = idNewPathResult.rows[0].id;
             const newPathLevel = idNewPathResult.rows[0].path_level + 1;
 
-            const resultChangeFolder =
-                await folderManager.changeFolderDirectory(
-                    pool,
-                    oldPathID,
-                    newPathID,
-                    newPathLevel,
-                    decoded.username,
-                    res
-                );
+            const idExistingResult = await pool.query(queryTargetPathFolders, [
+                decoded.username,
+                newPathID,
+                oldFolderName
+            ]);
+
+            console.log(idExistingResult.rows);
+
+            if (idExistingResult.rows.length == 0) {
+                const resultChangeFolder =
+                    await folderManager.changeFolderDirectory(
+                        pool,
+                        oldPathID,
+                        newPathID,
+                        newPathLevel,
+                        decoded.username,
+                        res
+                    );
+            } else {
+                const idOfExistingFolderName = parseInt(idExistingResult.rows[0].id);
+                const pathLvlOfExistingFolderName = parseInt(idExistingResult.rows[0].path_level);
+
+                await folderManager.setAllFileFolderDir(res, pool, oldPathID, idOfExistingFolderName, decoded.username, pathLvlOfExistingFolderName + 1);
+            }
         } else {
             res.json({ success: false, message: "Path does not exist!" });
         }
