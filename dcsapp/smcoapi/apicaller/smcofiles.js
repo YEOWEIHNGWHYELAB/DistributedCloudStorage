@@ -396,8 +396,6 @@ exports.changeFolderDir = async (req, res, pool) => {
                 oldFolderName
             ]);
 
-            console.log(idExistingResult.rows);
-
             if (idExistingResult.rows.length == 0) {
                 const resultChangeFolder =
                     await folderManager.changeFolderDirectory(

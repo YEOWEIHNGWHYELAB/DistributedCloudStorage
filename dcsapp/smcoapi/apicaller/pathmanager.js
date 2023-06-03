@@ -12,7 +12,7 @@ async function deleteChildFiles(pool, idArray, platform, rootID, username) {
     try {
         await pool.query(deleteGHFilesInFolder, [idArray]);
     } catch (error) {
-        console.log(error);
+        // console.log(error);
     }
 }
 
@@ -27,7 +27,7 @@ async function deleteFolders(pool, folderTargetID, username) {
     try {
         await pool.query(deleteFolderQuery, [folderTargetID]);
     } catch (error) {
-        console.log(error);
+        // console.log(error);
     }
 }
 
@@ -183,7 +183,7 @@ exports.setAllFileFolderDir = async (res, pool, oldFolderID, folderTargetID, use
             message: "Successfully merged folder!"
         });
     } catch(err) {
-        console.log(err);
+        // console.log(err);
         res.json({ message: "Failed to merge folder!" });
     }
 }
