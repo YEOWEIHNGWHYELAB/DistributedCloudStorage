@@ -6,36 +6,44 @@ import {
 } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import * as Yup from "yup";
 
 import DirectoryDeque from "./DirectoryDeque";
 import RequestSMCO from "../../Hooks/RequestSMCO";
 
 import { fileTableStyle } from "../../Windows/TableStyle";
+import { renameDialog } from "../../Windows/DialogBox";
 import { sortSMCOList, sortTableColumn } from "../../Windows/TableControl";
 import "./FileExplorerStyle.css";
 import "./ContextMenuStyle.css";
 
-const ContextMenu = ({ position, onClose }) => {
+const ContextMenu = ({ position, onClose, numFile, renameHandler, moveHandler }) => {
     const handleRenameClick = () => {
-        // Handle the "Rename" action
-        // Add your logic here
-        console.log("rename");
-
+        renameHandler();
         onClose();
     };
-  
-    const handleMoveToClick = () => {
-        // Handle the "Move To" action
-        // Add your logic here
-        console.log("moveto");
 
+    const handleMoveToClick = () => {
+        moveHandler();
         onClose();
     };
 
     return (
         <div className="context-menu" style={{ top: position.y, left: position.x, position: 'absolute' }}>
-            <div className="context-menu-item" onClick={handleRenameClick}>Rename</div>
-            <div className="context-menu-item" onClick={handleMoveToClick}>Move To</div>
+            <div
+                className="context-menu-item"
+                onClick={() => {
+                    numFile.numFile === 1 ? handleRenameClick() : alert("Please select only 1 item!");
+                }}
+            >
+                Rename
+            </div>
+            <div
+                className="context-menu-item"
+                onClick={handleMoveToClick}
+            >
+                Move To
+            </div>
         </div>
     );
 };
@@ -55,7 +63,9 @@ const FileExplorer = ({ fsManager }) => {
         getAllDirBuilder,
         getAllFiles,
         moveFiles,
-        moveFolder
+        moveFolder,
+        renameFile,
+        renameFolder
     } = RequestSMCO({ resourceLabel: "Files" });
 
     // Directory navigation management
@@ -185,7 +195,7 @@ const FileExplorer = ({ fsManager }) => {
     // Drag and drop
     const handleFolderDrop = (e, folderTargetName) => {
         e.preventDefault();
-        
+
         let fullTargetFolderPath;
 
         if (myCurrDir !== "/") {
@@ -468,8 +478,44 @@ const FileExplorer = ({ fsManager }) => {
         event.preventDefault();
     };
 
+    // File renaming
+    const FileNamevalidationSchema = Yup.object().shape({
+        new_filename: Yup.string().required("Name is required!"),
+    });
+    const [idEdit, setIDEdit] = useState(null);
+    const [originalFileFolderName, setOriginalFileFolderName] = useState(null);
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const handleEditClose = () => {
+        setOpenEditDialog(false);
+        setIDEdit(null);
+        setOriginalFileFolderName(null);
+    };
+    const handleRenameSubmit = (values) => {
+        if (idEdit !== "fd_") {
+            values["id"] = selectedItems[0].id;
+            //renameFile(values);
+            console.log(values)
+        } else {
+            let oldDir = (myCurrDir === "/") ? myCurrDir + originalFileFolderName : myCurrDir + "/" + originalFileFolderName;
+            const newFolderValue = { path_rename: oldDir, new_pathname: values.new_filename } 
+            //renameFolder(newFolderValue);
+            console.log(newFolderValue)
+        }
+
+        handleEditClose();
+    };
+
     return (
         <div>
+            {renameDialog(
+                openEditDialog,
+                handleEditClose,
+                originalFileFolderName,
+                idEdit,
+                handleRenameSubmit,
+                FileNamevalidationSchema
+            )}
+
             {showContextMenu && (
                 <ContextMenu
                     onClose={() => setShowContextMenu(false)}
@@ -477,6 +523,25 @@ const FileExplorer = ({ fsManager }) => {
                         x: contextMenuPosition.x + window.pageXOffset - 300,
                         y: contextMenuPosition.y + window.pageYOffset,
                     }}
+                    numFile={{ numFile: selectedItems.length }}
+                    renameHandler={() => {
+                        let fileFolderName;
+
+                        console.log();
+
+                        if (typeof selectedItems[0] === "string") {
+                            fileFolderName = selectedItems[0].toString();
+                            setIDEdit("fd_");
+                        } else {
+                            fileFolderName = selectedItems[0].filename;
+                            setIDEdit(selectedItems[0].id);
+                        }
+
+                        setOriginalFileFolderName(fileFolderName);
+
+                        setOpenEditDialog(true);
+                    }}
+                    moveHandler={{}}
                 />
             )}
 
@@ -557,24 +622,22 @@ const FileExplorer = ({ fsManager }) => {
                                     ? "selected"
                                     : ""
                                     }`}
-                                onMouseDown={(e) =>{
+                                onMouseDown={(e) => {
                                     if (e.button === 0) {
                                         handleDocumentClick();
                                         handleItemSelection(e, fileDir);
                                     } else if (e.button === 2) {
                                         let currIDX = selectedItems.findIndex(
-                                            (selectedItem) => (typeof fileDir !== "string") 
+                                            (selectedItem) => (typeof fileDir !== "string")
                                                 ? selectedItem.id === fileDir.id
                                                 : selectedItem === fileDir
                                         );
-                                        
+
                                         if (currIDX < 0) {
                                             handleDocumentClick();
                                             handleItemSelection(e, fileDir);
                                         }
                                     }
-
-                                    console.log(e.button);
                                 }}
                                 onMouseUp={(e) => {
                                     if (e.button === 0) {

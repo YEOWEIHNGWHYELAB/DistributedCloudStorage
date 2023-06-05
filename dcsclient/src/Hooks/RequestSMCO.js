@@ -99,7 +99,27 @@ export default function RequestSMCO({ resourceLabel }) {
                     successCallback();
                 }
             }).catch(handleRequestResourceError);
-    }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]); 
+    }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
+    const renameFile = useCallback((fileToRename) => {
+        setLoading(true);
+
+        axios.post(`/smco/renamefiles`, fileToRename, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+            })
+            .catch(handleRequestResourceError);
+    }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
+    const renameFolder = useCallback((folderToRename) => {
+        setLoading(true);
+
+        axios.post(`/smco/renamefiles`, folderToRename, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+            })
+            .catch(handleRequestResourceError);
+    }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
     return {
         resourceList,
@@ -108,6 +128,8 @@ export default function RequestSMCO({ resourceLabel }) {
         getAllDirBuilder,
         moveFiles,
         moveFolder,
+        renameFile,
+        renameFolder,
         error
     }
 }
