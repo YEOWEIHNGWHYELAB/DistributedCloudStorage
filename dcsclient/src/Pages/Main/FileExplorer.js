@@ -489,19 +489,25 @@ const FileExplorer = ({ fsManager }) => {
         setOpenEditDialog(false);
         setIDEdit(null);
         setOriginalFileFolderName(null);
+        setSelectedItems([]);
     };
     const handleRenameSubmit = (values) => {
         if (idEdit !== "fd_") {
             values["id"] = selectedItems[0].id;
-            //renameFile(values);
-            console.log(values)
+            renameFile(values, () => {
+                let oldFileDir = (myCurrDir === "/") ? myCurrDir + originalFileFolderName : myCurrDir + "/" + originalFileFolderName;
+                fsManager.renamefile(oldFileDir, selectedItems[0].id, values.new_filename);
+            });
         } else {
             let oldDir = (myCurrDir === "/") ? myCurrDir + originalFileFolderName : myCurrDir + "/" + originalFileFolderName;
             const newFolderValue = { path_rename: oldDir, new_pathname: values.new_filename } 
-            //renameFolder(newFolderValue);
-            console.log(newFolderValue)
+            renameFolder(newFolderValue, () => {
+                fsManager.renamedir(oldDir, values.new_filename);
+            });
         }
 
+        setFileDirList([...fsManager.ls(myCurrDir)]);
+        
         handleEditClose();
     };
 

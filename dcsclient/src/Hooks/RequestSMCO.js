@@ -101,22 +101,30 @@ export default function RequestSMCO({ resourceLabel }) {
             }).catch(handleRequestResourceError);
     }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
-    const renameFile = useCallback((fileToRename) => {
+    const renameFile = useCallback((fileToRename, successCallback) => {
         setLoading(true);
 
         axios.post(`/smco/renamefiles`, fileToRename, SetHeaderToken())
             .then(() => {
                 setLoading(false);
+
+                if (successCallback) {
+                    successCallback();
+                }
             })
             .catch(handleRequestResourceError);
     }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
-    const renameFolder = useCallback((folderToRename) => {
+    const renameFolder = useCallback((folderToRename, successCallback) => {
         setLoading(true);
 
-        axios.post(`/smco/renamefiles`, folderToRename, SetHeaderToken())
+        axios.post(`/smco/renamefolder`, folderToRename, SetHeaderToken())
             .then(() => {
                 setLoading(false);
+
+                if (successCallback) {
+                    successCallback();
+                }
             })
             .catch(handleRequestResourceError);
     }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
