@@ -1,3 +1,24 @@
+async function ghFileRename(username, pool, fileID, new_filename) {
+    const tablePartitionName = `GitHubFiles_${username}`;
+
+    const updateQueryGHfile = `UPDATE ${tablePartitionName}
+        SET filename = $2
+        WHERE id = $1
+    `;
+
+    await pool.query(updateQueryGHfile, [fileID, new_filename]);
+}
+
+async function ytVideoRename(username, pool, fileID, new_filename) {
+    const updateQueryYTVideo = `
+        UPDATE YouTubeVideos_${username}
+        SET title = $2
+        WHERE video_id = $1
+    `;
+
+    await pool.query(updateQueryYTVideo, [fileID, new_filename]);
+}
+
 exports.changeFileDirectory = async (idArray, targetPathID, pool, res) => {
     let ghFilesID = [];
     let ytVideoID = [];
@@ -44,26 +65,13 @@ exports.changeFileName = async (res, pool, username, id, new_filename) => {
 
     try {
         if (platform == "yt") {
-            const updateQueryYTVideo = `
-                UPDATE YouTubeVideos_${username}
-                SET title = $2
-                WHERE video_id = $1
-            `;
-
-            await pool.query(updateQueryYTVideo, [fileID, new_filename]);
+            await ytVideoRename(username, pool, fileID, new_filename);
         } else if (platform == "gh") {
-            const tablePartitionName = `GitHubFiles_${username}`;
-
-            const updateQueryGHfile = 
-                `UPDATE ${tablePartitionName}
-                SET filename = $2
-                WHERE id = $1`;
-
-            await pool.query(updateQueryGHfile, [fileID, new_filename]);
+            await ghFileRename(username, pool, fileID, new_filename);
         }
 
         res.json({ message: "File renamed!" });
-    } catch(error) {
+    } catch (error) {
         res.json({ message: "Failed to rename!" });
     }
 }
