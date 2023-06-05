@@ -132,7 +132,7 @@ exports.getFolders = async (req, res, pool) => {
 
     try {
         // Get root directory ID
-            const getRootID = `
+        const getRootID = `
             SELECT id
             FROM FileSystemPaths
             WHERE path_level = 0
@@ -170,9 +170,9 @@ exports.getFolders = async (req, res, pool) => {
             message: "Successfully obtain directory builder!",
             lvlorderdir: lvlOrderedDirBuild
         });
-    } catch(error) {
+    } catch (error) {
         // console.log(error);
-        res.json({ message: "Failed to get directory builder"});
+        res.json({ message: "Failed to get directory builder" });
     }
 }
 
@@ -230,8 +230,8 @@ exports.getAllFiles = async (req, res, pool) => {
     let fileIDDIRhm = new Map();
 
     try {
-        let filesPagResult 
-        
+        let filesPagResult
+
         if (req.body.is_paginated) {
             filesPagResult = await pool.query(videoPaginatedQuery, [
                 limit,
@@ -343,8 +343,8 @@ exports.changeFolderDir = async (req, res, pool) => {
     const oldFolderDepth = oldPathArray.length - 1;
 
     const newTargetPath = req.body.new_path;
-    let newPathArray; 
-    let newFolderName; 
+    let newPathArray;
+    let newFolderName;
     let newFolderDepth;
 
     if (newTargetPath != "/") {
@@ -355,7 +355,7 @@ exports.changeFolderDir = async (req, res, pool) => {
         newFolderName = "";
         newFolderDepth = 0;
     }
-    
+
     const queryIDOldPath = `
         SELECT id, path_level
         FROM FileSystemPaths
@@ -434,7 +434,17 @@ exports.renameFiles = async (req, res, pool) => {
     const token = authHeader.split(" ")[1];
     let decoded = decodeAuthToken(token, res);
 
+    // Call the methods from the platform to rename files 
+    // with the exception of youtube
 
+    try {
+        await fileManager.changeFileName(res, pool, decoded.username, req.body.id, req.body.new_filename);
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message: "Failed to rename file!",
+        });
+    }
 };
 
 exports.renameFolder = async (req, res, pool) => {

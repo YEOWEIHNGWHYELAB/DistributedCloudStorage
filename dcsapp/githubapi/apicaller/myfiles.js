@@ -343,11 +343,10 @@ exports.renameFile = async (req, res, pool) => {
         const tablePartitionName = `GitHubFiles_${decoded.username}`;
 
         const queryResult = await pool.query(
-            `UPDATE GitHubFiles
-            SET filename = $3
-            WHERE username = $1 
-                AND id = $2`
-            , [decoded.username, req.body.id, req.body.new_filename]
+            `UPDATE ${tablePartitionName}
+            SET filename = $2
+            WHERE id = $1`
+            , [req.body.id, req.body.new_filename]
         );
 
         res.json(

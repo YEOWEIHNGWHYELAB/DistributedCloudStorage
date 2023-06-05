@@ -558,9 +558,10 @@ const FileExplorer = ({ fsManager }) => {
                                     ? "selected"
                                     : ""
                                     }`}
-                                onMouseDown={(e) =>
-                                    handleItemSelection(e, fileDir)
-                                }
+                                onMouseDown={(e) =>{
+                                    handleDocumentClick();
+                                    handleItemSelection(e, fileDir);
+                                }}
                                 onMouseUp={(e) => {
                                     handleItemSelectAgain(e, fileDir);
                                 }}
