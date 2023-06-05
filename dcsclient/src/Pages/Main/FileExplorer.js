@@ -80,6 +80,10 @@ const FileExplorer = ({ fsManager }) => {
 
     const [shiftStartIndex, setShiftStartIndex] = useState(0);
 
+    // Context Menu handler
+    const [showContextMenu, setShowContextMenu] = useState(false);
+    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+
     useEffect(() => {
         getAllDirBuilder();
 
@@ -446,9 +450,6 @@ const FileExplorer = ({ fsManager }) => {
             </span>
         );
     }
-
-    const [showContextMenu, setShowContextMenu] = useState(false);
-    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
     const handleContextMenu = (event) => {
         event.preventDefault();
