@@ -469,8 +469,7 @@ const FileExplorer = ({ fsManager }) => {
     };
 
     return (
-        <div onContextMenu={handleContextMenu}>
-
+        <div>
             {showContextMenu && (
                 <ContextMenu
                     onClose={() => setShowContextMenu(false)}
@@ -559,11 +558,28 @@ const FileExplorer = ({ fsManager }) => {
                                     : ""
                                     }`}
                                 onMouseDown={(e) =>{
-                                    handleDocumentClick();
-                                    handleItemSelection(e, fileDir);
+                                    if (e.button === 0) {
+                                        handleDocumentClick();
+                                        handleItemSelection(e, fileDir);
+                                    } else if (e.button === 2) {
+                                        let currIDX = selectedItems.findIndex(
+                                            (selectedItem) => (typeof fileDir !== "string") 
+                                                ? selectedItem.id === fileDir.id
+                                                : selectedItem === fileDir
+                                        );
+                                        
+                                        if (currIDX < 0) {
+                                            handleDocumentClick();
+                                            handleItemSelection(e, fileDir);
+                                        }
+                                    }
+
+                                    console.log(e.button);
                                 }}
                                 onMouseUp={(e) => {
-                                    handleItemSelectAgain(e, fileDir);
+                                    if (e.button === 0) {
+                                        handleItemSelectAgain(e, fileDir);
+                                    }
                                 }}
                                 onDoubleClick={(e) => {
                                     if (typeof fileDir === "string") {
@@ -582,6 +598,7 @@ const FileExplorer = ({ fsManager }) => {
                                         e.preventDefault();
                                     }
                                 }}
+                                onContextMenu={handleContextMenu}
                             >
                                 <StyledCell>
                                     <FileOrFolderIcon isFile={typeof fileDir !== "string"} />
