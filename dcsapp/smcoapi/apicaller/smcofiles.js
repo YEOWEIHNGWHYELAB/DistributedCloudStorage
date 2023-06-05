@@ -424,7 +424,20 @@ exports.changeFolderDir = async (req, res, pool) => {
     }
 };
 
-exports.renameFolderDir = async (req, res, pool) => {
+exports.renameFiles = async (req, res, pool) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res
+            .status(401)
+            .json({ message: "Authorization header missing" });
+    }
+    const token = authHeader.split(" ")[1];
+    let decoded = decodeAuthToken(token, res);
+
+
+};
+
+exports.renameFolder = async (req, res, pool) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         return res

@@ -28,8 +28,12 @@ module.exports = (pool) => {
         smcoController.changeFolderDir(req, res, pool);
     });
 
+    router.patch("/renamefiles", (req, res) => {
+        smcoController.renameFiles(req, res, pool);
+    });
+
     router.patch("/renamefolder", (req, res) => {
-        smcoController.renameFolderDir(req, res, pool);
+        smcoController.renameFolder(req, res, pool);
     });
 
     // Delete a folder and all its content
