@@ -497,17 +497,24 @@ const FileExplorer = ({ fsManager }) => {
             renameFile(values, () => {
                 let oldFileDir = (myCurrDir === "/") ? myCurrDir + originalFileFolderName : myCurrDir + "/" + originalFileFolderName;
                 fsManager.renamefile(oldFileDir, selectedItems[0].id, values.new_filename);
+                setFileDirList([...fsManager.ls(myCurrDir)]);
+                console.log(fsManager.ls(myCurrDir));
             });
         } else {
-            let oldDir = (myCurrDir === "/") ? myCurrDir + originalFileFolderName : myCurrDir + "/" + originalFileFolderName;
-            const newFolderValue = { path_rename: oldDir, new_pathname: values.new_filename } 
-            renameFolder(newFolderValue, () => {
-                fsManager.renamedir(oldDir, values.new_filename);
-            });
+            let folderFoundIDX = fileDirList.findIndex((item) => (typeof item !== "string" && item === values.new_filename));
+
+            if (folderFoundIDX >= 0) {
+                alert("Folder name already exist!");
+            } else {
+                let oldDir = (myCurrDir === "/") ? myCurrDir + originalFileFolderName : myCurrDir + "/" + originalFileFolderName;
+                const newFolderValue = { path_rename: oldDir, new_pathname: values.new_filename }
+                renameFolder(newFolderValue, () => {
+                    fsManager.renamedir(oldDir, values.new_filename);
+                    setFileDirList([...fsManager.ls(myCurrDir)]);
+                });
+            }
         }
 
-        setFileDirList([...fsManager.ls(myCurrDir)]);
-        
         handleEditClose();
     };
 

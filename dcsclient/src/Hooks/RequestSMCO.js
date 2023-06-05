@@ -104,7 +104,7 @@ export default function RequestSMCO({ resourceLabel }) {
     const renameFile = useCallback((fileToRename, successCallback) => {
         setLoading(true);
 
-        axios.post(`/smco/renamefiles`, fileToRename, SetHeaderToken())
+        axios.patch(`/smco/renamefiles`, fileToRename, SetHeaderToken())
             .then(() => {
                 setLoading(false);
 
@@ -118,7 +118,7 @@ export default function RequestSMCO({ resourceLabel }) {
     const renameFolder = useCallback((folderToRename, successCallback) => {
         setLoading(true);
 
-        axios.post(`/smco/renamefolder`, folderToRename, SetHeaderToken())
+        axios.patch(`/smco/renamefolder`, folderToRename, SetHeaderToken())
             .then(() => {
                 setLoading(false);
 

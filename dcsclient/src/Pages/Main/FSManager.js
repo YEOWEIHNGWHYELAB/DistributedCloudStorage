@@ -25,20 +25,35 @@ export default class FSManager {
     filefoldermod(curr_dir, pathArray, isDir, isDelete, newName, fileID) {
         if (isDir) {
             if (curr_dir.directories.has(pathArray[pathArray.length - 1])) {
+                let dir_child = curr_dir.directories.get(pathArray[pathArray.length - 1]);
+
                 curr_dir.directories.delete(pathArray[pathArray.length - 1]);
 
                 if (!isDelete) {
                     curr_dir.directories.set(newName, new Directory());
+
+                    let new_path = curr_dir.directories.get(newName);
+
+                    for (const [key, value] of dir_child.directories) {
+                        new_path.directories.set(key, value);
+                    }
+            
+                    for (const [key, value] of dir_child.files) {
+                        new_path.files.set(key, value);
+                    }
                 }
             } else {
                 return alert("Path does not exist!");
             }
         } else {
             if (curr_dir.files.has(fileID)) {
+                let fileInfo = curr_dir.files.get(fileID);
+                fileInfo["filename"] = newName
+
                 curr_dir.files.delete(fileID);
 
                 if (!isDelete) {
-                    curr_dir.files.set(fileID, newName);
+                    curr_dir.files.set(fileID, fileInfo);
                 }
             } else {
                 return alert("File does not exist!");
