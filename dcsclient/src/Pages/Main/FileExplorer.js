@@ -13,6 +13,7 @@ import RequestSMCO from "../../Hooks/RequestSMCO";
 import { fileTableStyle } from "../../Windows/TableStyle";
 import { sortSMCOList, sortTableColumn } from "../../Windows/TableControl";
 import "./FileExplorerStyle.css";
+import "./ContextMenuStyle.css";
 
 const ContextMenu = ({ position, onClose }) => {
     const handleRenameClick = () => {
@@ -33,8 +34,8 @@ const ContextMenu = ({ position, onClose }) => {
 
     return (
         <div className="context-menu" style={{ top: position.y, left: position.x, position: 'absolute' }}>
-            <div onClick={handleRenameClick}>Rename</div>
-            <div onClick={handleMoveToClick}>Move To</div>
+            <div className="context-menu-item" onClick={handleRenameClick}>Rename</div>
+            <div className="context-menu-item" onClick={handleMoveToClick}>Move To</div>
         </div>
     );
 };
@@ -142,6 +143,7 @@ const FileExplorer = ({ fsManager }) => {
         window.addEventListener("keydown", handleKeyDownSHIFT);
         window.addEventListener("keyup", handleKeyUpSHIFT);
 
+        window.addEventListener('contextmenu', handleGlobalContextMenu);
         document.addEventListener('click', handleDocumentClick);
 
         return () => {
@@ -150,6 +152,7 @@ const FileExplorer = ({ fsManager }) => {
             window.removeEventListener("keydown", handleKeyDownSHIFT);
             window.removeEventListener("keyup", handleKeyUpSHIFT);
 
+            window.removeEventListener('contextmenu', handleGlobalContextMenu);
             document.removeEventListener('click', handleDocumentClick);
         };
     }, []);
@@ -457,6 +460,11 @@ const FileExplorer = ({ fsManager }) => {
 
     const handleDocumentClick = () => {
         setShowContextMenu(false);
+    };
+
+    // To prevent the original right click menu from popping up
+    const handleGlobalContextMenu = (event) => {
+        event.preventDefault();
     };
 
     return (
