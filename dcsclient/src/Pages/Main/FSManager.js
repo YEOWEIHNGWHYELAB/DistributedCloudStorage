@@ -25,6 +25,30 @@ export default class FSManager {
     filefoldermod(curr_dir, pathArray, isDir, isDelete, newName, fileID) {
         if (isDir) {
             if (curr_dir.directories.has(pathArray[pathArray.length - 1])) {
+                curr_dir.directories.delete(pathArray[pathArray.length - 1]);
+
+                if (!isDelete) {
+                    curr_dir.directories.set(newName, new Directory());
+                }
+            } else {
+                return alert("Path does not exist!");
+            }
+        } else {
+            if (curr_dir.files.has(fileID)) {
+                curr_dir.files.delete(fileID);
+
+                if (!isDelete) {
+                    curr_dir.files.set(fileID, newName);
+                }
+            } else {
+                return alert("File does not exist!");
+            }
+        }
+    }
+
+    filefolderrename(curr_dir, pathArray, isDir, isDelete, newName, fileID) {
+        if (isDir) {
+            if (curr_dir.directories.has(pathArray[pathArray.length - 1])) {
                 let dir_child = curr_dir.directories.get(pathArray[pathArray.length - 1]);
 
                 curr_dir.directories.delete(pathArray[pathArray.length - 1]);
@@ -37,7 +61,7 @@ export default class FSManager {
                     for (const [key, value] of dir_child.directories) {
                         new_path.directories.set(key, value);
                     }
-            
+
                     for (const [key, value] of dir_child.files) {
                         new_path.files.set(key, value);
                     }
@@ -96,7 +120,7 @@ export default class FSManager {
             curr_dir = curr_dir.directories.get(pathArray[i]);
         }
 
-        this.filefoldermod(curr_dir, pathArray, true, false, folderName, null);
+        this.filefolderrename(curr_dir, pathArray, true, false, folderName, null);
     }
 
     mvdir(path_target, new_path_target) {
@@ -123,7 +147,7 @@ export default class FSManager {
                 new_path = new_path.directories.get(new_path_array[i]);
             }
         }
-        
+
         if (new_path.directories.has(path_array[path_array.length - 1])) {
             // If the directory already have the same folder name 
             // as the one you are moving to
@@ -191,7 +215,7 @@ export default class FSManager {
             curr_dir = curr_dir.directories.get(pathArray[i]);
         }
 
-        this.filefoldermod(curr_dir, pathArray, false, false, fileName, fileID);
+        this.filefolderrename(curr_dir, pathArray, false, false, fileName, fileID);
     }
 
     delfile(path, fileID) {
