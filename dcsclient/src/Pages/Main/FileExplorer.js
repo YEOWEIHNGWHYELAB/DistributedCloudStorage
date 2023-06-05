@@ -14,6 +14,31 @@ import { fileTableStyle } from "../../Windows/TableStyle";
 import { sortSMCOList, sortTableColumn } from "../../Windows/TableControl";
 import "./FileExplorerStyle.css";
 
+const ContextMenu = ({ position, onClose }) => {
+    const handleRenameClick = () => {
+        // Handle the "Rename" action
+        // Add your logic here
+        console.log("rename");
+
+        onClose();
+    };
+  
+    const handleMoveToClick = () => {
+        // Handle the "Move To" action
+        // Add your logic here
+        console.log("moveto");
+
+        onClose();
+    };
+
+    return (
+        <div className="context-menu" style={{ top: position.y, left: position.x, position: 'absolute' }}>
+            <div onClick={handleRenameClick}>Rename</div>
+            <div onClick={handleMoveToClick}>Move To</div>
+        </div>
+    );
+};
+
 const FileExplorer = ({ fsManager }) => {
     const {
         StyledTable,
@@ -117,11 +142,15 @@ const FileExplorer = ({ fsManager }) => {
         window.addEventListener("keydown", handleKeyDownSHIFT);
         window.addEventListener("keyup", handleKeyUpSHIFT);
 
+        document.addEventListener('click', handleDocumentClick);
+
         return () => {
             window.removeEventListener("keydown", handleKeyDownCTRL);
             window.removeEventListener("keyup", handleKeyUpCTRL);
             window.removeEventListener("keydown", handleKeyDownSHIFT);
             window.removeEventListener("keyup", handleKeyUpSHIFT);
+
+            document.removeEventListener('click', handleDocumentClick);
         };
     }, []);
 
@@ -415,8 +444,34 @@ const FileExplorer = ({ fsManager }) => {
         );
     }
 
+    const [showContextMenu, setShowContextMenu] = useState(false);
+    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+
+    const handleContextMenu = (event) => {
+        event.preventDefault();
+
+        const { clientX, clientY } = event;
+        setShowContextMenu(true);
+        setContextMenuPosition({ x: clientX, y: clientY });
+    };
+
+    const handleDocumentClick = () => {
+        setShowContextMenu(false);
+    };
+
     return (
-        <div>
+        <div onContextMenu={handleContextMenu}>
+
+            {showContextMenu && (
+                <ContextMenu
+                    onClose={() => setShowContextMenu(false)}
+                    position={{
+                        x: contextMenuPosition.x + window.pageXOffset - 300,
+                        y: contextMenuPosition.y + window.pageYOffset,
+                    }}
+                />
+            )}
+
             <div className="search-container">
                 <input
                     type="text"
