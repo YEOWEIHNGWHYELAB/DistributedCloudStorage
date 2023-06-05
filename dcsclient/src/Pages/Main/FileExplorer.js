@@ -501,7 +501,7 @@ const FileExplorer = ({ fsManager }) => {
                 console.log(fsManager.ls(myCurrDir));
             });
         } else {
-            let folderFoundIDX = fileDirList.findIndex((item) => (typeof item !== "string" && item === values.new_filename));
+            let folderFoundIDX = fileDirList.findIndex((item) => (typeof item === "string" && item === values.new_filename));
 
             if (folderFoundIDX >= 0) {
                 alert("Folder name already exist!");
@@ -539,8 +539,6 @@ const FileExplorer = ({ fsManager }) => {
                     numFile={{ numFile: selectedItems.length }}
                     renameHandler={() => {
                         let fileFolderName;
-
-                        console.log();
 
                         if (typeof selectedItems[0] === "string") {
                             fileFolderName = selectedItems[0].toString();
