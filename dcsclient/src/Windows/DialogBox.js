@@ -38,7 +38,7 @@ export function renameDialog(
 ) {
     return (
         <Dialog open={openEditDialog} onClose={handleEditClose} fullWidth>
-            <DialogTitle>Rename selected file</DialogTitle>
+            <DialogTitle>Rename selected item</DialogTitle>
 
             <Formik
                 initialValues={{
@@ -59,7 +59,7 @@ export function renameDialog(
                             <Field
                                 name="new_filename"
                                 as={TextField}
-                                label="New Filename"
+                                label="New Name"
                                 fullWidth
                                 value={values.new_filename}
                                 error={
