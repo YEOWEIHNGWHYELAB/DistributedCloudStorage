@@ -1,4 +1,4 @@
-function rightClickMenu(position, numFile, handleRenameClick, handleMoveToClick) {
+function rightClickMenu(position, numFile, handleRenameClick, handleMoveToClick, handleDeleteToClick) {
     return <div className="context-menu" style={{ top: position.y, left: position.x, position: 'absolute' }}>
         <div
             className="context-menu-item"
@@ -16,7 +16,7 @@ function rightClickMenu(position, numFile, handleRenameClick, handleMoveToClick)
         </div>
         <div
             className="context-menu-item"
-            //onClick={handleMoveToClick}
+            onClick={handleDeleteToClick}
         >
             Delete
         </div>

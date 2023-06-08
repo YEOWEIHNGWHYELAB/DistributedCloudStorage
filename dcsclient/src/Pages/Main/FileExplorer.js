@@ -10,6 +10,7 @@ import * as Yup from "yup";
 
 import DirectoryDeque from "./DirectoryDeque";
 import RequestSMCO from "../../Hooks/RequestSMCO";
+import RequestResource from "../../Hooks/RequestResource";
 
 import { fileTableStyle } from "../../Windows/TableStyle";
 import { renameDialog } from "../../Windows/DialogBox";
@@ -18,7 +19,7 @@ import rightClickMenu from "./ContextMenu";
 import "./FileExplorerStyle.css";
 import "./ContextMenuStyle.css";
 
-const ContextMenu = ({ position, onClose, numFile, renameHandler, moveHandler }) => {
+const ContextMenu = ({ position, onClose, numFile, renameHandler, moveHandler, deleteHandler }) => {
     const handleRenameClick = () => {
         renameHandler();
         onClose();
@@ -29,8 +30,13 @@ const ContextMenu = ({ position, onClose, numFile, renameHandler, moveHandler })
         onClose();
     };
 
+    const handleDeleteToClick = () => {
+        deleteHandler();
+        onClose();
+    };
+
     return (
-        rightClickMenu(position, numFile, handleRenameClick, handleMoveToClick)
+        rightClickMenu(position, numFile, handleRenameClick, handleMoveToClick, handleDeleteToClick)
     );
 };
 
@@ -522,7 +528,7 @@ const FileExplorer = ({ fsManager }) => {
                 <ContextMenu
                     onClose={() => setShowContextMenu(false)}
                     position={{
-                        x: contextMenuPosition.x + window.pageXOffset - 300,
+                        x: contextMenuPosition.x + window.pageXOffset - (window.innerWidth >= 900 ? 300 : 0),
                         y: contextMenuPosition.y + window.pageYOffset,
                     }}
                     numFile={{ numFile: selectedItems.length }}
@@ -542,6 +548,9 @@ const FileExplorer = ({ fsManager }) => {
                         setOpenEditDialog(true);
                     }}
                     moveHandler={{}}
+                    deleteHandler={() => {
+                        console.log(selectedItems);
+                    }}
                 />
             )}
 
