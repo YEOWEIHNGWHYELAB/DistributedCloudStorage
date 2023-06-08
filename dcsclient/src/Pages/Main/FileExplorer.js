@@ -14,6 +14,7 @@ import RequestSMCO from "../../Hooks/RequestSMCO";
 import { fileTableStyle } from "../../Windows/TableStyle";
 import { renameDialog } from "../../Windows/DialogBox";
 import { sortSMCOList, sortTableColumn } from "../../Windows/TableControl";
+import rightClickMenu from "./ContextMenu";
 import "./FileExplorerStyle.css";
 import "./ContextMenuStyle.css";
 
@@ -29,22 +30,7 @@ const ContextMenu = ({ position, onClose, numFile, renameHandler, moveHandler })
     };
 
     return (
-        <div className="context-menu" style={{ top: position.y, left: position.x, position: 'absolute' }}>
-            <div
-                className="context-menu-item"
-                onClick={() => {
-                    numFile.numFile === 1 ? handleRenameClick() : alert("Please select only 1 item!");
-                }}
-            >
-                Rename
-            </div>
-            <div
-                className="context-menu-item"
-                onClick={handleMoveToClick}
-            >
-                Move To
-            </div>
-        </div>
+        rightClickMenu(position, numFile, handleRenameClick, handleMoveToClick)
     );
 };
 
