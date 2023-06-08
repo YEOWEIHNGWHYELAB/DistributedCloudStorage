@@ -14,6 +14,12 @@ function rightClickMenu(position, numFile, handleRenameClick, handleMoveToClick)
         >
             Move To
         </div>
+        <div
+            className="context-menu-item"
+            //onClick={handleMoveToClick}
+        >
+            Delete
+        </div>
     </div>;
 }
 

@@ -66,7 +66,6 @@ const FileExplorer = ({ fsManager }) => {
     const [sortField, setSortField] = useState("filename");
     const [sortDirection, setSortDirection] = useState("asc");
 
-    const [searchTextPerm, setSearchTextPerm] = useState("");
     const [searchText, setSearchText] = useState("");
 
     const [selectedItems, setSelectedItems] = useState([]);
@@ -408,7 +407,11 @@ const FileExplorer = ({ fsManager }) => {
     };
 
     const handleSearch = () => {
-        setSearchTextPerm(searchText);
+        if (searchText !== "") {
+            setFileDirList([...fsManager.search(searchText)]);
+        } else {
+            setFileDirList([...fsManager.ls(myCurrDir)]);
+        }
     };
 
     const handleGoToDir = (e, goToFolder) => {

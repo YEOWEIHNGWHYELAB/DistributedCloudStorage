@@ -266,6 +266,37 @@ export default class FSManager {
 
         return files_directories;
     }
+
+    // Depth-first search function
+    dfs(node, searchTerm, files_matched) {
+        if (node === null) {
+            return; // Base case: empty node
+        }
+
+        // Check if the current node contains the search term
+        for (const file of node.files.keys()) {
+            const fileMeta = node.files.get(file);
+
+            if (fileMeta.filename.includes(searchTerm)) {
+                files_matched.push(fileMeta);
+            }
+        }
+    
+        // Recursively search subdirectories
+        for (const directory of node.directories.values()) {
+            this.dfs(directory, searchTerm, files_matched);
+        }
+    }
+
+    search(search_term) {
+        let curr_dir = this.root;
+
+        let files_matched = [];
+
+        this.dfs(curr_dir, search_term, files_matched);
+
+        return files_matched;
+    }
 }
 
 // Mini Test
@@ -308,4 +339,23 @@ fsManager.mvdir("/Documents/lalala", "/Documents/nick");
 console.log(fsManager.ls("/Documents/nick"));
 console.log(fsManager.ls("/Documents/nick/lalala"));
 console.log(fsManager.ls("/Documents/nick/lalala/vids"));
+*/
+
+// Testing DFS Searching
+/*
+let fsManager = new FSManager();
+fsManager.mkdir("/Documents/lalala");
+fsManager.mkdir("/Documents/lalala/vids");
+fsManager.mkfile("/Documents/lalala/vids/note213.txt", "gh_42");
+fsManager.mkfile("/Documents/lalala/note.txt", "gh_4");
+fsManager.mkfile("/Documents/lalala/vids/video.mp4", "yt_inwg");
+fsManager.mkfile("/Documents/lalala/video3.mp4", "yt_in2wg");
+fsManager.mkfile("/Documents/lalala/video2.mp4", "yt_i3n2wg");
+fsManager.mkfile("/Documents/lalala/video2.mp4", "yt_inwg1");
+fsManager.mkdir("/Documents/nick");
+fsManager.mkfile("/Documents/video23.mp4", "yt_inw5g1");
+fsManager.mkfile("/Documents/video24.mp4", "yt_in4wg1");
+fsManager.mkfile("/video25.mp4", "yt_in3wg1");
+fsManager.mkfile("/video245.mp4", "yt_i1n43wg1");
+console.log(fsManager.search("video2"));
 */
