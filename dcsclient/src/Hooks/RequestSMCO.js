@@ -44,7 +44,8 @@ export default function RequestSMCO({ resourceLabel }) {
 
                 if (res.data) {
                     setBuildDirList({
-                        buildDir: res.data.lvlorderdir
+                        buildDir: res.data.lvlorderdir,
+                        dirLoad: true
                     });
 
                     if (successCallback) {
@@ -64,7 +65,8 @@ export default function RequestSMCO({ resourceLabel }) {
                 if (res.data) {
                     setResourceList({
                         results: res.data.results,
-                        numFile: res.data.filecount
+                        numFile: res.data.filecount,
+                        resLoad: true
                     });
 
                     if (successCallback) {

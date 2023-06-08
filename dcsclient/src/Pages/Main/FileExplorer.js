@@ -100,7 +100,7 @@ const FileExplorer = ({ fsManager }) => {
     // Building Directories on the TRIE and Files by inserting 
     // it to FileManager
     useEffect(() => {
-        if (buildDirList.buildDir.length !== 0 && resourceList.results.length !== 0) {
+        if (buildDirList.dirLoad && resourceList.resLoad) {
             for (let currDir of buildDirList.buildDir) {
                 if (currDir !== "/") {
                     fsManager.mkdir(currDir);
@@ -585,7 +585,7 @@ const FileExplorer = ({ fsManager }) => {
                             });
                         }
  
-                        deleteMulFiles(ghIDArr, true, "/github/files/muldel", () => {
+                        deleteMulFiles(ghIDArr, true, "github/files/muldel", () => {
                             for (let ghIDX = 0; ghIDX < ghIDArr.length; ghIDX++) {
                                 if (myCurrDir === "/") {
                                     fsManager.delfile(myCurrDir + ghFileName[ghIDX], "gh_" + ghIDArr[ghIDX]);
