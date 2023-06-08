@@ -57,22 +57,10 @@ const FileExplorer = ({ fsManager }) => {
         moveFiles,
         moveFolder,
         renameFile,
-        renameFolder
+        renameFolder,
+        deleteFolder,
+        deleteMulFiles
     } = RequestSMCO({ resourceLabel: "Files" });
-
-    const {
-        deleteMulFilesYT
-    } = RequestResource({
-        endpoint: "google/youtube/videos",
-        resourceLabel: "Videos"
-    });
-
-    const {
-        deleteMulFilesGH
-    } = RequestResource({
-        endpoint: "github/files",
-        resourceLabel: "Files"
-    });
 
     // Directory navigation management
     const [dequeDir] = useState(() => new DirectoryDeque());
@@ -564,7 +552,9 @@ const FileExplorer = ({ fsManager }) => {
                     moveHandler={{}}
                     deleteHandler={() => {
                         let ghIDArr = [];
+                        let ghFileName = [];
                         let ytIDArr = [];
+                        let ytFileName = [];
                         let folderNameArr = [];
 
                         for (let selectedItem of selectedItems) {
@@ -581,15 +571,39 @@ const FileExplorer = ({ fsManager }) => {
 
                                 if (platform === "gh") {
                                     ghIDArr.push(fileID);
+                                    ghFileName.push(selectedItem.filename);
                                 } else if (platform === "yt") {
                                     ytIDArr.push(fileID);
+                                    ytFileName.push(selectedItem.filename);
                                 }
                             }
                         }
 
-                        console.log(folderNameArr);
-                        console.log(ghIDArr);
-                        console.log(ytIDArr);
+                        for (let currFolder of folderNameArr) {
+                            deleteFolder({ directory_name: currFolder }, () => {
+                                fsManager.deldir(currFolder);
+                            });
+                        }
+ 
+                        deleteMulFiles(ghIDArr, true, "/github/files/muldel", () => {
+                            for (let ghIDX = 0; ghIDX < ghIDArr.length; ghIDX++) {
+                                if (myCurrDir === "/") {
+                                    fsManager.delfile(myCurrDir + ghFileName[ghIDX], "gh_" + ghIDArr[ghIDX]);
+                                } else {
+                                    fsManager.delfile(myCurrDir + "/" + ghFileName[ghIDX], "/gh_" + ghIDArr[ghIDX]);
+                                }
+                            }
+                        });
+
+                        deleteMulFiles(ytIDArr, true, "google/youtube/videos/muldel", () => {
+                            for (let ytIDX = 0; ytIDX < ytIDArr.length; ytIDX++) {
+                                if (myCurrDir === "/") {
+                                    fsManager.delfile(myCurrDir + ytFileName[ytIDX], "yt_" + ytIDArr[ytIDX]);
+                                } else {
+                                    fsManager.delfile(myCurrDir + "/" + ytFileName[ytIDX], "yt_" + ytIDArr[ytIDX]);
+                                }
+                            }
+                        });
                     }}
                 />
             )}

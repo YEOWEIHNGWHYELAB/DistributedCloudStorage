@@ -129,6 +129,33 @@ export default function RequestSMCO({ resourceLabel }) {
             .catch(handleRequestResourceError);
     }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
 
+    const deleteFolder = useCallback((folderToDelete, successCallback) => {
+        setLoading(true);
+
+        axios.post(`/smco/deletedir`, folderToDelete, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+
+                if (successCallback) {
+                    successCallback();
+                }
+            })
+            .catch(handleRequestResourceError);
+    }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
+    const deleteMulFiles = useCallback((selectedIDs, isDeletion, endpoint, successCallback) => {
+        setLoading(true);
+        
+        axios.post(`/${endpoint}`, { id: selectedIDs, is_deletion: isDeletion}, SetHeaderToken())
+            .then(() => {
+                setLoading(false);
+
+                if (successCallback) {
+                    successCallback();
+                }
+            }).catch(handleRequestResourceError);
+    }, [enqueueSnackbar, resourceLabel, handleRequestResourceError, setLoading]);
+
     return {
         resourceList,
         buildDirList,
@@ -138,6 +165,8 @@ export default function RequestSMCO({ resourceLabel }) {
         moveFolder,
         renameFile,
         renameFolder,
+        deleteFolder,
+        deleteMulFiles,
         error
     }
 }
