@@ -588,9 +588,9 @@ const FileExplorer = ({ fsManager }) => {
                         deleteMulFiles(ghIDArr, true, "github/files/muldel", () => {
                             for (let ghIDX = 0; ghIDX < ghIDArr.length; ghIDX++) {
                                 if (myCurrDir === "/") {
-                                    fsManager.delfile(myCurrDir + ghFileName[ghIDX], "gh_" + ghIDArr[ghIDX]);
+                                    fsManager.delfile(myCurrDir + ghFileName[ghIDX], "gh_" + ghIDArr[ghIDX].toString());
                                 } else {
-                                    fsManager.delfile(myCurrDir + "/" + ghFileName[ghIDX], "/gh_" + ghIDArr[ghIDX]);
+                                    fsManager.delfile(myCurrDir + "/" + ghFileName[ghIDX], "gh_" + ghIDArr[ghIDX].toString());
                                 }
                             }
                         });
