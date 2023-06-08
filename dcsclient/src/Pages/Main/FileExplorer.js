@@ -578,12 +578,6 @@ const FileExplorer = ({ fsManager }) => {
                                 }
                             }
                         }
-
-                        for (let currFolder of folderNameArr) {
-                            deleteFolder({ directory_name: currFolder }, () => {
-                                fsManager.deldir(currFolder);
-                            });
-                        }
  
                         deleteMulFiles(ghIDArr, true, "github/files/muldel", () => {
                             for (let ghIDX = 0; ghIDX < ghIDArr.length; ghIDX++) {
@@ -593,16 +587,30 @@ const FileExplorer = ({ fsManager }) => {
                                     fsManager.delfile(myCurrDir + "/" + ghFileName[ghIDX], "gh_" + ghIDArr[ghIDX].toString());
                                 }
                             }
-                        });
 
-                        deleteMulFiles(ytIDArr, true, "google/youtube/videos/muldel", () => {
-                            for (let ytIDX = 0; ytIDX < ytIDArr.length; ytIDX++) {
-                                if (myCurrDir === "/") {
-                                    fsManager.delfile(myCurrDir + ytFileName[ytIDX], "yt_" + ytIDArr[ytIDX]);
-                                } else {
-                                    fsManager.delfile(myCurrDir + "/" + ytFileName[ytIDX], "yt_" + ytIDArr[ytIDX]);
+                            deleteMulFiles(ytIDArr, true, "google/youtube/videos/muldel", () => {
+                                for (let ytIDX = 0; ytIDX < ytIDArr.length; ytIDX++) {
+                                    if (myCurrDir === "/") {
+                                        fsManager.delfile(myCurrDir + ytFileName[ytIDX], "yt_" + ytIDArr[ytIDX]);
+                                    } else {
+                                        fsManager.delfile(myCurrDir + "/" + ytFileName[ytIDX], "yt_" + ytIDArr[ytIDX]);
+                                    }
                                 }
-                            }
+                                
+                                if (folderNameArr.length === 0) {
+                                    setFileDirList([...fsManager.ls(myCurrDir)]);
+                                }
+
+                                for (let folderIDXCurr = 0; folderIDXCurr < folderNameArr.length; folderIDXCurr++) {
+                                    deleteFolder({ directory_name: folderNameArr[folderIDXCurr] }, () => {
+                                        fsManager.deldir(folderNameArr[folderIDXCurr]);
+
+                                        if (folderIDXCurr == folderNameArr.length - 1) {
+                                            setFileDirList([...fsManager.ls(myCurrDir)]);
+                                        }
+                                    });
+                                }
+                            });
                         });
                     }}
                 />
