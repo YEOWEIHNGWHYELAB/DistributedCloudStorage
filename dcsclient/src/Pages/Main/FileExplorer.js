@@ -549,7 +549,7 @@ const FileExplorer = ({ fsManager }) => {
                 <input
                     type="text"
                     className="search-input"
-                    placeholder="Search by Filename"
+                    placeholder="Global Search by Filename"
                     value={searchText}
                     onChange={handleSearchChange}
                 />
