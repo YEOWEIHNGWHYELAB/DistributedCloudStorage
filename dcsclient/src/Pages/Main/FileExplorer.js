@@ -60,6 +60,20 @@ const FileExplorer = ({ fsManager }) => {
         renameFolder
     } = RequestSMCO({ resourceLabel: "Files" });
 
+    const {
+        deleteMulFilesYT
+    } = RequestResource({
+        endpoint: "google/youtube/videos",
+        resourceLabel: "Videos"
+    });
+
+    const {
+        deleteMulFilesGH
+    } = RequestResource({
+        endpoint: "github/files",
+        resourceLabel: "Files"
+    });
+
     // Directory navigation management
     const [dequeDir] = useState(() => new DirectoryDeque());
 
@@ -549,7 +563,33 @@ const FileExplorer = ({ fsManager }) => {
                     }}
                     moveHandler={{}}
                     deleteHandler={() => {
-                        console.log(selectedItems);
+                        let ghIDArr = [];
+                        let ytIDArr = [];
+                        let folderNameArr = [];
+
+                        for (let selectedItem of selectedItems) {
+                            if (typeof selectedItem === "string") {
+                                if (myCurrDir === "/") {
+                                    folderNameArr.push(myCurrDir + selectedItem)
+                                } else {
+                                    folderNameArr.push(myCurrDir + "/" + selectedItem);
+                                }
+                            } else {
+                                let firstUnderscoreIndex = selectedItem.id.indexOf("_");
+                                let platform = selectedItem.id.slice(0, firstUnderscoreIndex);
+                                let fileID = selectedItem.id.slice(firstUnderscoreIndex + 1);
+
+                                if (platform === "gh") {
+                                    ghIDArr.push(fileID);
+                                } else if (platform === "yt") {
+                                    ytIDArr.push(fileID);
+                                }
+                            }
+                        }
+
+                        console.log(folderNameArr);
+                        console.log(ghIDArr);
+                        console.log(ytIDArr);
                     }}
                 />
             )}
