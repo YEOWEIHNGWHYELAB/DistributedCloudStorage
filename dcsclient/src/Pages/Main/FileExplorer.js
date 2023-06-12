@@ -518,6 +518,7 @@ const FileExplorer = ({ fsManager }) => {
 
     // Move to dialog
     const [dialogPWD, setDialogPWD] = useState(null);
+    const [folderList, setFolderList] = useState([])
     const [openMoveToDialog, setOpenMoveToDialog] = useState(false);
     const handleMoveToClose = () => {
         setOpenMoveToDialog(false);
@@ -527,13 +528,38 @@ const FileExplorer = ({ fsManager }) => {
 
     return (
         <div>
-            <Dialog open={openMoveToDialog} onClose={handleMoveToClose} fullWidth>
+            <Dialog 
+                open={openMoveToDialog} 
+                onClose={handleMoveToClose} 
+                fullWidth
+            >
                 <DialogTitle>Move To</DialogTitle>
-                <ul>
-                    {fsManager.ld("/").map((folder, index) => (
-                        <li key={index}>{folder}</li>
-                    ))}
-                </ul>
+
+                <StyledTable>
+                    <thead>
+                        <StyledHeaderRow>
+                            <StyledHeaderCell>
+                                Folder Name
+                            </StyledHeaderCell>
+                        </StyledHeaderRow>
+                    </thead>
+                    {
+                        <tbody>
+                            {folderList.map((folderDir) => (
+                                <StyledRow
+                                    onDoubleClick={(e) => {
+                                        setFolderList(fsManager.ld(folderDir));
+                                    }}
+                                >
+                                    <StyledCell>
+                                        <FileOrFolderIcon isFile={false} />
+                                        {folderDir}
+                                    </StyledCell>
+                                </StyledRow>
+                            ))}
+                        </tbody>
+                    }
+                </StyledTable>
             </Dialog>
 
             {renameDialog(
