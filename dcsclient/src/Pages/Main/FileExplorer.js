@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import moment from "moment";
 import {
-    Button as MUIButton
+    Button as MUIButton,
+    Dialog,
+    DialogTitle
 } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
@@ -10,7 +12,6 @@ import * as Yup from "yup";
 
 import DirectoryDeque from "./DirectoryDeque";
 import RequestSMCO from "../../Hooks/RequestSMCO";
-import RequestResource from "../../Hooks/RequestResource";
 
 import { fileTableStyle } from "../../Windows/TableStyle";
 import { renameDialog } from "../../Windows/DialogBox";
@@ -515,8 +516,26 @@ const FileExplorer = ({ fsManager }) => {
         handleEditClose();
     };
 
+    // Move to dialog
+    const [dialogPWD, setDialogPWD] = useState(null);
+    const [openMoveToDialog, setOpenMoveToDialog] = useState(false);
+    const handleMoveToClose = () => {
+        setOpenMoveToDialog(false);
+        setDialogPWD(null);
+        setSelectedItems([]);
+    };
+
     return (
         <div>
+            <Dialog open={openMoveToDialog} onClose={handleMoveToClose} fullWidth>
+                <DialogTitle>Move To</DialogTitle>
+                <ul>
+                    {fsManager.ld("/").map((folder, index) => (
+                        <li key={index}>{folder}</li>
+                    ))}
+                </ul>
+            </Dialog>
+
             {renameDialog(
                 openEditDialog,
                 handleEditClose,
@@ -549,7 +568,10 @@ const FileExplorer = ({ fsManager }) => {
 
                         setOpenEditDialog(true);
                     }}
-                    moveHandler={{}}
+                    moveHandler={() => {
+                        setDialogPWD(myCurrDir);
+                        setOpenMoveToDialog(true);
+                    }}
                     deleteHandler={() => {
                         let ghIDArr = [];
                         let ghFileName = [];

@@ -234,6 +234,24 @@ export default class FSManager {
         this.filefoldermod(curr_dir, pathArray, false, true, null, fileID);
     }
 
+    ld(path_target) {
+        let curr_dir = this.root;
+
+        const directoriesTarget = [];
+
+        if (path_target !== "/") {
+            const path_array = path_target.split("/");
+
+            for (let i = 1; i < path_array.length; i++) {
+                curr_dir = curr_dir.directories.get(path_array[i]);
+            }
+        }
+
+        directoriesTarget.push(...curr_dir.directories.keys());
+
+        return directoriesTarget;
+    }
+
     ls(path_target) {
         let curr_dir = this.root;
 
