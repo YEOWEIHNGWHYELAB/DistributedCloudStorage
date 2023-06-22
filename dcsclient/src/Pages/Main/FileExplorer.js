@@ -737,6 +737,21 @@ const FileExplorer = ({ fsManager }) => {
                 >
                     Go Back To: {poppedDir}
                 </MUIButton>
+
+                <MUIButton
+                    style={{
+                        border: "2px solid #555",
+                        margin: "2px",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        boxSizing: "border-box"
+                    }}
+                    onClick={() => {
+
+                    }}
+                >
+                    Add Folder
+                </MUIButton>
             </div>
 
             <StyledTable>
