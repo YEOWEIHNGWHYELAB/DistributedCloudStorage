@@ -547,8 +547,15 @@ const FileExplorer = ({ fsManager }) => {
                         <tbody>
                             {folderList.map((folderDir) => (
                                 <StyledRow
+                                    key={folderDir}
                                     onDoubleClick={(e) => {
-                                        setFolderList(fsManager.ld(folderDir));
+                                        if (dialogPWD === "/") {
+                                            setDialogPWD(dialogPWD + folderDir);
+                                            setFolderList(fsManager.ld(dialogPWD + folderDir));
+                                        } else {
+                                            setDialogPWD(dialogPWD + "/" + folderDir);
+                                            setFolderList(fsManager.ld(dialogPWD + "/" + folderDir));
+                                        }
                                     }}
                                 >
                                     <StyledCell>
@@ -560,6 +567,33 @@ const FileExplorer = ({ fsManager }) => {
                         </tbody>
                     }
                 </StyledTable>
+                
+                <MUIButton
+                    onClick={() => {
+                        let dirArr = dialogPWD.split("/");
+                        let dirStr = "/";
+
+                        for (let dirIDX = 1; dirIDX < dirArr - 1; dirIDX++) {
+                            dirStr += dirArr[dirIDX];
+                        }
+
+                        setDialogPWD(dirStr);
+                        setFolderList(fsManager.ld(dirStr));
+                    }}
+                    disabled={
+                        dialogPWD === "/"
+                    }
+                >
+                    Go Back
+                </MUIButton>
+
+                <MUIButton
+                    onClick={() => {
+                        console.log(dialogPWD);
+                    }}
+                >
+                    Move Here
+                </MUIButton>
             </Dialog>
 
             {renameDialog(
@@ -596,6 +630,7 @@ const FileExplorer = ({ fsManager }) => {
                     }}
                     moveHandler={() => {
                         setDialogPWD(myCurrDir);
+                        setFolderList(fsManager.ld(myCurrDir));
                         setOpenMoveToDialog(true);
                     }}
                     deleteHandler={() => {
