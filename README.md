@@ -42,16 +42,7 @@ Create an account, and then upload your social media API credentials to start us
 
 ## Platforms Currently Supported
 
-<style>
-    .centered-images {
-        text-align: center;
-    }
-    .centered-images img {
-        margin: 10px;
-    }
-</style>
-
-<div class="centered-images">
+<div align="center">
     <img src="dcsdocs/techicon/youtube.png" alt="YouTube Icon" width="100" height="100" />
     <img src="dcsdocs/techicon/github.png" alt="GitHub Icon" width="100" height="100" />
 </div>
