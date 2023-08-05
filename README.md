@@ -4,6 +4,12 @@ Social Media & Cloud Overlord (SMCOverlord)
 
 A full stack cloud storage application that uses social media and cloud storage as a storage medium. With these, we can enjoy the geo-redundancy and scalability of cloud storage and social media storage, while enjoying the free storage space of social media. You have effectively an unlimited storage with this solution.
 
+## Architecture
+
+<div align="center">
+    <img src="dcsdocs/smco/smco-diagram-export.png" alt="Overall Architecture" />
+</div>
+
 ## Getting Started
 
 Create an account, and then upload your social media API credentials to start using the application. It's that easy!
@@ -20,6 +26,7 @@ Create an account, and then upload your social media API credentials to start us
 - Secure with JWT authentication to ensure no one can access your files except yourself.
 - Forgot password feature to reset your password via your email which you registered with us.
 - A intuitive credentials upload page to upload your social media & cloud API credentials.
+- Recycle bin for deleted files.
 
 ## Technologies Used
 
@@ -35,9 +42,19 @@ Create an account, and then upload your social media API credentials to start us
 
 ## Platforms Currently Supported
 
-1. GitHub
+<style>
+    .centered-images {
+        text-align: center;
+    }
+    .centered-images img {
+        margin: 10px;
+    }
+</style>
 
-2. YouTube
+<div class="centered-images">
+    <img src="dcsdocs/techicon/youtube.png" alt="YouTube Icon" width="100" height="100" />
+    <img src="dcsdocs/techicon/github.png" alt="GitHub Icon" width="100" height="100" />
+</div>
 
 More platforms coming soon!
 
@@ -90,6 +107,8 @@ Our system supports multiple YouTube accounts, remember that one YouTube account
 3. Support for intelligent platform selection for a given file, for example, small files should be uploaded to GitHub, Google Drive and videos should be uploaded to YouTube. Moreover, you should distribute the files to be uploaded evenly across all platforms. This is to ensure that you can maximize the storage space of all platforms given their daily upload limits. Files should also be upload to the most readily available platforms to prevent failure of retrieving files when needed.
 
 4. Support for admin panel to manage the users in our system as well as to throttle users that abuse the system and to reduce our SMCOverlord server overload.
+
+5. SMCOverlord API to allow developers to integrate our service to their application. You could use SMCOverlord to control your social media account and cloud storage or to use SMCOVerlord as a persistent storage medium. Again use it at your own risk as we do not guarantee the permanency of the files stored in our application.
 
 ## WARNING
 
