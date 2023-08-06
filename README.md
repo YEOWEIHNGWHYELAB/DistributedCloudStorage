@@ -2,7 +2,7 @@
 
 Social Media & Cloud Overlord (SMCOverlord)
 
-A full stack cloud storage application that uses social media and cloud storage as a storage medium. With these, we can enjoy the geo-redundancy and scalability of cloud storage and social media storage, while enjoying the free storage space of social media. You have effectively an unlimited storage with this solution.
+A full stack cloud storage application that uses social media and cloud storage as the storage medium. With these, we can enjoy the geo-redundancy and scalability of cloud storage and social media storage, while enjoying the free storage space of social media. You have effectively an unlimited storage with this solution.
 
 ## Architecture
 
@@ -55,7 +55,7 @@ More platforms coming soon!
 
 The file system is implemented using a TRIE (Prefix Tree). Each directory branch can be at most 400 characters long.
 
-Deletion of a direction uses Breadth First Search to delete all of the direction nested withing the current directory.
+Deletion of a direction uses Breadth First Search to delete all of the direction nested within the current directory.
 
 The file system is loaded all at once onto the client web browser. This is to ensure that the file system is fast and responsive. Moreover, the system is assumed to be file system operations intensive and that is the why we load all of the user's directory and files at all at once instead of only loading files in the current directory. Moreover, even if the user have large amount of files and folder, the loading time is reasonable enough to be acceptable.
 
