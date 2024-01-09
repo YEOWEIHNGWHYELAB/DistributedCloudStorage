@@ -85,6 +85,7 @@ export default function useRequestAuth() {
     const logout = useCallback(() => {
         setLogoutPending(true);
         setIsAuthenticated(false);
+        setUser(null);
         localStorage.removeItem("JWTToken");
         setLogoutPending(false);
     }, [handleRequestError, setLogoutPending, setIsAuthenticated]);

@@ -42,7 +42,9 @@ export default function AuthContextProvider({ children }) {
     }, [isAuthenticated, setIsAuthenticated, user, setUser]);
 
     useEffect(() => {
-        loadAuthUser();
+        if (!user && (isAuthenticated === null || isAuthenticated === true)) {
+            loadAuthUser();
+        }
     }, [user, isAuthenticated]);
 
     // Do not include this in deployment!
