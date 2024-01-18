@@ -3,7 +3,7 @@ const router = express.Router();
 const myFilesController = require('../apicaller/myfiles');
 const myFilesAdvancedController = require('../apicaller/advancedmyfiles');
 const multer = require('multer');
-const uploadsTempStorage = multer({ dest: '../../tempstorage/' });
+const uploadsTempStorage = multer({ dest: '../tempstorage/' });
 
 
 module.exports = (pool) => {

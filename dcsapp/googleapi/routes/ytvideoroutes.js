@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const myVideosController = require('../apicaller/myvideos');
 const multer = require('multer');
-const tempstorage = multer({ dest: '../../tempstorage/' });
+const tempstorage = multer({ dest: '../tempstorage/' });
 
 
 module.exports = (pool, mongoYTTrackCollection, mongoYTMetaCollection) => {
